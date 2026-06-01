@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Template;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -60,11 +59,11 @@ class ProjectController extends Controller
         return response($html)->header('Content-Type', 'text/html');
     }
 
-    public function destroy(Project $project): JsonResponse
+    public function destroy(Project $project): RedirectResponse
     {
         $this->authorize('delete', $project);
         $project->delete();
 
-        return response()->json(['success' => true]);
+        return redirect()->route('dashboard');
     }
 }

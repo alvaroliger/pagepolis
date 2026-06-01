@@ -1,6 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
+
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
+import { EditorState, Compartment } from '@codemirror/state';
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import { bracketMatching, indentOnInput, syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap } from '@codemirror/language';
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { html as htmlLang } from '@codemirror/lang-html';
+import { css as cssLang } from '@codemirror/lang-css';
+import { javascript as jsLang } from '@codemirror/lang-javascript';
 
 interface Project {
     id: number;
@@ -21,9 +31,106 @@ type ViewMode = 'desktop' | 'tablet' | 'mobile';
 
 const viewWidths: Record<ViewMode, string> = {
     desktop: '100%',
-    tablet: '768px',
-    mobile: '375px',
+    tablet:  '768px',
+    mobile:  '375px',
 };
+
+const langExtension: Record<ActiveTab, () => any> = {
+    html: htmlLang,
+    css:  cssLang,
+    js:   () => jsLang({ jsx: false }),
+};
+
+function CodeMirrorEditor({
+    value,
+    onChange,
+    language,
+}: {
+    value: string;
+    onChange: (v: string) => void;
+    language: ActiveTab;
+}) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const viewRef      = useRef<EditorView | null>(null);
+    const langComp     = useRef(new Compartment());
+    const onChangeRef  = useRef(onChange);
+    onChangeRef.current = onChange;
+
+    // Mount editor once
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const view = new EditorView({
+            state: EditorState.create({
+                doc: value,
+                extensions: [
+                    lineNumbers(),
+                    highlightActiveLine(),
+                    highlightActiveLineGutter(),
+                    drawSelection(),
+                    foldGutter(),
+                    history(),
+                    bracketMatching(),
+                    closeBrackets(),
+                    indentOnInput(),
+                    autocompletion(),
+                    oneDark,
+                    syntaxHighlightingFallback(),
+                    langComp.current.of(langExtension[language]()),
+                    keymap.of([
+                        ...defaultKeymap,
+                        ...historyKeymap,
+                        ...completionKeymap,
+                        ...closeBracketsKeymap,
+                        ...foldKeymap,
+                        indentWithTab,
+                    ]),
+                    EditorView.updateListener.of(update => {
+                        if (update.docChanged) {
+                            onChangeRef.current(update.state.doc.toString());
+                        }
+                    }),
+                    EditorView.theme({
+                        '&': { height: '100%', fontSize: '12.5px' },
+                        '.cm-scroller': { overflow: 'auto', fontFamily: '"Fira Code", "Cascadia Code", monospace' },
+                        '.cm-content': { padding: '8px 0' },
+                    }),
+                ],
+            }),
+            parent: containerRef.current,
+        });
+
+        viewRef.current = view;
+        return () => { view.destroy(); viewRef.current = null; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Sync language when tab changes
+    useEffect(() => {
+        if (!viewRef.current) return;
+        viewRef.current.dispatch({
+            effects: langComp.current.reconfigure(langExtension[language]()),
+        });
+    }, [language]);
+
+    // Sync content when AI overwrites it from outside
+    useEffect(() => {
+        const view = viewRef.current;
+        if (!view) return;
+        const current = view.state.doc.toString();
+        if (current !== value) {
+            view.dispatch({
+                changes: { from: 0, to: current.length, insert: value },
+            });
+        }
+    }, [value]);
+
+    return <div ref={containerRef} className="flex-1 overflow-hidden h-full" />;
+}
+
+function syntaxHighlightingFallback() {
+    return syntaxHighlighting(defaultHighlightStyle, { fallback: true });
+}
 
 export default function EditorIndex({ project }: Props) {
     const [name, setName]           = useState(project.name);
@@ -82,8 +189,8 @@ export default function EditorIndex({ project }: Props) {
         }
     };
 
-    const currentCode = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
-    const setCurrentCode = (v: string) => {
+    const currentValue  = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
+    const handleChange  = (v: string) => {
         if (activeTab === 'html') setHtml(v);
         else if (activeTab === 'css') setCss(v);
         else setJs(v);
@@ -138,16 +245,14 @@ export default function EditorIndex({ project }: Props) {
                 {/* Panel IA — izquierda */}
                 <div className="w-72 flex-shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col">
                     <div className="p-4 border-b border-gray-800">
-                        <h2 className="text-sm font-bold text-white mb-3">
-                            ✨ Generar con IA
-                        </h2>
+                        <h2 className="text-sm font-bold text-white mb-3">✨ Generar con IA</h2>
                         <textarea
                             value={prompt}
                             onChange={e => setPrompt(e.target.value)}
                             placeholder="Describe los cambios que quieres... ej: 'Cambia el color principal a azul, añade una sección de precios con 3 planes'"
                             rows={6}
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-3 text-white text-sm focus:outline-none focus:border-violet-500 resize-none placeholder-gray-500"
-                            onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) generateAI(); }}
+                            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) generateAI(); }}
                         />
                         {aiError && <p className="mt-2 text-xs text-red-400">{aiError}</p>}
                         <button
@@ -157,14 +262,14 @@ export default function EditorIndex({ project }: Props) {
                         >
                             {aiLoading ? (
                                 <>
-                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     Generando...
                                 </>
-                            ) : '⚡ Generar (⌘+Enter)'}
+                            ) : '⚡ Generar (Ctrl+Enter)'}
                         </button>
                     </div>
 
-                    {/* Historial */}
+                    {/* Historial IA */}
                     {project.ai_history.length > 0 && (
                         <div className="flex-1 overflow-y-auto p-4">
                             <h3 className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Historial IA</h3>
@@ -172,7 +277,9 @@ export default function EditorIndex({ project }: Props) {
                                 {[...project.ai_history].reverse().map((entry, i) => (
                                     <div key={i} className="bg-gray-800 rounded-lg p-3">
                                         <p className="text-xs text-gray-300 line-clamp-2">{entry.prompt}</p>
-                                        <p className="text-xs text-gray-600 mt-1">{new Date(entry.created_at).toLocaleDateString('es-ES')}</p>
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            {new Date(entry.created_at).toLocaleDateString('es-ES')}
+                                        </p>
                                     </div>
                                 ))}
                             </div>
@@ -196,24 +303,29 @@ export default function EditorIndex({ project }: Props) {
                 </div>
 
                 {/* Editor de código — derecha */}
-                <div className="w-80 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex flex-col">
-                    <div className="flex border-b border-gray-800">
+                <div className="w-96 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex flex-col">
+                    <div className="flex border-b border-gray-800 flex-shrink-0">
                         {(['html', 'css', 'js'] as ActiveTab[]).map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === tab ? 'bg-gray-800 text-white border-b-2 border-violet-500' : 'text-gray-500 hover:text-white'}`}
+                                className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${
+                                    activeTab === tab
+                                        ? 'bg-gray-800 text-white border-b-2 border-violet-500'
+                                        : 'text-gray-500 hover:text-white'
+                                }`}
                             >
                                 {tab}
                             </button>
                         ))}
                     </div>
-                    <textarea
-                        value={currentCode}
-                        onChange={e => setCurrentCode(e.target.value)}
-                        className="flex-1 bg-gray-950 text-green-400 text-xs font-mono p-4 resize-none focus:outline-none leading-relaxed"
-                        spellCheck={false}
-                    />
+                    <div className="flex-1 overflow-hidden">
+                        <CodeMirrorEditor
+                            value={currentValue}
+                            onChange={handleChange}
+                            language={activeTab}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
