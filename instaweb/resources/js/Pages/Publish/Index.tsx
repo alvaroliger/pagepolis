@@ -20,7 +20,7 @@ export default function PublishIndex({ project, isSubscribed, stripeKey }: Props
     const [domainError, setDomainError] = useState('');
 
     const selectedDomain = domainType === 'subdomain'
-        ? (subdomain ? `${subdomain}.instaweb.com` : '')
+        ? (subdomain ? `${subdomain}.twtyg.com` : '')
         : customDomain;
 
     const reserveDomain = async () => {
@@ -110,7 +110,7 @@ export default function PublishIndex({ project, isSubscribed, stripeKey }: Props
                                     placeholder="mi-negocio"
                                     className="bg-transparent text-white focus:outline-none flex-1"
                                 />
-                                <span className="text-gray-500 text-sm">.instaweb.com</span>
+                                <span className="text-gray-500 text-sm">.twtyg.com</span>
                             </div>
                         ) : (
                             <input

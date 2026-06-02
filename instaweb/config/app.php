@@ -123,7 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'sites_base_path'   => env('SITES_BASE_PATH', '/var/www/instaweb-sites'),
-    'sites_base_domain' => env('SITES_BASE_DOMAIN', 'instaweb.com'),
+    'sites_base_path'   => env('SITES_BASE_PATH', '/var/www/twtyg-sites'),
+    'sites_base_domain' => env('SITES_BASE_DOMAIN', 'twtyg.com'),
 
 ];

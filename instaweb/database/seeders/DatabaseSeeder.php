@@ -14,15 +14,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name'     => 'Admin InstaWeb',
-            'email'    => 'admin@instaweb.com',
+            'name'     => 'Admin Twtyg',
+            'email'    => 'admin@twtyg.com',
             'password' => Hash::make('admin123'),
             'role'     => 'admin',
         ]);
 
         User::create([
             'name'     => 'Usuario Demo',
-            'email'    => 'demo@instaweb.com',
+            'email'    => 'demo@twtyg.com',
             'password' => Hash::make('demo123'),
             'role'     => 'user',
         ]);

@@ -58,7 +58,7 @@ export default function Dashboard({ projects, isSubscribed, inGracePeriod }: Pro
 
                 {!isSubscribed && !inGracePeriod && (
                     <div className="mb-6 p-4 bg-violet-900/20 border border-violet-700/40 rounded-xl text-sm text-gray-300">
-                        🚀 <strong className="text-white">Prueba InstaWeb 7 días gratis.</strong> Crea y publica tu web sin límites.{' '}
+                        🚀 <strong className="text-white">Prueba Twtyg 7 días gratis.</strong> Crea y publica tu web sin límites.{' '}
                         <Link href="/publicar" className="text-violet-400 underline font-semibold">Activar ahora</Link>
                     </div>
                 )}

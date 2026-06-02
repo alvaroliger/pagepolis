@@ -17,7 +17,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                         <div className="flex items-center gap-8">
                             <Link href="/dashboard">
                                 <span className="text-xl font-black bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-transparent">
-                                    InstaWeb
+                                    Twtyg
                                 </span>
                             </Link>
                             <div className="hidden md:flex gap-4">

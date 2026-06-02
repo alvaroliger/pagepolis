@@ -7,7 +7,7 @@ export default function GuestLayout({ children }: PropsWithChildren) {
             <div className="mb-8">
                 <Link href="/">
                     <span className="text-3xl font-black bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-transparent">
-                        InstaWeb
+                        Twtyg
                     </span>
                 </Link>
             </div>

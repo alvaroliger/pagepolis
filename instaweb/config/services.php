@@ -29,11 +29,9 @@ return [
         'price_yearly'    => env('STRIPE_PRICE_YEARLY'),
     ],
 
-    'namecheap' => [
-        'api_user'  => env('NAMECHEAP_API_USER'),
-        'api_key'   => env('NAMECHEAP_API_KEY'),
-        'client_ip' => env('NAMECHEAP_CLIENT_IP'),
-        'sandbox'   => env('NAMECHEAP_SANDBOX', false),
+    'dinahosting' => [
+        'user' => env('DINAHOSTING_USER'),
+        'pass' => env('DINAHOSTING_PASS'),
     ],
 
     'cloudflare' => [

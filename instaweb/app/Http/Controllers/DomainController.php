@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Domain;
 use App\Models\Project;
-use App\Services\NamecheapService;
+use App\Services\DinahostingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -12,11 +12,11 @@ use Illuminate\Validation\ValidationException;
 class DomainController extends Controller
 {
     private array $forbidden = [
-        'instaweb.com', 'google.com', 'facebook.com', 'apple.com',
+        'twtyg.com', 'google.com', 'facebook.com', 'apple.com',
         'amazon.com', 'microsoft.com', 'twitter.com', 'instagram.com',
     ];
 
-    public function check(Request $request, NamecheapService $namecheap): JsonResponse
+    public function check(Request $request, DinahostingService $namecheap): JsonResponse
     {
         $request->validate([
             'domain' => ['required', 'string', 'regex:/^[a-z0-9][a-z0-9\-]{1,61}[a-z0-9]\.[a-z]{2,}$/i'],

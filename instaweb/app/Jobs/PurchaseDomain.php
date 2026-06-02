@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Domain;
 use App\Services\CloudflareService;
-use App\Services\NamecheapService;
+use App\Services\DinahostingService;
 use App\Services\NginxService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,21 +20,21 @@ class PurchaseDomain implements ShouldQueue
     public function __construct(private Domain $domain) {}
 
     public function handle(
-        NamecheapService $namecheap,
+        DinahostingService $dinahosting,
         CloudflareService $cloudflare,
         NginxService $nginx
     ): void {
         try {
             if ($this->domain->type === 'custom') {
-                $registrarId = $namecheap->register($this->domain->domain, [
-                    'RegistrantFirstName'     => $this->domain->user->name,
-                    'RegistrantLastName'      => 'InstaWeb Client',
-                    'RegistrantAddress1'      => 'Calle Principal 1',
-                    'RegistrantCity'          => 'Madrid',
-                    'RegistrantCountry'       => 'ES',
-                    'RegistrantPostalCode'    => '28001',
-                    'RegistrantPhone'         => '+34.600000000',
-                    'RegistrantEmailAddress'  => $this->domain->user->email,
+                $registrarId = $dinahosting->register($this->domain->domain, [
+                    'firstname' => $this->domain->user->name,
+                    'lastname'  => 'Twtyg Client',
+                    'address'   => 'Calle Principal 1',
+                    'city'      => 'Madrid',
+                    'country'   => 'ES',
+                    'zip'       => '28001',
+                    'phone'     => '+34.600000000',
+                    'email'     => $this->domain->user->email,
                 ]);
 
                 $recordId = $cloudflare->addARecord(

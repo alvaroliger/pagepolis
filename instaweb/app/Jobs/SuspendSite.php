@@ -42,7 +42,7 @@ a { color: #00FFD1; text-decoration: none; font-weight: bold; }
 <div class="box">
 <h1>Este sitio está suspendido</h1>
 <p>La suscripción asociada a este sitio ha sido cancelada o ha expirado.</p>
-<p>Para reactivarlo, visita <a href="https://instaweb.com">instaweb.com</a></p>
+<p>Para reactivarlo, visita <a href="https://twtyg.com">twtyg.com</a></p>
 </div>
 </body>
 </html>

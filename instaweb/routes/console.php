@@ -8,4 +8,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('instaweb:suspend-expired')->daily();
+Schedule::command('twtyg:suspend-expired')->daily();

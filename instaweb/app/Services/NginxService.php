@@ -12,7 +12,7 @@ class NginxService
 
     public function __construct()
     {
-        $this->sitesPath = config('app.sites_base_path', '/var/www/instaweb-sites');
+        $this->sitesPath = config('app.sites_base_path', '/var/www/twtyg-sites');
     }
 
     public function createVHost(string $domain, int $projectId): void
