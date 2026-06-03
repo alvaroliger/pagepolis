@@ -10,7 +10,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublishController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\TemplateController;
+use App\Http\Controllers\TrackingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,6 +22,12 @@ Route::get('/', fn() => Inertia::render('Landing'))->name('home');
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::get('/robots.txt',  [SitemapController::class, 'robots']);
+
+// Tier gratuito: sitios hospedados en twtyg.com/s/slug
+Route::get('/s/{slug}', [SiteController::class, 'show'])->where('slug', '[a-z0-9\-]+');
+
+// Tracking de visitas (pixel transparente)
+Route::get('/t/{projectId}', [TrackingController::class, 'track'])->where('projectId', '[0-9]+');
 
 // Plantillas públicas
 Route::get('/plantillas', [TemplateController::class, 'index'])->name('templates.index');
@@ -56,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Publicación
     Route::get('/publicar', [PublishController::class, 'index'])->name('publish.index');
     Route::get('/publicar/exito', [PublishController::class, 'success'])->name('publish.success');
+    Route::post('/publicar/gratis', [PublishController::class, 'publishFree'])->name('publish.free');
 
     // Dominios
     Route::post('/dominios/verificar', [DomainController::class, 'check'])->name('domains.check');

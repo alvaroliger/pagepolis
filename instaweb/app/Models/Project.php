@@ -56,6 +56,11 @@ class Project extends Model
         return $this->hasOne(Domain::class);
     }
 
+    public function pageViews()
+    {
+        return $this->hasMany(\App\Models\PageView::class);
+    }
+
     public function getPreviewUrlAttribute(): string
     {
         if ($this->domain?->status === 'active') {

@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('twtyg:suspend-expired')->daily();
+Schedule::command('twtyg:weekly-reports')->weeklyOn(1, '08:00'); // Lunes 8:00

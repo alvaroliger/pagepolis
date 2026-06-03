@@ -54,7 +54,7 @@ class NginxService
             mkdir($siteRoot, 0755, true);
         }
 
-        $fullHtml = $this->buildFullHtml($html, $css, $js, $seoMeta);
+        $fullHtml = $this->buildFullHtml($html, $css, $js, $seoMeta, $projectId);
         file_put_contents("{$siteRoot}/index.html", $fullHtml);
     }
 
@@ -78,7 +78,7 @@ server {
 NGINX;
     }
 
-    private function buildFullHtml(string $html, string $css, string $js, array $seo = []): string
+    private function buildFullHtml(string $html, string $css, string $js, array $seo = [], int $projectId = 0): string
     {
         $title       = htmlspecialchars($seo['title']       ?? 'Mi web');
         $description = htmlspecialchars($seo['description'] ?? '');
@@ -103,6 +103,12 @@ META;
             $seoTags .= "\n    <script type=\"application/ld+json\">{$schema}</script>";
         }
 
+        // Pixel de tracking (para sitios con dominio propio)
+        $trackingBase  = config('app.url');
+        $trackingPixel = $projectId
+            ? "<img src=\"{$trackingBase}/t/{$projectId}\" width=\"1\" height=\"1\" alt=\"\" style=\"position:absolute;\">"
+            : '';
+
         // Headers de seguridad via meta equivalentes
         $securityMeta = <<<SEC
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -123,6 +129,7 @@ SEC;
 <body>
 {$html}
 <script>{$js}</script>
+{$trackingPixel}
 </body>
 </html>
 HTML;
