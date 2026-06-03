@@ -31,8 +31,16 @@ interface Project {
     status: string;
 }
 
+interface AiUsage {
+    used: number;
+    limit: number;
+    tier: string;
+    isSubscribed: boolean;
+}
+
 interface Props {
     project: Project;
+    aiUsage: AiUsage;
 }
 
 type ActiveTab = 'html' | 'css' | 'js';
@@ -123,7 +131,7 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
     );
 }
 
-export default function EditorIndex({ project }: Props) {
+export default function EditorIndex({ project, aiUsage }: Props) {
     const [name, setName]         = useState(project.name);
     const [html, setHtml]         = useState(project.html);
     const [css,  setCss]          = useState(project.css);
@@ -366,7 +374,27 @@ export default function EditorIndex({ project }: Props) {
                         >
                             {aiLoading ? 'Procesando…' : mc.btnLabel}
                         </button>
-                        <p className="text-center text-xs text-gray-700 mt-1.5">Ctrl+Enter para enviar</p>
+                        {/* Contador de usos diarios */}
+                        <div className="mt-2 flex items-center justify-between">
+                            <p className="text-xs text-gray-700">Ctrl+Enter para enviar</p>
+                            <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                aiUsage.used >= aiUsage.limit
+                                    ? 'bg-red-900/40 text-red-400'
+                                    : aiUsage.used >= aiUsage.limit * 0.8
+                                    ? 'bg-yellow-900/40 text-yellow-400'
+                                    : 'bg-gray-800 text-gray-500'
+                            }`}>
+                                {aiUsage.used}/{aiUsage.limit} hoy
+                            </div>
+                        </div>
+                        {!aiUsage.isSubscribed && (
+                            <a
+                                href="/publicar"
+                                className="mt-2 block text-center text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                            >
+                                ¿Necesitas más? Activa tu plan →
+                            </a>
+                        )}
                     </div>
                 </div>
 

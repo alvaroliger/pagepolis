@@ -53,10 +53,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // IA
     Route::post('/ai/generar', [AiController::class, 'generate'])
-        ->middleware('throttle:ai')
+        ->middleware('ai.ratelimit')
         ->name('ai.generate');
     Route::post('/ai/actualizar', [AiController::class, 'update'])
-        ->middleware('throttle:ai')
+        ->middleware('ai.ratelimit')
         ->name('ai.update');
     Route::post('/ai/seo', [AiController::class, 'seo'])
         ->name('ai.seo');

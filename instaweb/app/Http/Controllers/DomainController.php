@@ -44,8 +44,16 @@ class DomainController extends Controller
             'project_id' => 'required|exists:projects,id',
         ]);
 
+        $user = auth()->user();
+        if (!$user->isSubscribed() && !$user->inGracePeriod()) {
+            return response()->json([
+                'message' => 'Necesitas una suscripción activa para reservar un dominio.',
+                'upgrade' => true,
+            ], 402);
+        }
+
         $project = Project::where('id', $request->project_id)
-            ->where('user_id', auth()->id())
+            ->where('user_id', $user->id)
             ->firstOrFail();
 
         $domain = Domain::updateOrCreate(

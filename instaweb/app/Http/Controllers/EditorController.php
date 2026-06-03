@@ -14,6 +14,17 @@ class EditorController extends Controller
     {
         $this->authorize('view', $project);
 
+        $user      = auth()->user();
+        $tier      = $user->isSubscribed() ? 'basic' : 'trial';
+        $limits    = ['trial' => 5, 'basic' => 30, 'pro' => 100, 'admin' => 9999];
+        $dailyLimit = $user->role === 'admin' ? 9999 : ($limits[$tier] ?? 5);
+
+        // Resetear contador si es un nuevo día
+        $today = now()->toDateString();
+        if ($user->ai_calls_reset_date?->toDateString() !== $today) {
+            $user->update(['ai_calls_today' => 0, 'ai_calls_reset_date' => $today]);
+        }
+
         return Inertia::render('Editor/Index', [
             'project' => [
                 'id'         => $project->id,
@@ -24,6 +35,12 @@ class EditorController extends Controller
                 'ai_history' => $project->ai_history ?? [],
                 'seo_meta'   => $project->seo_meta ?? null,
                 'status'     => $project->status,
+            ],
+            'aiUsage' => [
+                'used'        => (int) $user->ai_calls_today,
+                'limit'       => $dailyLimit,
+                'tier'        => $tier,
+                'isSubscribed'=> $user->isSubscribed(),
             ],
         ]);
     }

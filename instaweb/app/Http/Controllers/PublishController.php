@@ -32,7 +32,7 @@ class PublishController extends Controller
     }
 
     /**
-     * Publicación gratuita en twtyg.com/s/slug — no requiere pago.
+     * Publicación en twtyg.com/s/slug — requiere suscripción activa.
      */
     public function publishFree(Request $request): JsonResponse
     {
@@ -40,15 +40,23 @@ class PublishController extends Controller
             'project_id' => 'required|exists:projects,id',
         ]);
 
+        $user = auth()->user();
+
+        if (!$user->isSubscribed() && !$user->inGracePeriod()) {
+            return response()->json([
+                'error'   => 'Necesitas una suscripción activa para publicar.',
+                'upgrade' => true,
+            ], 402);
+        }
+
         $project = Project::where('id', $request->project_id)
-            ->where('user_id', auth()->id())
+            ->where('user_id', $user->id)
             ->firstOrFail();
 
-        // Crear o actualizar el registro de dominio tipo "path"
         Domain::updateOrCreate(
             ['project_id' => $project->id],
             [
-                'user_id' => auth()->id(),
+                'user_id' => $user->id,
                 'domain'  => $project->slug,
                 'type'    => 'path',
                 'status'  => 'active',
@@ -60,11 +68,9 @@ class PublishController extends Controller
             'published_at' => now(),
         ]);
 
-        $url = config('app.url') . '/s/' . $project->slug;
-
         return response()->json([
             'success' => true,
-            'url'     => $url,
+            'url'     => config('app.url') . '/s/' . $project->slug,
         ]);
     }
 
