@@ -22,9 +22,10 @@ class DeploySite implements ShouldQueue
         try {
             $nginx->deploySite(
                 $this->project->id,
-                $this->project->html ?? '',
-                $this->project->css ?? '',
-                $this->project->js ?? ''
+                $this->project->html    ?? '',
+                $this->project->css     ?? '',
+                $this->project->js      ?? '',
+                $this->project->seo_meta ?? []
             );
 
             $this->project->update([

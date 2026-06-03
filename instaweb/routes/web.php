@@ -9,12 +9,17 @@ use App\Http\Controllers\EditorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublishController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Landing pública
 Route::get('/', fn() => Inertia::render('Landing'))->name('home');
+
+// SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
+Route::get('/robots.txt',  [SitemapController::class, 'robots']);
 
 // Plantillas públicas
 Route::get('/plantillas', [TemplateController::class, 'index'])->name('templates.index');
@@ -42,6 +47,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/ai/generar', [AiController::class, 'generate'])
         ->middleware('throttle:ai')
         ->name('ai.generate');
+    Route::post('/ai/actualizar', [AiController::class, 'update'])
+        ->middleware('throttle:ai')
+        ->name('ai.update');
+    Route::post('/ai/seo', [AiController::class, 'seo'])
+        ->name('ai.seo');
 
     // Publicación
     Route::get('/publicar', [PublishController::class, 'index'])->name('publish.index');

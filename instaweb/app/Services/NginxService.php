@@ -46,7 +46,7 @@ class NginxService
         $this->reload();
     }
 
-    public function deploySite(int $projectId, string $html, string $css, string $js): void
+    public function deploySite(int $projectId, string $html, string $css, string $js, array $seoMeta = []): void
     {
         $siteRoot = "{$this->sitesPath}/{$projectId}";
 
@@ -54,7 +54,7 @@ class NginxService
             mkdir($siteRoot, 0755, true);
         }
 
-        $fullHtml = $this->buildFullHtml($html, $css, $js);
+        $fullHtml = $this->buildFullHtml($html, $css, $js, $seoMeta);
         file_put_contents("{$siteRoot}/index.html", $fullHtml);
     }
 
@@ -78,14 +78,46 @@ server {
 NGINX;
     }
 
-    private function buildFullHtml(string $html, string $css, string $js): string
+    private function buildFullHtml(string $html, string $css, string $js, array $seo = []): string
     {
+        $title       = htmlspecialchars($seo['title']       ?? 'Mi web');
+        $description = htmlspecialchars($seo['description'] ?? '');
+        $keywords    = htmlspecialchars($seo['keywords']    ?? '');
+        $ogTitle     = htmlspecialchars($seo['og_title']    ?? $title);
+        $ogDesc      = htmlspecialchars($seo['og_description'] ?? $description);
+        $schema      = isset($seo['schema']) ? json_encode($seo['schema']) : '';
+
+        $seoTags = <<<META
+    <title>{$title}</title>
+    <meta name="description" content="{$description}">
+    <meta name="keywords" content="{$keywords}">
+    <meta property="og:title" content="{$ogTitle}">
+    <meta property="og:description" content="{$ogDesc}">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="canonical" href="">
+META;
+
+        if ($schema) {
+            $seoTags .= "\n    <script type=\"application/ld+json\">{$schema}</script>";
+        }
+
+        // Headers de seguridad via meta equivalentes
+        $securityMeta = <<<SEC
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+SEC;
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{$seoTags}
+{$securityMeta}
     <style>{$css}</style>
 </head>
 <body>

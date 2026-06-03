@@ -22,6 +22,7 @@ class EditorController extends Controller
                 'css'        => $project->css ?? '',
                 'js'         => $project->js ?? '',
                 'ai_history' => $project->ai_history ?? [],
+                'seo_meta'   => $project->seo_meta ?? null,
                 'status'     => $project->status,
             ],
         ]);

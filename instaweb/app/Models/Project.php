@@ -19,12 +19,14 @@ class Project extends Model
         'css',
         'js',
         'ai_history',
+        'seo_meta',
         'status',
         'published_at',
     ];
 
     protected $casts = [
-        'ai_history' => 'array',
+        'ai_history'   => 'array',
+        'seo_meta'     => 'array',
         'published_at' => 'datetime',
     ];
 

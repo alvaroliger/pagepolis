@@ -40,21 +40,35 @@ class ProjectController extends Controller
     {
         $this->authorize('view', $project);
 
+        $seo   = $project->seo_meta ?? [];
+        $title = htmlspecialchars($seo['title'] ?? $project->name);
+        $desc  = htmlspecialchars($seo['description'] ?? '');
+        $schema = isset($seo['schema'])
+            ? '<script type="application/ld+json">' . json_encode($seo['schema']) . '</script>'
+            : '';
+
+        $css  = $project->css  ?? '';
+        $body = $project->html ?? '';
+        $js   = $project->js   ?? '';
+
         $html = <<<HTML
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>{$project->name}</title>
-            <style>{$project->css}</style>
-        </head>
-        <body>
-            {$project->html}
-            <script>{$project->js}</script>
-        </body>
-        </html>
-        HTML;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$title}</title>
+    <meta name="description" content="{$desc}">
+    <meta name="robots" content="noindex">
+    {$schema}
+    <style>{$css}</style>
+</head>
+<body>
+{$body}
+<script>{$js}</script>
+</body>
+</html>
+HTML;
 
         return response($html)->header('Content-Type', 'text/html');
     }
