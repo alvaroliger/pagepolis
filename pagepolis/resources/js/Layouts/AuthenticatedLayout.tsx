@@ -24,6 +24,9 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                 <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition-colors">
                                     Dashboard
                                 </Link>
+                                <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
+                                    Analítica
+                                </Link>
                                 <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
                                     Plantillas
                                 </Link>

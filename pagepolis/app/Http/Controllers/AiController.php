@@ -21,7 +21,7 @@ class AiController extends Controller
             ->firstOrFail();
 
         try {
-            $result = $ai->generateWebsite($request->prompt);
+            $result = $ai->forUser(auth()->user())->generateWebsite($request->prompt);
 
             $project->update([
                 'html'       => $result['html'],
@@ -75,7 +75,7 @@ class AiController extends Controller
                 ->values()
                 ->all();
 
-            $result = $ai->updateWebsite(
+            $result = $ai->forUser(auth()->user())->updateWebsite(
                 $request->instruction,
                 $project->html ?? '',
                 $project->css  ?? '',
@@ -135,10 +135,19 @@ class AiController extends Controller
         try {
             $meta = $ai->generateSeoMeta($project->html ?? '', $request->business_hint ?? '');
 
-            // Guardar los metadatos en el proyecto
-            $project->update(['seo_meta' => $meta]);
+            // Validar estructura antes de guardar
+            $clean = [
+                'title'          => isset($meta['title'])          ? substr((string) $meta['title'],          0, 60)  : null,
+                'description'    => isset($meta['description'])    ? substr((string) $meta['description'],    0, 155) : null,
+                'keywords'       => isset($meta['keywords'])       ? substr((string) $meta['keywords'],       0, 200) : null,
+                'og_title'       => isset($meta['og_title'])       ? substr((string) $meta['og_title'],       0, 70)  : null,
+                'og_description' => isset($meta['og_description']) ? substr((string) $meta['og_description'], 0, 200) : null,
+                'schema'         => isset($meta['schema']) && is_array($meta['schema']) ? $meta['schema'] : null,
+            ];
 
-            return response()->json(['success' => true, 'meta' => $meta]);
+            $project->update(['seo_meta' => array_filter($clean)]);
+
+            return response()->json(['success' => true, 'meta' => $clean]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

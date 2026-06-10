@@ -39,7 +39,7 @@ class DomainController extends Controller
     public function reserve(Request $request): JsonResponse
     {
         $request->validate([
-            'domain'     => 'required|string',
+            'domain'     => ['required', 'string', 'max:253', 'regex:/^[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)+$/i'],
             'type'       => 'required|in:custom,subdomain',
             'project_id' => 'required|exists:projects,id',
         ]);

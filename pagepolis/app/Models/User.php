@@ -23,6 +23,8 @@ class User extends Authenticatable
         'grace_period_ends_at',
         'ai_calls_today',
         'ai_calls_reset_date',
+        'whatsapp_phone',
+        'whatsapp_active_project',
     ];
 
     protected $hidden = [
@@ -53,6 +55,7 @@ class User extends Authenticatable
 
     public function isSubscribed(): bool
     {
+        if ($this->role === 'admin') return true;
         return $this->subscribed('default');
     }
 

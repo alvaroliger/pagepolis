@@ -1,7 +1,0 @@
-Lo que necesitarás configurar antes de ejecutar:
-
-Claves de Stripe (crear productos y precios en su dashboard)
-API key de Anthropic
-Cuenta de Namecheap + API activada
-Token de Cloudflare
-Servidor con Nginx, PHP 8.3, MySQL, Redis

@@ -1,0 +1,99 @@
+{
+  "lang": "it",
+  "currency": { "code": "EUR", "symbol": "€", "basic_monthly": "9,99", "basic_yearly": "6,99", "pro_monthly": "14,99", "pro_yearly": "9,99", "basic_yearly_total": "83,88", "pro_yearly_total": "119,88" },
+  "nav": {
+    "prices": "Prezzi",
+    "templates": "Modelli",
+    "login": "Accedi",
+    "start": "Inizia gratis"
+  },
+  "tagline": "Siti web con IA",
+  "hero": {
+    "badge": "Alimentato da Claude AI · Generato in meno di 10 secondi",
+    "h1_1": "Il tuo sito professionale,",
+    "h1_2": "in pochi secondi",
+    "subtitle": "Descrivi la tua attività. L'IA crea il tuo sito completo in pochi secondi. Modificalo, pubblica con il tuo dominio. Senza codice, senza designer.",
+    "input_label": "Voglio un sito per la mia…",
+    "input_hint": "Generazione del tuo sito con IA…",
+    "cta_primary": "Crea il mio sito gratis →",
+    "cta_secondary": "Vedi i modelli",
+    "disclaimer": "7 giorni gratis · Nessuna carta di credito · Annulla quando vuoi",
+    "stat_sites": "siti creati",
+    "stat_time": "tempo di generazione",
+    "stat_rating": "valutazione media"
+  },
+  "how": {
+    "title": "Il tuo sito in 3 passaggi",
+    "subtitle": "Meno di 5 minuti dall'inizio alla fine.",
+    "steps": [
+      { "n": "01", "icon": "🎨", "title": "Scegli un modello", "desc": "Oltre 20 design professionali. Ristorante, portfolio, negozio, SaaS, clinica…" },
+      { "n": "02", "icon": "✍️", "title": "Descrivi la tua attività", "desc": "Dì all'IA cosa fai, i colori che vuoi, cosa ti serve. Tutto viene generato istantaneamente." },
+      { "n": "03", "icon": "🚀", "title": "Pubblica e il gioco è fatto", "desc": "Sottodominio gratuito su pagepolis.com o il tuo .com. Online in pochi secondi, completamente automatico." }
+    ]
+  },
+  "features": {
+    "title": "Tutto ciò di cui hai bisogno per crescere",
+    "subtitle": "Senza complicazioni. Uno strumento che lavora per te.",
+    "items": [
+      { "icon": "⚡", "title": "Generato in secondi", "desc": "Descrivi la tua attività in linguaggio naturale. L'IA genera HTML, CSS e JavaScript professionale all'istante." },
+      { "icon": "✏️", "title": "Editor in tempo reale", "desc": "Modifica il codice direttamente con evidenziazione della sintassi o chiedi ulteriori modifiche all'IA. L'anteprima si aggiorna immediatamente." },
+      { "icon": "🌐", "title": "Pubblicazione automatica", "desc": "Scegli il tuo dominio o usa il tuo sottodominio pagepolis.com. Il sito va online in pochi secondi dopo il pagamento." },
+      { "icon": "🔒", "title": "Sicuro e affidabile", "desc": "SSL incluso, infrastruttura ad alte prestazioni, backup automatici e supporto in italiano." },
+      { "icon": "📱", "title": "Sempre responsivo", "desc": "Ogni sito generato è mobile-first. Anteprima su desktop, tablet e mobile prima di pubblicare." },
+      { "icon": "🤖", "title": "Un'IA che ti capisce", "desc": "Richiedi modifiche in italiano: metti lo sfondo blu, aggiungi una sezione prezzi, rendilo più moderno." }
+    ]
+  },
+  "testimonials": {
+    "title": "Cosa dicono i nostri clienti",
+    "subtitle": "Aziende reali con siti reali.",
+    "items": [
+      { "name": "Carlos M.", "role": "Proprietario di ristorante", "text": "Il mio sito era pronto in 10 minuti. L'IA ha capito esattamente quello che mi serviva. I miei clienti non smettono di dirmi quanto è bello.", "avatar": "C", "color": "from-orange-500 to-rose-500" },
+      { "name": "Laura S.", "role": "Designer freelance", "text": "Lo uso per creare velocemente portfolio per i miei clienti. L'editor di codice con evidenziazione della sintassi è il meglio — posso ritoccare quello che genera l'IA.", "avatar": "L", "color": "from-violet-500 to-pink-500" },
+      { "name": "Marcos T.", "role": "Imprenditore", "text": "Ho lanciato la mia landing page SaaS lo stesso giorno in cui ho avuto l'idea. Prima ci volevano settimane per avere qualcosa di decente. Ora, ore.", "avatar": "M", "color": "from-cyan-500 to-blue-500" }
+    ]
+  },
+  "pricing": {
+    "title": "Prezzi semplici e onesti",
+    "subtitle": "Nessun costo nascosto. Nessuna commissione. Tutto incluso.",
+    "free_note": "Gratis per sempre: pubblica su pagepolis.com/s/il-tuo-sito, senza carta. Passa a un piano a pagamento quando vuoi per il tuo dominio e per rimuovere il badge.",
+    "monthly": "Mensile",
+    "yearly": "Annuale",
+    "discount": "-33%",
+    "popular": "PIÙ POPOLARE",
+    "basic_name": "Base",
+    "pro_name": "Pro",
+    "per_month": "/mese",
+    "yearly_note_basic": "{{total}}€/anno · 2 mesi gratis",
+    "yearly_note_pro": "{{total}}€/anno · 2 mesi gratis",
+    "cta": "Inizia · 7 giorni gratis",
+    "custom": "Hai bisogno di più?",
+    "custom_link": "Contattaci",
+    "custom_suffix": "per un piano su misura.",
+    "basic_features": ["3 progetti attivi", "IA illimitata", "Sottodominio su pagepolis.com", "Editor di codice", "SSL incluso", "Supporto via email"],
+    "pro_features": ["Progetti illimitati", "IA illimitata", "Dominio personalizzato incluso (.com)", "Editor avanzato", "SSL incluso", "Supporto prioritario", "Analytics base", "Senza pubblicità Pagepolis"]
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "items": [
+      { "q": "Devo saper programmare?", "a": "No. Descrivi quello che vuoi e l'IA genera tutto. Se vuoi ritoccare il codice, hai un editor completo, ma non è obbligatorio." },
+      { "q": "Quanto tempo ci vuole per generare il mio sito?", "a": "Tra 5 e 15 secondi. L'IA genera HTML, CSS e JavaScript completo e professionale." },
+      { "q": "Cosa succede al mio dominio se annullo?", "a": "Hai 30 giorni di periodo di prova dopo la cancellazione. Il tuo sito rimane attivo. Se non riattivi, il dominio viene rilasciato e i dati vengono eliminati automaticamente." },
+      { "q": "Posso usare il mio dominio?", "a": "Sì. Il piano Pro include l'acquisto e la configurazione automatica di un dominio .com. Puoi anche usare un sottodominio gratuito su pagepolis.com." },
+      { "q": "Posso esportare il mio sito?", "a": "Sì. Il codice HTML/CSS/JS generato è tuo. Puoi copiarlo e ospitarlo dove vuoi." },
+      { "q": "Come funziona il periodo di prova?", "a": "7 giorni completamente gratis. Senza carta di credito. Accesso completo a tutte le funzionalità." }
+    ]
+  },
+  "cta": {
+    "title_1": "Il tuo sito merita di essere",
+    "title_2": "il migliore",
+    "subtitle": "Inizia gratis oggi. Senza carta. Decidi in 7 giorni.",
+    "button": "Crea il mio sito gratis →",
+    "disclaimer": "7 giorni gratis · Senza carta · Annulla quando vuoi"
+  },
+  "footer": {
+    "login": "Accedi",
+    "register": "Registrati",
+    "contact": "Contatto",
+    "rights": "Tutti i diritti riservati"
+  }
+}

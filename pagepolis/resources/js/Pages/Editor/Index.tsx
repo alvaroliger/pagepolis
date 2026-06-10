@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
 import { EditorState, Compartment } from '@codemirror/state';
@@ -79,7 +80,11 @@ function CodeMirrorEditor({ value, onChange, language }: { value: string; onChan
                     langComp.current.of(langExtension[language]()),
                     keymap.of([...defaultKeymap, ...historyKeymap, ...completionKeymap, ...closeBracketsKeymap, ...foldKeymap, indentWithTab]),
                     EditorView.updateListener.of(u => { if (u.docChanged) onChangeRef.current(u.state.doc.toString()); }),
-                    EditorView.theme({ '&': { height: '100%', fontSize: '12.5px' }, '.cm-scroller': { overflow: 'auto', fontFamily: '"Fira Code", "Cascadia Code", monospace' }, '.cm-content': { padding: '8px 0' } }),
+                    EditorView.theme({
+                        '&': { height: '100%', fontSize: '12.5px' },
+                        '.cm-scroller': { overflow: 'auto', fontFamily: '"Fira Code", "Cascadia Code", monospace' },
+                        '.cm-content': { padding: '8px 0' },
+                    }),
                 ],
             }),
             parent: containerRef.current,
@@ -124,32 +129,62 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
                     </div>
                 )}
                 {!isUser && msg.type === 'generate' && (
-                    <span className="ml-2 text-xs text-violet-400">⚡ regenerado</span>
+                    <span className="ml-2 text-xs text-violet-400">regenerado</span>
                 )}
             </div>
         </div>
     );
 }
 
+function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+                <p className="text-white text-sm leading-relaxed mb-5">{message}</p>
+                <div className="flex gap-3">
+                    <button onClick={onCancel} className="flex-1 border border-gray-700 text-gray-300 hover:text-white py-2 rounded-lg text-sm transition-colors">
+                        Cancelar
+                    </button>
+                    <button onClick={onConfirm} className="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                        Continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function EditorIndex({ project, aiUsage }: Props) {
-    const [name, setName]         = useState(project.name);
-    const [html, setHtml]         = useState(project.html);
-    const [css,  setCss]          = useState(project.css);
-    const [js,   setJs]           = useState(project.js);
-    const [prompt, setPrompt]     = useState('');
-    const [aiMode, setAiMode]     = useState<AiMode>('update');
+    const [name, setName]           = useState(project.name);
+    const [html, setHtml]           = useState(project.html);
+    const [css,  setCss]            = useState(project.css);
+    const [js,   setJs]             = useState(project.js);
+    const [prompt, setPrompt]       = useState('');
+    const [aiMode, setAiMode]       = useState<AiMode>('update');
     const [aiLoading, setAiLoading] = useState(false);
-    const [saving, setSaving]     = useState(false);
-    const [saved,  setSaved]      = useState(false);
+    const [saving, setSaving]       = useState(false);
+    const [saved,  setSaved]        = useState(false);
+    const [dirty,  setDirty]        = useState(false);
     const [activeTab, setActiveTab] = useState<ActiveTab>('html');
-    const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+    const [viewMode, setViewMode]   = useState<ViewMode>('desktop');
     const [aiError, setAiError]     = useState('');
     const [messages, setMessages]   = useState<ChatMessage[]>(project.ai_history ?? []);
     const [seoMeta, setSeoMeta]     = useState(project.seo_meta);
     const [seoLoading, setSeoLoading] = useState(false);
+    const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
+    const [showUsageTooltip, setShowUsageTooltip] = useState(false);
 
     const iframeRef  = useRef<HTMLIFrameElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
+
+    // Aviso al salir con cambios sin guardar
+    useEffect(() => {
+        const handler = (e: BeforeUnloadEvent) => {
+            if (dirty) { e.preventDefault(); e.returnValue = ''; }
+        };
+        window.addEventListener('beforeunload', handler);
+        return () => window.removeEventListener('beforeunload', handler);
+    }, [dirty]);
 
     const buildPreviewHtml = useCallback(() =>
         `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`,
@@ -163,11 +198,22 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    const markDirty = () => setDirty(true);
+
+    const handleHtmlChange = (v: string) => { setHtml(v); markDirty(); };
+    const handleCssChange  = (v: string) => { setCss(v);  markDirty(); };
+    const handleJsChange   = (v: string) => { setJs(v);   markDirty(); };
+
     const generateSeo = async () => {
         setSeoLoading(true);
         try {
             const res = await axios.post('/ai/seo', { project_id: project.id });
-            if (res.data.success) setSeoMeta(res.data.meta);
+            if (res.data.success) {
+                setSeoMeta(res.data.meta);
+                toast.success('SEO generado y guardado');
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.error ?? 'No se pudo generar el SEO. Inténtalo de nuevo.');
         } finally {
             setSeoLoading(false);
         }
@@ -178,9 +224,22 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         try {
             await axios.post(`/editor/${project.id}/guardar`, { name, html, css, js });
             setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
+            setDirty(false);
+            setTimeout(() => setSaved(false), 2500);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const requestModeSwitch = (newMode: AiMode) => {
+        if (newMode === aiMode) return;
+        if (newMode === 'generate') {
+            setConfirmModal({
+                message: 'El modo Regenerar reescribirá toda tu web desde cero. Los cambios que no hayas guardado se perderán. ¿Continuar?',
+                onConfirm: () => { setAiMode('generate'); setConfirmModal(null); },
+            });
+        } else {
+            setAiMode(newMode);
         }
     };
 
@@ -201,9 +260,8 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             if (aiMode === 'update') {
                 const res = await axios.post('/ai/actualizar', { instruction: userMsg.content, project_id: project.id });
                 if (res.data.success) {
-                    setHtml(res.data.html);
-                    setCss(res.data.css);
-                    setJs(res.data.js ?? '');
+                    setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
+                    setDirty(true);
                     setMessages(prev => [...prev, {
                         role: 'assistant', content: res.data.description,
                         created_at: new Date().toISOString(),
@@ -213,11 +271,10 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             } else {
                 const res = await axios.post('/ai/generar', { prompt: userMsg.content, project_id: project.id });
                 if (res.data.success) {
-                    setHtml(res.data.html);
-                    setCss(res.data.css);
-                    setJs(res.data.js ?? '');
+                    setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
+                    setDirty(true);
                     setMessages(prev => [...prev, {
-                        role: 'assistant', content: res.data.description ?? 'Web regenerada.',
+                        role: 'assistant', content: res.data.description ?? 'Web generada.',
                         created_at: new Date().toISOString(),
                         type: 'generate',
                     }]);
@@ -233,79 +290,82 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     };
 
     const currentValue = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
-    const handleChange = (v: string) => {
-        if (activeTab === 'html') setHtml(v);
-        else if (activeTab === 'css') setCss(v);
-        else setJs(v);
-    };
+    const handleChange = activeTab === 'html' ? handleHtmlChange : activeTab === 'css' ? handleCssChange : handleJsChange;
 
-    const modeConfig = {
-        update: {
-            label:       '✏️ Cambio puntual',
-            placeholder: "¿Qué quieres cambiar? Ej: 'pon el fondo azul', 'añade sección de precios', 'cambia el horario a 10-22h'",
-            btnLabel:    '✏️ Aplicar cambio',
-            btnClass:    'from-emerald-600 to-teal-600',
-        },
-        generate: {
-            label:       '⚡ Regenerar todo',
-            placeholder: 'Describe la web que quieres generar desde cero...',
-            btnLabel:    '⚡ Regenerar web',
-            btnClass:    'from-violet-600 to-fuchsia-600',
-        },
-    };
-
-    const mc = modeConfig[aiMode];
+    const usagePct = aiUsage.limit > 0 ? aiUsage.used / aiUsage.limit : 0;
+    const usageColor = usagePct >= 1 ? 'text-red-400 bg-red-900/40'
+        : usagePct >= 0.8 ? 'text-yellow-400 bg-yellow-900/40'
+        : 'text-gray-500 bg-gray-800';
 
     return (
         <div className="h-screen flex flex-col bg-gray-950 text-white overflow-hidden">
             <Head title={`Editor — ${name}`} />
 
+            {confirmModal && (
+                <ConfirmModal
+                    message={confirmModal.message}
+                    onConfirm={confirmModal.onConfirm}
+                    onCancel={() => setConfirmModal(null)}
+                />
+            )}
+
             {/* Barra superior */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-900 flex-shrink-0">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-800 bg-gray-900 flex-shrink-0">
                 <div className="flex items-center gap-4">
-                    <a href="/dashboard" className="text-gray-500 hover:text-white transition-colors text-sm">← Dashboard</a>
+                    <a href="/dashboard" className="text-gray-500 hover:text-white transition-colors text-sm">
+                        &larr; Mis proyectos
+                    </a>
                     <input
                         value={name}
                         onChange={e => setName(e.target.value)}
-                        className="bg-transparent text-white font-semibold text-lg focus:outline-none border-b border-transparent focus:border-gray-600 px-1"
+                        className="bg-transparent text-white font-semibold text-base focus:outline-none border-b border-transparent focus:border-gray-600 px-1 min-w-0"
                     />
+                    {dirty && <span className="text-xs text-yellow-500 flex-shrink-0">Sin guardar</span>}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <button
                         onClick={generateSeo}
                         disabled={seoLoading || !html}
-                        title="Generar SEO automático (título, descripción, schema.org)"
-                        className={`text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+                        title="Genera título, descripción y datos SEO automáticamente"
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
                             seoMeta
                                 ? 'bg-green-900/40 text-green-400 border border-green-800/50'
                                 : 'bg-gray-800 text-gray-400 hover:text-white border border-gray-700'
                         }`}
                     >
-                        {seoLoading ? '⏳' : seoMeta ? '✓ SEO' : '🔍 SEO'}
+                        {seoLoading ? 'Generando…' : seoMeta ? 'SEO activo' : 'Generar SEO'}
                     </button>
                     <div className="flex gap-1 bg-gray-800 rounded-lg p-1">
-                        {(['desktop', 'tablet', 'mobile'] as ViewMode[]).map(m => (
+                        {([
+                            { id: 'desktop', label: 'PC' },
+                            { id: 'tablet',  label: 'Tablet' },
+                            { id: 'mobile',  label: 'Móvil' },
+                        ] as { id: ViewMode; label: string }[]).map(m => (
                             <button
-                                key={m}
-                                onClick={() => setViewMode(m)}
-                                className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${viewMode === m ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                                key={m.id}
+                                onClick={() => setViewMode(m.id)}
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${viewMode === m.id ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
-                                {m === 'desktop' ? '🖥️' : m === 'tablet' ? '📱' : '📲'}
+                                {m.label}
                             </button>
                         ))}
                     </div>
                     <button
                         onClick={save}
                         disabled={saving}
-                        className="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                        className={`text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors ${
+                            saved ? 'bg-green-800 text-green-300'
+                            : dirty ? 'bg-violet-700 hover:bg-violet-600 text-white'
+                            : 'bg-gray-700 hover:bg-gray-600 text-white'
+                        } disabled:opacity-50`}
                     >
-                        {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar'}
+                        {saving ? 'Guardando…' : saved ? 'Guardado' : 'Guardar'}
                     </button>
                     <a
                         href={`/publicar?project_id=${project.id}`}
-                        className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+                        className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
                     >
-                        Publicar →
+                        Publicar
                     </a>
                 </div>
             </div>
@@ -313,33 +373,50 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             {/* Cuerpo */}
             <div className="flex flex-1 overflow-hidden">
 
-                {/* Panel IA — chat */}
+                {/* Panel IA */}
                 <div className="w-72 flex-shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col">
 
                     {/* Selector de modo */}
                     <div className="flex border-b border-gray-800 flex-shrink-0">
-                        {(['update', 'generate'] as AiMode[]).map(m => (
-                            <button
-                                key={m}
-                                onClick={() => setAiMode(m)}
-                                className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-                                    aiMode === m
-                                        ? 'bg-gray-800 text-white border-b-2 border-violet-500'
-                                        : 'text-gray-500 hover:text-white'
-                                }`}
-                            >
-                                {modeConfig[m].label}
-                            </button>
-                        ))}
+                        <button
+                            onClick={() => requestModeSwitch('update')}
+                            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                                aiMode === 'update'
+                                    ? 'bg-gray-800 text-white border-b-2 border-emerald-500'
+                                    : 'text-gray-500 hover:text-white'
+                            }`}
+                        >
+                            Modificar
+                        </button>
+                        <button
+                            onClick={() => requestModeSwitch('generate')}
+                            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                                aiMode === 'generate'
+                                    ? 'bg-gray-800 text-white border-b-2 border-violet-500'
+                                    : 'text-gray-500 hover:text-white'
+                            }`}
+                        >
+                            Regenerar
+                        </button>
+                    </div>
+
+                    {/* Descripción del modo */}
+                    <div className="px-3 py-2 bg-gray-800/50 border-b border-gray-800 flex-shrink-0">
+                        <p className="text-xs text-gray-500 leading-snug">
+                            {aiMode === 'update'
+                                ? 'Modifica partes concretas sin tocar el resto de la web.'
+                                : 'Genera una web completamente nueva desde cero.'
+                            }
+                        </p>
                     </div>
 
                     {/* Historial de chat */}
                     <div className="flex-1 overflow-y-auto p-3">
                         {messages.length === 0 && (
-                            <div className="text-center py-8 text-gray-600 text-xs px-3">
+                            <div className="text-center py-8 text-gray-600 text-xs px-3 leading-relaxed">
                                 {aiMode === 'update'
-                                    ? 'Dile a la IA qué quieres cambiar. Solo modificará esa parte.'
-                                    : 'Describe la web y la IA la generará desde cero.'
+                                    ? 'Escribe lo que quieres cambiar. Por ejemplo: "pon el fondo azul" o "añade una sección de precios".'
+                                    : 'Describe la web que quieres crear. Por ejemplo: "web para una clínica dental en Málaga".'
                                 }
                             </div>
                         )}
@@ -358,59 +435,85 @@ export default function EditorIndex({ project, aiUsage }: Props) {
 
                     {/* Input */}
                     <div className="p-3 border-t border-gray-800 flex-shrink-0">
-                        {aiError && <p className="text-xs text-red-400 mb-2">{aiError}</p>}
+                        {aiError && (
+                            <div className="mb-2 p-2 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                <p className="text-xs text-red-400">{aiError}</p>
+                            </div>
+                        )}
                         <textarea
                             value={prompt}
                             onChange={e => setPrompt(e.target.value)}
-                            placeholder={mc.placeholder}
+                            placeholder={
+                                aiMode === 'update'
+                                    ? "¿Qué quieres cambiar? Ej: \"pon el menú en negro\" o \"cambia el horario a 9-20h\""
+                                    : "Describe la web que quieres crear desde cero..."
+                            }
                             rows={3}
-                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600"
+                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-snug"
                             onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendToAI(); }}
                         />
                         <button
                             onClick={sendToAI}
-                            disabled={aiLoading || !prompt.trim()}
-                            className={`mt-2 w-full bg-gradient-to-r ${mc.btnClass} hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-xl transition-opacity`}
+                            disabled={aiLoading || !prompt.trim() || aiUsage.used >= aiUsage.limit}
+                            className={`mt-2 w-full text-white text-sm font-bold py-2.5 rounded-xl transition-opacity disabled:opacity-40 ${
+                                aiMode === 'update'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90'
+                                    : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90'
+                            }`}
                         >
-                            {aiLoading ? 'Procesando…' : mc.btnLabel}
+                            {aiLoading ? 'Procesando…' : aiMode === 'update' ? 'Aplicar cambio' : 'Generar web'}
                         </button>
-                        {/* Contador de usos diarios */}
+
+                        {/* Contador de usos */}
                         <div className="mt-2 flex items-center justify-between">
                             <p className="text-xs text-gray-700">Ctrl+Enter para enviar</p>
-                            <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                aiUsage.used >= aiUsage.limit
-                                    ? 'bg-red-900/40 text-red-400'
-                                    : aiUsage.used >= aiUsage.limit * 0.8
-                                    ? 'bg-yellow-900/40 text-yellow-400'
-                                    : 'bg-gray-800 text-gray-500'
-                            }`}>
-                                {aiUsage.used}/{aiUsage.limit} hoy
+                            <div className="relative">
+                                <button
+                                    onMouseEnter={() => setShowUsageTooltip(true)}
+                                    onMouseLeave={() => setShowUsageTooltip(false)}
+                                    className={`text-xs font-semibold px-2 py-0.5 rounded-full cursor-default ${usageColor}`}
+                                >
+                                    {aiUsage.used}/{aiUsage.limit} hoy
+                                </button>
+                                {showUsageTooltip && (
+                                    <div className="absolute bottom-full right-0 mb-1 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-2 text-xs text-gray-300 whitespace-nowrap shadow-xl">
+                                        Se reinicia a medianoche cada día.
+                                        {!aiUsage.isSubscribed && <><br/>Mejora tu plan para más llamadas.</>}
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        {!aiUsage.isSubscribed && (
-                            <a
-                                href="/publicar"
-                                className="mt-2 block text-center text-xs text-violet-400 hover:text-violet-300 transition-colors"
-                            >
-                                ¿Necesitas más? Activa tu plan →
+
+                        {aiUsage.used >= aiUsage.limit && (
+                            <div className="mt-2 p-2 bg-red-900/20 border border-red-800/40 rounded-lg text-xs text-red-400">
+                                Has usado todos los cambios de hoy.{' '}
+                                {!aiUsage.isSubscribed && (
+                                    <a href="/publicar" className="underline text-violet-400">Mejora tu plan</a>
+                                )}
+                            </div>
+                        )}
+
+                        {!aiUsage.isSubscribed && aiUsage.used < aiUsage.limit && (
+                            <a href="/publicar" className="mt-2 block text-center text-xs text-gray-600 hover:text-violet-400 transition-colors">
+                                Activar plan para mas cambios
                             </a>
                         )}
                     </div>
                 </div>
 
-                {/* Preview — centro */}
+                {/* Preview */}
                 <div className="flex-1 bg-gray-800 flex items-start justify-center overflow-auto p-4">
-                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full">
+                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full min-h-0">
                         <iframe
                             ref={iframeRef}
                             sandbox="allow-scripts allow-same-origin"
                             className="w-full h-full bg-white rounded-lg shadow-2xl"
-                            title="Preview"
+                            title="Vista previa"
                         />
                     </div>
                 </div>
 
-                {/* Editor de código — derecha */}
+                {/* Editor de código */}
                 <div className="w-96 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex flex-col">
                     <div className="flex border-b border-gray-800 flex-shrink-0">
                         {(['html', 'css', 'js'] as ActiveTab[]).map(tab => (

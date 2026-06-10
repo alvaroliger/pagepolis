@@ -9,4 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('pagepolis:suspend-expired')->daily();
+Schedule::command('pagepolis:expiry-reminders')->dailyAt('09:00'); // Aviso 7 días antes
 Schedule::command('pagepolis:weekly-reports')->weeklyOn(1, '08:00'); // Lunes 8:00

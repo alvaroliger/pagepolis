@@ -21,12 +21,22 @@ interface Stats {
     active_domains: number;
 }
 
+interface AiSpend {
+    month_to_date: number;
+    today: number;
+    monthly_budget: number;
+    daily_budget: number;
+    used_percent: number;
+    paused: boolean;
+}
+
 interface Props {
     users: { data: User[]; total: number };
     stats: Stats;
+    ai: AiSpend;
 }
 
-export default function AdminIndex({ users, stats }: Props) {
+export default function AdminIndex({ users, stats, ai }: Props) {
     const [loading, setLoading] = useState<number | null>(null);
 
     const action = async (url: string, userId: number, data = {}) => {
@@ -59,6 +69,45 @@ export default function AdminIndex({ users, stats }: Props) {
                     ))}
                 </div>
 
+                {/* Gasto de IA (control de coste) */}
+                <div className={`mb-8 rounded-xl p-6 border ${ai.paused ? 'border-red-700/60 bg-red-950/20' : 'border-gray-800 bg-gray-900'}`}>
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-bold text-white">Gasto de IA este mes</h2>
+                        {ai.paused
+                            ? <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-red-900/50 text-red-300">IA EN PAUSA (tope alcanzado)</span>
+                            : <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-900/40 text-green-400">Activa</span>}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <p className="text-2xl font-black text-white">${ai.month_to_date.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500">Gastado este mes</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-black text-white">${ai.today.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500">Gastado hoy</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-black text-gray-300">${ai.monthly_budget.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500">Tope mensual</p>
+                        </div>
+                        <div>
+                            <p className="text-2xl font-black text-gray-300">${ai.daily_budget.toFixed(2)}</p>
+                            <p className="text-xs text-gray-500">Tope diario</p>
+                        </div>
+                    </div>
+                    {ai.monthly_budget > 0 && (
+                        <div className="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                            <div
+                                className={`h-full rounded-full ${ai.used_percent >= 90 ? 'bg-red-500' : ai.used_percent >= 70 ? 'bg-yellow-500' : 'bg-violet-500'}`}
+                                style={{ width: `${Math.min(100, ai.used_percent)}%` }}
+                            />
+                        </div>
+                    )}
+                    <p className="text-xs text-gray-500 mt-3">
+                        Para permitir más gasto, sube <code className="text-gray-400">AI_MONTHLY_BUDGET_USD</code> / <code className="text-gray-400">AI_DAILY_BUDGET_USD</code> en el <code className="text-gray-400">.env</code> del servidor.
+                    </p>
+                </div>
+
                 {/* Usuarios */}
                 <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-800">
@@ -68,7 +117,7 @@ export default function AdminIndex({ users, stats }: Props) {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-gray-800">
-                                    {['Nombre', 'Email', 'Rol', 'Proyectos', 'Dominios', 'Gracia', 'Acciones'].map(h => (
+                                    {['Nombre', 'Email', 'Rol', 'Proyectos', 'Dominios', 'Prueba', 'Acciones'].map(h => (
                                         <th key={h} className="text-left px-6 py-3 text-gray-400 font-medium">{h}</th>
                                     ))}
                                 </tr>

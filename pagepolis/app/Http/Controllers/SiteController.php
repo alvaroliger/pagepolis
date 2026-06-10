@@ -13,7 +13,8 @@ class SiteController extends Controller
      */
     public function show(string $slug): Response
     {
-        $project = Project::where('slug', $slug)
+        $project = Project::with('user')
+            ->where('slug', $slug)
             ->where('status', 'published')
             ->firstOrFail();
 
@@ -23,6 +24,8 @@ class SiteController extends Controller
         $seo    = $project->seo_meta ?? [];
         $title  = htmlspecialchars($seo['title']       ?? $project->name);
         $desc   = htmlspecialchars($seo['description'] ?? '');
+        $ogTitle = htmlspecialchars($seo['og_title']       ?? $seo['title']       ?? $project->name);
+        $ogDesc  = htmlspecialchars($seo['og_description'] ?? $seo['description'] ?? '');
         $schema = isset($seo['schema'])
             ? '<script type="application/ld+json">' . json_encode($seo['schema']) . '</script>'
             : '';
@@ -31,6 +34,26 @@ class SiteController extends Controller
         $css  = $project->css  ?? '';
         $body = $project->html ?? '';
         $js   = $project->js   ?? '';
+
+        // Open Graph / Twitter para compartir en redes
+        $og = <<<OG
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{$ogTitle}">
+    <meta property="og:description" content="{$ogDesc}">
+    <meta property="og:url" content="{$canonicalUrl}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{$ogTitle}">
+    <meta name="twitter:description" content="{$ogDesc}">
+OG;
+
+        // Badge "Hecho con Pagepolis": solo en sitios de usuarios SIN suscripción
+        // (backlink + viralidad). Los planes de pago publican sin marca.
+        $badge = '';
+        if (!optional($project->user)->isSubscribed()) {
+            $badge = <<<BADGE
+<a href="https://pagepolis.com/?utm_source=badge&utm_medium=site&utm_campaign=free" target="_blank" rel="noopener" aria-label="Creado con Pagepolis" style="position:fixed;bottom:16px;right:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#0f172a;color:#fff;font:600 13px/1 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-decoration:none;border-radius:9999px;box-shadow:0 6px 18px rgba(0,0,0,.28);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" fill="#a78bfa"/></svg>Hecho con Pagepolis</a>
+BADGE;
+        }
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -42,6 +65,7 @@ class SiteController extends Controller
     <meta name="description" content="{$desc}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{$canonicalUrl}">
+{$og}
     {$schema}
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -49,16 +73,19 @@ class SiteController extends Controller
 </head>
 <body>
 {$body}
+{$badge}
 <script>{$js}</script>
 </body>
 </html>
 HTML;
 
         return response($html, 200, [
-            'Content-Type'           => 'text/html',
-            'X-Frame-Options'        => 'SAMEORIGIN',
-            'X-Content-Type-Options' => 'nosniff',
-            'Cache-Control'          => 'public, max-age=300',
+            'Content-Type'              => 'text/html; charset=UTF-8',
+            'X-Content-Type-Options'    => 'nosniff',
+            // Impide que scripts de sitios publicados accedan a cookies de pagepolis.com
+            'Content-Security-Policy'   => "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; connect-src 'self' https:;",
+            'Cache-Control'             => 'public, max-age=300',
+            'Referrer-Policy'           => 'strict-origin-when-cross-origin',
         ]);
     }
 }

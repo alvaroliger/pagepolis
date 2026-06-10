@@ -32,7 +32,11 @@ class PublishController extends Controller
     }
 
     /**
-     * Publicación en pagepolis.com/s/slug — requiere suscripción activa.
+     * Publicación gratuita en pagepolis.com/s/slug.
+     *
+     * Disponible para cualquier usuario (tier gratis). Los sitios de usuarios
+     * sin suscripción muestran un badge "Hecho con Pagepolis" (ver SiteController).
+     * El dominio propio/subdominio sigue requiriendo suscripción (DomainController).
      */
     public function publishFree(Request $request): JsonResponse
     {
@@ -42,16 +46,21 @@ class PublishController extends Controller
 
         $user = auth()->user();
 
-        if (!$user->isSubscribed() && !$user->inGracePeriod()) {
-            return response()->json([
-                'error'   => 'Necesitas una suscripción activa para publicar.',
-                'upgrade' => true,
-            ], 402);
-        }
-
         $project = Project::where('id', $request->project_id)
             ->where('user_id', $user->id)
             ->firstOrFail();
+
+        // Límite anti-abuso: cuántas webs puede tener publicadas un usuario gratis.
+        if (!$user->isSubscribed() && $project->status !== 'published') {
+            $max = config('pagepolis.limits.free_max_published', 3);
+            $publishedCount = $user->projects()->where('status', 'published')->count();
+            if ($publishedCount >= $max) {
+                return response()->json([
+                    'error'   => "El plan gratuito permite publicar hasta {$max} webs. Mejora a un plan de pago para publicar más.",
+                    'upgrade' => true,
+                ], 402);
+            }
+        }
 
         Domain::updateOrCreate(
             ['project_id' => $project->id],

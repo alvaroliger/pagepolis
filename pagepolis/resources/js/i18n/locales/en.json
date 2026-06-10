@@ -1,0 +1,99 @@
+{
+  "lang": "en",
+  "currency": { "code": "USD", "symbol": "$", "basic_monthly": "10.99", "basic_yearly": "7.99", "pro_monthly": "16.99", "pro_yearly": "10.99", "basic_yearly_total": "95.88", "pro_yearly_total": "131.88" },
+  "nav": {
+    "prices": "Pricing",
+    "templates": "Templates",
+    "login": "Log in",
+    "start": "Get started free"
+  },
+  "tagline": "AI-powered websites",
+  "hero": {
+    "badge": "Powered by Claude AI · Generated in under 10 seconds",
+    "h1_1": "Your professional website,",
+    "h1_2": "in seconds",
+    "subtitle": "Describe your business. AI builds your full website in seconds. Edit it, publish with your domain. No code, no designer.",
+    "input_label": "I need a website for my…",
+    "input_hint": "Generating your website with AI…",
+    "cta_primary": "Build my website free →",
+    "cta_secondary": "View templates",
+    "disclaimer": "7 days free · No credit card · Cancel anytime",
+    "stat_sites": "websites created",
+    "stat_time": "generation time",
+    "stat_rating": "average rating"
+  },
+  "how": {
+    "title": "Your website in 3 steps",
+    "subtitle": "Less than 5 minutes from start to finish.",
+    "steps": [
+      { "n": "01", "icon": "🎨", "title": "Choose a template", "desc": "Over 20 professional designs. Restaurant, portfolio, store, SaaS, clinic…" },
+      { "n": "02", "icon": "✍️", "title": "Describe your business", "desc": "Tell the AI what you do, what colors you want, what you need. Everything is generated instantly." },
+      { "n": "03", "icon": "🚀", "title": "Publish and done", "desc": "Free subdomain on pagepolis.com or your own .com. Live in seconds, fully automatic." }
+    ]
+  },
+  "features": {
+    "title": "Everything you need to grow",
+    "subtitle": "No hassle. A tool that works for you.",
+    "items": [
+      { "icon": "⚡", "title": "Generated in seconds", "desc": "Describe your business in plain language. AI generates professional HTML, CSS and JavaScript instantly." },
+      { "icon": "✏️", "title": "Live editor", "desc": "Edit the code directly with syntax highlighting or ask the AI for more changes. Preview updates in real time." },
+      { "icon": "🌐", "title": "Automatic publishing", "desc": "Choose your own domain or use your pagepolis.com subdomain. Your site goes live in seconds after payment." },
+      { "icon": "🔒", "title": "Secure and reliable", "desc": "SSL included, high-performance infrastructure, automatic backups and English support." },
+      { "icon": "📱", "title": "Always responsive", "desc": "Every generated site is mobile-first. Preview on desktop, tablet and mobile before publishing." },
+      { "icon": "🤖", "title": "AI that understands you", "desc": "Request changes in plain English: make the background blue, add a pricing section, make it more modern." }
+    ]
+  },
+  "testimonials": {
+    "title": "What our customers say",
+    "subtitle": "Real businesses with real websites.",
+    "items": [
+      { "name": "Carlos M.", "role": "Restaurant owner", "text": "My website was ready in 10 minutes. The AI understood exactly what I needed. My customers keep telling me how beautiful it looks.", "avatar": "C", "color": "from-orange-500 to-rose-500" },
+      { "name": "Laura S.", "role": "Freelance designer", "text": "I use it to quickly build portfolios for my clients. The code editor with syntax highlighting is the best part — I can tweak whatever the AI generates.", "avatar": "L", "color": "from-violet-500 to-pink-500" },
+      { "name": "Marcos T.", "role": "Entrepreneur", "text": "I launched my SaaS landing page the same day I had the idea. It used to take weeks to get something decent. Now it takes hours.", "avatar": "M", "color": "from-cyan-500 to-blue-500" }
+    ]
+  },
+  "pricing": {
+    "title": "Simple, honest pricing",
+    "subtitle": "No hidden costs. No commissions. Everything included.",
+    "free_note": "Free forever: publish at pagepolis.com/s/your-site, no card required. Upgrade anytime for your own domain and to remove the badge.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "discount": "-33%",
+    "popular": "MOST POPULAR",
+    "basic_name": "Basic",
+    "pro_name": "Pro",
+    "per_month": "/mo",
+    "yearly_note_basic": "${{total}}/year · 2 months free",
+    "yearly_note_pro": "${{total}}/year · 2 months free",
+    "cta": "Start · 7 days free",
+    "custom": "Need more?",
+    "custom_link": "Contact us",
+    "custom_suffix": "for a custom plan.",
+    "basic_features": ["3 active projects", "Unlimited AI", "Subdomain on pagepolis.com", "Code editor", "SSL included", "Email support"],
+    "pro_features": ["Unlimited projects", "Unlimited AI", "Custom domain included (.com)", "Advanced editor", "SSL included", "Priority support", "Basic analytics", "No Pagepolis branding"]
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": [
+      { "q": "Do I need to know how to code?", "a": "No. Describe what you want and the AI generates everything. If you want to tweak the code, you have a full editor, but it's not required." },
+      { "q": "How long does it take to generate my website?", "a": "Between 5 and 15 seconds. The AI generates complete, professional HTML, CSS and JavaScript." },
+      { "q": "What happens to my domain if I cancel?", "a": "You have a 30-day trial period after cancellation. Your site stays active. If you don't reactivate, the domain is released and data is deleted automatically." },
+      { "q": "Can I use my own domain?", "a": "Yes. The Pro plan includes automatic purchase and setup of a .com domain. You can also use a free subdomain on pagepolis.com." },
+      { "q": "Can I export my website?", "a": "Yes. The generated HTML/CSS/JS code is yours. You can copy it and host it anywhere." },
+      { "q": "How does the trial period work?", "a": "7 days completely free. No credit card. Full access to all features." }
+    ]
+  },
+  "cta": {
+    "title_1": "Your website deserves to be",
+    "title_2": "the best",
+    "subtitle": "Start free today. No card. Decide in 7 days.",
+    "button": "Build my website free →",
+    "disclaimer": "7 days free · No card · Cancel anytime"
+  },
+  "footer": {
+    "login": "Log in",
+    "register": "Sign up",
+    "contact": "Contact",
+    "rights": "All rights reserved"
+  }
+}

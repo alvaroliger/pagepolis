@@ -1,58 +1,58 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Pagepolis
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SaaS para crear y publicar páginas web con IA. El usuario describe su negocio, la IA
+(Claude) genera una web completa (HTML/CSS/JS), la edita en vivo y la publica — gratis en
+`pagepolis.com/s/{slug}` o con dominio propio en los planes de pago.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** Laravel (PHP 8.3+), SQLite, Laravel Cashier (Stripe), Spatie Permission
+- **Frontend:** Inertia.js + React + TypeScript + Tailwind + Vite, i18n en 6 idiomas
+- **IA:** API de Anthropic (Claude) — `app/Services/AnthropicService.php`
+- **Infra:** Nginx (vhosts por dominio de usuario), Cloudflare (DNS), Dinahosting (dominios)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Modelo de negocio
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Gratis:** publica en `pagepolis.com/s/{slug}` con un sello "Hecho con Pagepolis"
+  (backlink + viralidad). Límites: ver `config/pagepolis.php`.
+- **Pago (Stripe):** dominio propio o subdominio, sin sello, más generaciones de IA.
 
-## Learning Laravel
+## Protección de costes (importante)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+La IA usa el mejor modelo posible pero con un **guardián de presupuesto**
+(`app/Services/AiBudgetGuard.php`) que corta las llamadas al alcanzar un tope **diario o
+mensual** (`AI_MONTHLY_BUDGET_USD` / `AI_DAILY_BUDGET_USD`). Así ni bots ni uso manual
+pueden disparar el gasto de la API key. El gasto del mes se ve en `/admin`. Además:
+límites de IA por usuario/día, límites de cantidad del tier gratis, y throttling anti-bots
+en registro/login.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Desarrollo local
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env        # rellena las claves
+php artisan key:generate
+php artisan migrate
+php artisan db:seed          # crea admin/demo + plantillas
+composer dev                 # servidor + cola + logs + vite (http://localhost:8000)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Tests: `php artisan test`. Build de producción: `npm run build`.
 
-## Contributing
+## Despliegue (manual, desde git)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+El deploy lo lanzas tú con `python scripts/deploy.py` (push a GitHub + SSH al servidor +
+`git pull` + composer + `npm run build` + migrate + seed de plantillas + cache + reload nginx).
 
-## Code of Conduct
+> ⚠️ El servidor `207.180.193.214` aloja OTROS proyectos. El deploy solo toca
+> `/var/www/pagepolis`. Nunca reconfigures nginx de forma global ni rompas otros sitios.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Variables de entorno: ver `.env.example` (todas documentadas). Tareas pendientes para
+producción (credenciales, DNS, SSL, colas, cron, legal): ver `PENDIENTE.txt`.
 
-## Security Vulnerabilities
+## Programación de tareas
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+`routes/console.php` define: `pagepolis:suspend-expired` (diario),
+`pagepolis:expiry-reminders` (aviso 7 días antes), `pagepolis:weekly-reports` (lunes).
+Requiere `php artisan schedule:run` por cron y un worker `php artisan queue:work`.

@@ -1,0 +1,99 @@
+{
+  "lang": "de",
+  "currency": { "code": "EUR", "symbol": "€", "basic_monthly": "9,99", "basic_yearly": "6,99", "pro_monthly": "14,99", "pro_yearly": "9,99", "basic_yearly_total": "83,88", "pro_yearly_total": "119,88" },
+  "nav": {
+    "prices": "Preise",
+    "templates": "Vorlagen",
+    "login": "Anmelden",
+    "start": "Kostenlos starten"
+  },
+  "tagline": "KI-gestützte Websites",
+  "hero": {
+    "badge": "Betrieben von Claude AI · Generierung in unter 10 Sekunden",
+    "h1_1": "Ihre professionelle Website,",
+    "h1_2": "in Sekunden",
+    "subtitle": "Beschreiben Sie Ihr Unternehmen. Die KI erstellt Ihre vollständige Website in Sekunden. Bearbeiten Sie sie, veröffentlichen Sie mit Ihrer Domain. Kein Code, kein Designer.",
+    "input_label": "Ich möchte eine Website für mein…",
+    "input_hint": "Generiere deine Website mit KI…",
+    "cta_primary": "Meine Website kostenlos erstellen →",
+    "cta_secondary": "Vorlagen ansehen",
+    "disclaimer": "7 Tage kostenlos · Keine Kreditkarte · Jederzeit kündbar",
+    "stat_sites": "erstellte Websites",
+    "stat_time": "Generierungszeit",
+    "stat_rating": "Durchschnittsbewertung"
+  },
+  "how": {
+    "title": "Ihre Website in 3 Schritten",
+    "subtitle": "Weniger als 5 Minuten von Anfang bis Ende.",
+    "steps": [
+      { "n": "01", "icon": "🎨", "title": "Vorlage wählen", "desc": "Über 20 professionelle Designs. Restaurant, Portfolio, Shop, SaaS, Klinik…" },
+      { "n": "02", "icon": "✍️", "title": "Unternehmen beschreiben", "desc": "Sagen Sie der KI, was Sie tun, welche Farben Sie möchten, was Sie brauchen. Alles wird sofort generiert." },
+      { "n": "03", "icon": "🚀", "title": "Veröffentlichen und fertig", "desc": "Kostenlose Subdomain auf pagepolis.com oder Ihre eigene .com. In Sekunden online, vollständig automatisch." }
+    ]
+  },
+  "features": {
+    "title": "Alles, was Sie zum Wachsen brauchen",
+    "subtitle": "Unkompliziert. Ein Werkzeug, das für Sie arbeitet.",
+    "items": [
+      { "icon": "⚡", "title": "In Sekunden generiert", "desc": "Beschreiben Sie Ihr Unternehmen in natürlicher Sprache. Die KI generiert sofort professionelles HTML, CSS und JavaScript." },
+      { "icon": "✏️", "title": "Echtzeit-Editor", "desc": "Bearbeiten Sie den Code direkt mit Syntax-Highlighting oder fordern Sie weitere Änderungen von der KI an. Die Vorschau aktualisiert sich sofort." },
+      { "icon": "🌐", "title": "Automatische Veröffentlichung", "desc": "Wählen Sie Ihre eigene Domain oder nutzen Sie Ihre pagepolis.com-Subdomain. Die Website geht in Sekunden nach der Zahlung online." },
+      { "icon": "🔒", "title": "Sicher und zuverlässig", "desc": "SSL inklusive, leistungsstarke Infrastruktur, automatische Backups und Support auf Deutsch." },
+      { "icon": "📱", "title": "Immer responsiv", "desc": "Jede generierte Website ist mobile-first. Vorschau auf Desktop, Tablet und Mobilgerät vor der Veröffentlichung." },
+      { "icon": "🤖", "title": "KI, die Sie versteht", "desc": "Änderungen auf Deutsch anfordern: Hintergrund blau machen, Preisbereich hinzufügen, moderner gestalten." }
+    ]
+  },
+  "testimonials": {
+    "title": "Was unsere Kunden sagen",
+    "subtitle": "Echte Unternehmen mit echten Websites.",
+    "items": [
+      { "name": "Carlos M.", "role": "Restaurantbesitzer", "text": "Meine Website war in 10 Minuten fertig. Die KI hat genau verstanden, was ich brauchte. Meine Kunden hören nicht auf, mir zu sagen, wie schön sie ist.", "avatar": "C", "color": "from-orange-500 to-rose-500" },
+      { "name": "Laura S.", "role": "Freelance-Designerin", "text": "Ich nutze es, um schnell Portfolios für meine Kunden zu erstellen. Der Code-Editor mit Syntax-Highlighting ist das Beste — ich kann alles anpassen, was die KI generiert.", "avatar": "L", "color": "from-violet-500 to-pink-500" },
+      { "name": "Marcos T.", "role": "Unternehmer", "text": "Ich habe meine SaaS-Landingpage am selben Tag live gestellt, an dem ich die Idee hatte. Früher dauerte es Wochen, um etwas Anständiges zu bekommen. Jetzt nur noch Stunden.", "avatar": "M", "color": "from-cyan-500 to-blue-500" }
+    ]
+  },
+  "pricing": {
+    "title": "Einfache, ehrliche Preise",
+    "subtitle": "Keine versteckten Kosten. Keine Provisionen. Alles inklusive.",
+    "free_note": "Für immer kostenlos: Veröffentliche auf pagepolis.com/s/deine-seite, ohne Karte. Upgrade jederzeit für deine eigene Domain und um das Badge zu entfernen.",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "discount": "-33%",
+    "popular": "AM BELIEBTESTEN",
+    "basic_name": "Basis",
+    "pro_name": "Pro",
+    "per_month": "/Monat",
+    "yearly_note_basic": "{{total}}€/Jahr · 2 Monate gratis",
+    "yearly_note_pro": "{{total}}€/Jahr · 2 Monate gratis",
+    "cta": "Starten · 7 Tage kostenlos",
+    "custom": "Brauchen Sie mehr?",
+    "custom_link": "Kontaktieren Sie uns",
+    "custom_suffix": "für einen maßgeschneiderten Plan.",
+    "basic_features": ["3 aktive Projekte", "Unbegrenzte KI", "Subdomain auf pagepolis.com", "Code-Editor", "SSL inklusive", "E-Mail-Support"],
+    "pro_features": ["Unbegrenzte Projekte", "Unbegrenzte KI", "Eigene Domain inklusive (.com)", "Erweiterter Editor", "SSL inklusive", "Prioritäts-Support", "Basis-Analytics", "Kein Pagepolis-Branding"]
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "items": [
+      { "q": "Muss ich programmieren können?", "a": "Nein. Beschreiben Sie, was Sie möchten, und die KI generiert alles. Wenn Sie den Code anpassen möchten, haben Sie einen vollständigen Editor, aber er ist nicht erforderlich." },
+      { "q": "Wie lange dauert die Generierung meiner Website?", "a": "Zwischen 5 und 15 Sekunden. Die KI generiert vollständiges, professionelles HTML, CSS und JavaScript." },
+      { "q": "Was passiert mit meiner Domain, wenn ich kündige?", "a": "Sie haben 30 Tage Testzeitraum nach der Kündigung. Ihre Website bleibt aktiv. Wenn Sie nicht reaktivieren, wird die Domain freigegeben und die Daten werden automatisch gelöscht." },
+      { "q": "Kann ich meine eigene Domain verwenden?", "a": "Ja. Der Pro-Plan beinhaltet den automatischen Kauf und die Einrichtung einer .com-Domain. Sie können auch eine kostenlose Subdomain auf pagepolis.com nutzen." },
+      { "q": "Kann ich meine Website exportieren?", "a": "Ja. Der generierte HTML/CSS/JS-Code gehört Ihnen. Sie können ihn kopieren und überall hosten." },
+      { "q": "Wie funktioniert der Testzeitraum?", "a": "7 Tage völlig kostenlos. Keine Kreditkarte. Vollständiger Zugang zu allen Funktionen." }
+    ]
+  },
+  "cta": {
+    "title_1": "Ihre Website verdient es,",
+    "title_2": "die beste zu sein",
+    "subtitle": "Starten Sie heute kostenlos. Keine Karte. Entscheiden Sie in 7 Tagen.",
+    "button": "Meine Website kostenlos erstellen →",
+    "disclaimer": "7 Tage kostenlos · Keine Karte · Jederzeit kündbar"
+  },
+  "footer": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "contact": "Kontakt",
+    "rights": "Alle Rechte vorbehalten"
+  }
+}

@@ -36,7 +36,9 @@ class Project extends Model
 
         static::creating(function ($project) {
             if (empty($project->slug)) {
-                $project->slug = Str::slug($project->name) . '-' . Str::random(6);
+                // En minúsculas: la ruta pública /s/{slug} solo acepta [a-z0-9-].
+                $base = Str::slug($project->name);
+                $project->slug = ($base !== '' ? $base : 'web') . '-' . Str::lower(Str::random(6));
             }
         });
     }

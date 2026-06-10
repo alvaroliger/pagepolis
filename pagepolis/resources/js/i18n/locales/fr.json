@@ -1,0 +1,99 @@
+{
+  "lang": "fr",
+  "currency": { "code": "EUR", "symbol": "€", "basic_monthly": "9,99", "basic_yearly": "6,99", "pro_monthly": "14,99", "pro_yearly": "9,99", "basic_yearly_total": "83,88", "pro_yearly_total": "119,88" },
+  "nav": {
+    "prices": "Tarifs",
+    "templates": "Modèles",
+    "login": "Se connecter",
+    "start": "Commencer gratuitement"
+  },
+  "tagline": "Sites web propulsés par IA",
+  "hero": {
+    "badge": "Propulsé par Claude AI · Généré en moins de 10 secondes",
+    "h1_1": "Votre site professionnel,",
+    "h1_2": "en quelques secondes",
+    "subtitle": "Décrivez votre activité. L'IA crée votre site complet en secondes. Modifiez-le, publiez avec votre domaine. Sans code, sans designer.",
+    "input_label": "Je veux un site pour mon…",
+    "input_hint": "Génération de votre site avec l'IA…",
+    "cta_primary": "Créer mon site gratuitement →",
+    "cta_secondary": "Voir les modèles",
+    "disclaimer": "7 jours gratuits · Sans carte bancaire · Annulez quand vous voulez",
+    "stat_sites": "sites créés",
+    "stat_time": "temps de génération",
+    "stat_rating": "note moyenne"
+  },
+  "how": {
+    "title": "Votre site en 3 étapes",
+    "subtitle": "Moins de 5 minutes du début à la fin.",
+    "steps": [
+      { "n": "01", "icon": "🎨", "title": "Choisissez un modèle", "desc": "Plus de 20 designs professionnels. Restaurant, portfolio, boutique, SaaS, clinique…" },
+      { "n": "02", "icon": "✍️", "title": "Décrivez votre activité", "desc": "Dites à l'IA ce que vous faites, les couleurs souhaitées, vos besoins. Tout est généré instantanément." },
+      { "n": "03", "icon": "🚀", "title": "Publiez et c'est prêt", "desc": "Sous-domaine gratuit sur pagepolis.com ou votre propre .com. En ligne en quelques secondes, entièrement automatique." }
+    ]
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin pour grandir",
+    "subtitle": "Sans complications. Un outil qui travaille pour vous.",
+    "items": [
+      { "icon": "⚡", "title": "Généré en secondes", "desc": "Décrivez votre activité en langage naturel. L'IA génère du HTML, CSS et JavaScript professionnel instantanément." },
+      { "icon": "✏️", "title": "Éditeur en temps réel", "desc": "Modifiez le code directement avec coloration syntaxique ou demandez plus de changements à l'IA. L'aperçu se met à jour instantanément." },
+      { "icon": "🌐", "title": "Publication automatique", "desc": "Choisissez votre propre domaine ou utilisez votre sous-domaine pagepolis.com. Le site est en ligne en secondes." },
+      { "icon": "🔒", "title": "Sécurisé et fiable", "desc": "SSL inclus, infrastructure haute performance, sauvegardes automatiques et support en français." },
+      { "icon": "📱", "title": "Toujours responsive", "desc": "Chaque site généré est mobile-first. Aperçu sur desktop, tablette et mobile avant de publier." },
+      { "icon": "🤖", "title": "Une IA qui vous comprend", "desc": "Demandez des modifications en français : mettez le fond en bleu, ajoutez une section tarifs, rendez-le plus moderne." }
+    ]
+  },
+  "testimonials": {
+    "title": "Ce que disent nos clients",
+    "subtitle": "De vraies entreprises avec de vrais sites.",
+    "items": [
+      { "name": "Carlos M.", "role": "Restaurateur", "text": "Mon site était prêt en 10 minutes. L'IA a compris exactement ce dont j'avais besoin. Mes clients n'arrêtent pas de me dire à quel point il est beau.", "avatar": "C", "color": "from-orange-500 to-rose-500" },
+      { "name": "Laura S.", "role": "Designer freelance", "text": "Je l'utilise pour créer rapidement des portfolios pour mes clients. L'éditeur de code avec coloration syntaxique est excellent — je peux retoucher ce que l'IA génère.", "avatar": "L", "color": "from-violet-500 to-pink-500" },
+      { "name": "Marcos T.", "role": "Entrepreneur", "text": "J'ai lancé ma landing page SaaS le jour même où j'ai eu l'idée. Avant, il fallait des semaines pour avoir quelque chose de correct. Maintenant, quelques heures.", "avatar": "M", "color": "from-cyan-500 to-blue-500" }
+    ]
+  },
+  "pricing": {
+    "title": "Des tarifs simples et honnêtes",
+    "subtitle": "Pas de frais cachés. Pas de commissions. Tout inclus.",
+    "free_note": "Gratuit pour toujours : publiez sur pagepolis.com/s/votre-site, sans carte. Passez à un plan payant quand vous voulez pour votre propre domaine et retirer la marque.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "discount": "-33%",
+    "popular": "LE PLUS POPULAIRE",
+    "basic_name": "Basique",
+    "pro_name": "Pro",
+    "per_month": "/mois",
+    "yearly_note_basic": "{{total}}€/an · 2 mois offerts",
+    "yearly_note_pro": "{{total}}€/an · 2 mois offerts",
+    "cta": "Commencer · 7 jours gratuits",
+    "custom": "Besoin de plus ?",
+    "custom_link": "Contactez-nous",
+    "custom_suffix": "pour un plan sur mesure.",
+    "basic_features": ["3 projets actifs", "IA illimitée", "Sous-domaine sur pagepolis.com", "Éditeur de code", "SSL inclus", "Support par email"],
+    "pro_features": ["Projets illimités", "IA illimitée", "Domaine personnalisé inclus (.com)", "Éditeur avancé", "SSL inclus", "Support prioritaire", "Analytics basique", "Sans publicité Pagepolis"]
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "items": [
+      { "q": "Dois-je savoir programmer ?", "a": "Non. Décrivez ce que vous voulez et l'IA génère tout. Si vous souhaitez modifier le code, vous disposez d'un éditeur complet, mais ce n'est pas obligatoire." },
+      { "q": "Combien de temps prend la génération ?", "a": "Entre 5 et 15 secondes. L'IA génère du HTML, CSS et JavaScript complet et professionnel." },
+      { "q": "Que se passe-t-il avec mon domaine si j'annule ?", "a": "Vous bénéficiez de 30 jours de période d'essai après l'annulation. Votre site reste actif. Si vous ne réactivez pas, le domaine est libéré et les données sont supprimées automatiquement." },
+      { "q": "Puis-je utiliser mon propre domaine ?", "a": "Oui. Le plan Pro inclut l'achat et la configuration automatique d'un domaine .com. Vous pouvez également utiliser un sous-domaine gratuit sur pagepolis.com." },
+      { "q": "Puis-je exporter mon site ?", "a": "Oui. Le code HTML/CSS/JS généré vous appartient. Vous pouvez le copier et l'héberger où vous voulez." },
+      { "q": "Comment fonctionne la période d'essai ?", "a": "7 jours entièrement gratuits. Sans carte bancaire. Accès complet à toutes les fonctionnalités." }
+    ]
+  },
+  "cta": {
+    "title_1": "Votre site mérite d'être",
+    "title_2": "le meilleur",
+    "subtitle": "Commencez gratuitement aujourd'hui. Sans carte. Décidez en 7 jours.",
+    "button": "Créer mon site gratuitement →",
+    "disclaimer": "7 jours gratuits · Sans carte · Annulez quand vous voulez"
+  },
+  "footer": {
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "contact": "Contact",
+    "rights": "Tous droits réservés"
+  }
+}

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DomainController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,18 +26,31 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::get('/robots.txt',  [SitemapController::class, 'robots']);
 
 // Tier gratuito: sitios hospedados en pagepolis.com/s/slug
-Route::get('/s/{slug}', [SiteController::class, 'show'])->where('slug', '[a-z0-9\-]+');
+Route::get('/s/{slug}', [SiteController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->middleware('throttle:300,1');
 
 // Tracking de visitas (pixel transparente)
-Route::get('/t/{projectId}', [TrackingController::class, 'track'])->where('projectId', '[0-9]+');
+Route::get('/t/{projectId}', [TrackingController::class, 'track'])
+    ->where('projectId', '[0-9]+')
+    ->middleware('throttle:600,1');
 
 // Plantillas públicas
 Route::get('/plantillas', [TemplateController::class, 'index'])->name('templates.index');
 
-// Webhook Stripe (sin CSRF)
-Route::post('/webhook/stripe', [BillingController::class, 'webhook'])
+// Páginas legales
+Route::get('/terminos',   fn() => Inertia::render('Legal/Terms'))->name('legal.terms');
+Route::get('/privacidad', fn() => Inertia::render('Legal/Privacy'))->name('legal.privacy');
+
+// Webhook WhatsApp Business (sin CSRF)
+Route::get('/webhook/whatsapp',  [WhatsAppController::class, 'verify'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+Route::post('/webhook/whatsapp', [WhatsAppController::class, 'webhook'])
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
-    ->name('stripe.webhook');
+    ->middleware('throttle:100,1');
+
+// El webhook de Stripe lo sirve Cashier en POST /stripe/webhook (cashier.webhook).
+// La lógica propia está en App\Listeners\HandleStripeWebhook.
 
 // Rutas autenticadas
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -45,7 +60,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Proyectos
     Route::post('/proyectos', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/proyectos/{project}/preview', [ProjectController::class, 'preview'])->name('projects.preview');
+    Route::get('/proyectos/{project}/zip', [ProjectController::class, 'exportZip'])->name('projects.zip');
     Route::delete('/proyectos/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::post('/proyectos/{id}/restaurar', [ProjectController::class, 'restore'])->name('projects.restore');
+    Route::delete('/proyectos/{id}/eliminar-definitivo', [ProjectController::class, 'forceDestroy'])->name('projects.force-destroy');
+
+    // Analítica de visitas
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     // Editor
     Route::get('/editor/{project}', [EditorController::class, 'index'])->name('editor.index');
@@ -59,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('ai.ratelimit')
         ->name('ai.update');
     Route::post('/ai/seo', [AiController::class, 'seo'])
+        ->middleware('ai.ratelimit')
         ->name('ai.seo');
 
     // Publicación
@@ -78,6 +100,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Exportación de datos (RGPD)
+    Route::get('/perfil/exportar', [ProfileController::class, 'exportData'])->name('profile.export');
 });
 
 // Rutas de administrador

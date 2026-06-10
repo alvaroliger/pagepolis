@@ -1,0 +1,101 @@
+====================================================
+  PAGEPOLIS — PENDIENTE PARA SALIR A PRODUCCIÓN
+  Actualizado: 2026-06-10
+  (Solo tareas que NO puedo hacer yo desde el código: credenciales,
+   DNS, cuentas externas, decisiones y operaciones en el servidor.)
+====================================================
+
+⚠️ AVISO SERVIDOR: en 207.180.193.214 hay OTROS proyectos desplegados.
+   Nunca los rompas al desplegar Pagepolis. El deploy es manual: lo lanzas tú
+   con `python scripts/deploy.py`. Toca solo /var/www/pagepolis y /var/www/pagepolis-sites.
+
+
+── 1. CREDENCIALES EN EL .env DE PRODUCCIÓN (/var/www/pagepolis/.env) ─────────
+
+[ ] APP_ENV=production  y  APP_DEBUG=false   (¡imprescindible! debug expone la API key)
+[ ] APP_URL=https://pagepolis.com
+[ ] AÑADIR SESSION_SECURE_COOKIE=true   (cuando haya HTTPS)
+
+[ ] IA — el modelo y los topes de gasto YA están configurados por código. Solo revisa
+      en el .env del servidor estos valores (protegen tu dinero, súbelos si quieres más):
+        ANTHROPIC_API_KEY=...           (ya la tienes)
+        ANTHROPIC_MODEL=claude-opus-4-8        (pago, máxima calidad)
+        ANTHROPIC_MODEL_FREE=claude-sonnet-4-6 (gratis, más barato)
+        AI_MONTHLY_BUDGET_USD=50        ← TOPE de gasto mensual. Nunca gasta más sin que lo subas.
+        AI_DAILY_BUDGET_USD=            ← (opcional) tope diario; vacío = mensual/10.
+      El panel /admin muestra el gasto del mes y avisa cuando la IA se pausa por tope.
+
+[ ] Stripe (pagos) — crear cuenta y productos en dashboard.stripe.com y poner:
+        STRIPE_KEY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET
+        STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY
+      → Registrar webhook en Stripe apuntando a https://pagepolis.com/stripe/webhook
+        (endpoint de Cashier; la lógica propia está en HandleStripeWebhook)
+
+[ ] Email real (ahora MAIL_MAILER=log) — recomendado Resend:
+        MAIL_MAILER=resend  y  RESEND_API_KEY=...
+      (necesario para verificación de email, avisos de expiración e informes)
+
+[ ] Dinahosting (dominios de pago): DINAHOSTING_USER, DINAHOSTING_PASS
+[ ] Cloudflare (DNS de dominios): CLOUDFLARE_API_TOKEN, CLOUDFLARE_ZONE_ID
+[ ] SERVER_PUBLIC_IP=207.180.193.214  (para los registros A de dominios de usuarios)
+
+[ ] WhatsApp Business (opcional) — app en developers.facebook.com (Business > WhatsApp):
+        WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_APP_SECRET
+        Webhook en Meta: https://pagepolis.com/webhook/whatsapp · Verify token: pagepolis_whatsapp_2024
+        Suscribirse a: messages
+
+
+── 2. DNS Y SSL ──────────────────────────────────────────────────────────────
+
+[ ] Apuntar DNS de pagepolis.com a 207.180.193.214 (registrador / Cloudflare)
+[ ] SSL cuando el DNS apunte (¡solo dominios de pagepolis, no toques otros sitios!):
+      certbot --nginx -d pagepolis.com -d www.pagepolis.com --non-interactive --agree-tos -m hola@pagepolis.com
+[ ] SSL automático para dominios de usuarios (los de pago se quedan en HTTP):
+      integrar certbot en NginxService al desplegar un dominio personalizado.
+
+
+── 3. LEGAL (rellenar datos reales) ───────────────────────────────────────────
+
+[ ] En las páginas /terminos y /privacidad (ya creadas) sustituir los placeholders:
+      [NOMBRE O RAZÓN SOCIAL], [NIF/DNI], [DIRECCIÓN]
+      Archivos: resources/js/Pages/Legal/Terms.tsx y Privacy.tsx
+[ ] Revisar PurchaseDomain.php: sustituir datos de contacto hardcodeados (dirección, ciudad,
+      teléfono) por datos reales del propietario para el registro de dominios.
+
+
+── 4. SERVIDOR / INFRAESTRUCTURA ──────────────────────────────────────────────
+
+[ ] Worker de colas en producción (Supervisor o systemd):
+      php artisan queue:work --tries=3   (necesario para deploy de dominios y emails)
+[ ] Programador de tareas (cron) — añadir al crontab del servidor:
+      * * * * * cd /var/www/pagepolis && php artisan schedule:run >> /dev/null 2>&1
+      (dispara: aviso de expiración 7 días antes, informe semanal, suspensión de impagos)
+[ ] Permitir a www-data recargar nginx sin contraseña (NginxService usa `sudo nginx -t && sudo systemctl reload nginx`)
+[ ] Copias de seguridad automáticas del SQLite (/var/www/pagepolis/database/database.sqlite)
+[ ] (Opcional) Monitorización de errores (Sentry).
+[ ] Renombrar repo GitHub instaweb → pagepolis y ejecutar UNA VEZ: python scripts/setup_git_server.py
+      (las plantillas se siembran solas en cada deploy; deploy.py ya hace migrate + seed + build)
+
+
+── 5. MARKETING / LANZAMIENTO ─────────────────────────────────────────────────
+
+[ ] Google Search Console + enviar sitemap.xml (ya se genera en /sitemap.xml)
+[ ] Perfiles sociales (@pagepolis) y vídeo demo de 60s para la landing
+[ ] Registrar marca "Pagepolis" (OEPM, clase 42) si procede
+
+
+── 6. MEJORAS FUTURAS (no bloquean el lanzamiento) ────────────────────────────
+
+[ ] 2FA en el perfil — requiere integrar Laravel Fortify (Breeze no lo trae). Se dejó fuera
+      para no desestabilizar la autenticación; añadir con calma y pruebas.
+[ ] (Opcional) Añadir los dominios de tus otros proyectos del servidor a la lista de
+      dominios prohibidos en DomainController para que ningún usuario intente reservarlos.
+
+====================================================
+  YA HECHO EN ESTE PASE (resumen): tier gratis con marca "Hecho con Pagepolis",
+  guardián de gasto de IA (tope diario+mensual), analítica de visitas, papelera,
+  export ZIP, export RGPD, páginas legales, límites anti-abuso del tier gratis,
+  throttling anti-bots en registro/login, panel admin con gasto de IA, aviso de
+  expiración por email, 28 tests en verde, y 2 bugs reales corregidos
+  (publicación con type 'path' en SQLite, y slugs en mayúsculas que daban 404).
+====================================================

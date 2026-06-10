@@ -1,0 +1,99 @@
+{
+  "lang": "es",
+  "currency": { "code": "EUR", "symbol": "€", "basic_monthly": "9,99", "basic_yearly": "6,99", "pro_monthly": "14,99", "pro_yearly": "9,99", "basic_yearly_total": "83,88", "pro_yearly_total": "119,88" },
+  "nav": {
+    "prices": "Precios",
+    "templates": "Plantillas",
+    "login": "Entrar",
+    "start": "Empezar gratis"
+  },
+  "tagline": "Tu web con IA",
+  "hero": {
+    "badge": "Impulsado por Claude AI · Generación en menos de 10 segundos",
+    "h1_1": "Tu web profesional,",
+    "h1_2": "en segundos",
+    "subtitle": "Describe tu negocio. La IA crea tu web completa en segundos. Edita, publica con tu dominio. Sin código, sin diseñador.",
+    "input_label": "Quiero una web para mi…",
+    "input_hint": "Generando tu web con IA…",
+    "cta_primary": "Crear mi web gratis →",
+    "cta_secondary": "Ver plantillas",
+    "disclaimer": "7 días gratis · Sin tarjeta de crédito · Cancela cuando quieras",
+    "stat_sites": "webs creadas",
+    "stat_time": "tiempo de generación",
+    "stat_rating": "valoración media"
+  },
+  "how": {
+    "title": "Tu web en 3 pasos",
+    "subtitle": "Menos de 5 minutos del principio al fin.",
+    "steps": [
+      { "n": "01", "icon": "🎨", "title": "Elige una plantilla", "desc": "Más de 20 diseños profesionales. Restaurante, portfolio, tienda, SaaS, clínica…" },
+      { "n": "02", "icon": "✍️", "title": "Describe tu negocio", "desc": "Escribe en español qué haces, qué colores quieres, qué necesitas. La IA genera todo al instante." },
+      { "n": "03", "icon": "🚀", "title": "Publica y listo", "desc": "Subdominio gratis en pagepolis.com o tu propio .com. Online en segundos, completamente automático." }
+    ]
+  },
+  "features": {
+    "title": "Todo lo que necesitas para crecer",
+    "subtitle": "Sin complicaciones. Una herramienta que trabaja para ti.",
+    "items": [
+      { "icon": "⚡", "title": "Generación en segundos", "desc": "Describe tu negocio en lenguaje natural. La IA genera HTML, CSS y JavaScript profesional al instante." },
+      { "icon": "✏️", "title": "Editor en tiempo real", "desc": "Edita el código directamente con syntax highlighting o pide más cambios a la IA. El preview se actualiza al momento." },
+      { "icon": "🌐", "title": "Publicación automática", "desc": "Elige un dominio propio o usa tu subdominio en pagepolis.com. El sitio queda online en segundos tras el pago." },
+      { "icon": "🔒", "title": "Seguro y fiable", "desc": "SSL incluido, infraestructura de alto rendimiento, backups automáticos y soporte en español." },
+      { "icon": "📱", "title": "Siempre responsivo", "desc": "Cada web generada es mobile-first. Vista previa en desktop, tablet y móvil antes de publicar." },
+      { "icon": "🤖", "title": "IA que te entiende", "desc": "Pide cambios en español: pon el fondo azul, añade sección de precios, hazlo más moderno." }
+    ]
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros clientes",
+    "subtitle": "Negocios reales con webs reales.",
+    "items": [
+      { "name": "Carlos M.", "role": "Dueño de restaurante", "text": "Tenía mi web lista en 10 minutos. La IA entendió exactamente lo que necesitaba. Mis clientes no paran de decirme lo bonita que está.", "avatar": "C", "color": "from-orange-500 to-rose-500" },
+      { "name": "Laura S.", "role": "Freelance diseñadora", "text": "Lo uso para crear portfolios rápidos a mis clientes. El editor de código con highlighting es lo mejor, puedo retocar lo que genera la IA.", "avatar": "L", "color": "from-violet-500 to-pink-500" },
+      { "name": "Marcos T.", "role": "Emprendedor", "text": "Puse mi landing de SaaS en producción el mismo día que tuve la idea. Antes tardaba semanas en tener algo decente. Ahora, horas.", "avatar": "M", "color": "from-cyan-500 to-blue-500" }
+    ]
+  },
+  "pricing": {
+    "title": "Precios simples y honestos",
+    "subtitle": "Sin costes ocultos. Sin comisiones. Todo incluido.",
+    "free_note": "Gratis para siempre: publica en pagepolis.com/s/tu-web sin tarjeta. Mejora cuando quieras para tener tu propio dominio y quitar la marca.",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "discount": "-33%",
+    "popular": "MÁS POPULAR",
+    "basic_name": "Básico",
+    "pro_name": "Pro",
+    "per_month": "/mes",
+    "yearly_note_basic": "{{total}}€/año · 2 meses gratis",
+    "yearly_note_pro": "{{total}}€/año · 2 meses gratis",
+    "cta": "Empezar · 7 días gratis",
+    "custom": "¿Necesitas más?",
+    "custom_link": "Escríbenos",
+    "custom_suffix": "para un plan a medida.",
+    "basic_features": ["3 proyectos activos", "IA ilimitada", "Subdominio en pagepolis.com", "Editor de código", "SSL incluido", "Soporte por email"],
+    "pro_features": ["Proyectos ilimitados", "IA ilimitada", "Dominio propio incluido (.com)", "Editor avanzado", "SSL incluido", "Soporte prioritario", "Analytics básico", "Sin publicidad de Pagepolis"]
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "items": [
+      { "q": "¿Necesito saber programar?", "a": "No. Describes lo que quieres en español y la IA genera todo. Si quieres retocar el código, tienes un editor completo, pero no es obligatorio." },
+      { "q": "¿Cuánto tarda en generar mi web?", "a": "Entre 5 y 15 segundos. La IA genera HTML, CSS y JavaScript completo y profesional." },
+      { "q": "¿Qué pasa con mi dominio si cancelo?", "a": "Tienes 30 días de periodo de prueba tras cancelar. Tu web sigue activa. Si no reactivas, el dominio se libera y los datos se eliminan automáticamente." },
+      { "q": "¿Puedo usar mi propio dominio?", "a": "Sí. En el plan Pro incluimos la compra y configuración automática de un dominio .com. También puedes usar un subdominio gratuito en pagepolis.com." },
+      { "q": "¿Puedo exportar mi web?", "a": "Sí. El código HTML/CSS/JS generado es tuyo. Puedes copiarlo y alojarlo donde quieras." },
+      { "q": "¿Cómo funciona el periodo de prueba?", "a": "7 días completamente gratis. Sin tarjeta de crédito. Acceso completo a todas las funciones." }
+    ]
+  },
+  "cta": {
+    "title_1": "Tu web merece ser",
+    "title_2": "la mejor",
+    "subtitle": "Empieza gratis hoy. Sin tarjeta. En 7 días decides.",
+    "button": "Crear mi web gratis →",
+    "disclaimer": "7 días gratis · Sin tarjeta · Cancela cuando quieras"
+  },
+  "footer": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "contact": "Contacto",
+    "rights": "Todos los derechos reservados"
+  }
+}

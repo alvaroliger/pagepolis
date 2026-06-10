@@ -2,17 +2,37 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 class AnthropicService
 {
     private string $apiKey;
-    private string $model;
+    private string $paidModel;
+    private string $freeModel;
+    private ?string $activeModel = null;
 
-    public function __construct()
+    public function __construct(private AiBudgetGuard $budget)
     {
-        $this->apiKey = config('services.anthropic.key');
-        $this->model  = config('services.anthropic.model', 'claude-sonnet-4-20250514');
+        $this->apiKey    = config('services.anthropic.key');
+        $this->paidModel = config('services.anthropic.model', 'claude-opus-4-8');
+        $this->freeModel = config('services.anthropic.model_free', 'claude-sonnet-4-6');
+    }
+
+    /**
+     * Selecciona el modelo según el tier del usuario: los de pago usan el mejor
+     * modelo (máxima calidad); los gratis uno más económico (protege el margen).
+     */
+    public function forUser(?User $user): static
+    {
+        $this->activeModel = ($user && $user->isSubscribed()) ? $this->paidModel : $this->freeModel;
+
+        return $this;
+    }
+
+    private function model(): string
+    {
+        return $this->activeModel ?? $this->freeModel;
     }
 
     /**
@@ -107,34 +127,88 @@ SYSTEM;
         $content  = $businessHint ? "Pista del negocio: {$businessHint}\n\n" : '';
         $content .= "HTML: " . substr($html, 0, 3000);
 
+        // El SEO es una tarea ligera: usa siempre el modelo económico.
+        $this->activeModel = $this->freeModel;
+
         $result = $this->callApi($system, [['role' => 'user', 'content' => $content]], 1024);
 
         return $result;
     }
 
-    private function callApi(string $system, array $messages, int $maxTokens): array
+    private function callApi(string $system, array $messages, int $maxTokens, int $attempt = 1): array
     {
+        // Guardián de presupuesto: si se ha alcanzado el tope mensual, no se
+        // hacen más llamadas (nunca se gasta de más sin permiso explícito).
+        if (!$this->budget->isWithinBudget()) {
+            \Illuminate\Support\Facades\Log::warning('IA pausada: presupuesto alcanzado', [
+                'motivo'       => $this->budget->blockedReason(),
+                'gasto_hoy'    => $this->budget->todayUsd(),
+                'gasto_mes'    => $this->budget->monthToDateUsd(),
+                'tope_diario'  => $this->budget->dailyBudgetUsd(),
+                'tope_mensual' => $this->budget->monthlyBudgetUsd(),
+            ]);
+            throw new \Exception('El servicio de IA está en pausa temporal. Vuelve a intentarlo más tarde o contacta con soporte.');
+        }
+
         $response = Http::withHeaders([
             'x-api-key'         => $this->apiKey,
             'anthropic-version' => '2023-06-01',
             'content-type'      => 'application/json',
         ])->timeout(120)->post('https://api.anthropic.com/v1/messages', [
-            'model'      => $this->model,
+            'model'      => $this->model(),
             'max_tokens' => $maxTokens,
             'system'     => $system,
             'messages'   => $messages,
         ]);
 
+        // Registrar el consumo real (Anthropic cobra los tokens aunque la
+        // respuesta venga malformada), para que el guardián lo contabilice.
+        if ($response->successful()) {
+            $usage = $response->json('usage', []);
+            $this->budget->record(
+                $this->model(),
+                (int) ($usage['input_tokens'] ?? 0),
+                (int) ($usage['output_tokens'] ?? 0),
+            );
+        }
+
         if ($response->failed()) {
-            throw new \Exception('Error de API Anthropic: ' . $response->status());
+            $status = $response->status();
+
+            // Reintentar una vez si el servicio está saturado
+            if ($status === 529 && $attempt === 1) {
+                sleep(3);
+                return $this->callApi($system, $messages, $maxTokens, 2);
+            }
+
+            $friendly = match(true) {
+                $status === 401 => 'La configuración de la IA no es válida. Contacta con soporte.',
+                $status === 429 => 'La IA está recibiendo demasiadas peticiones. Espera un momento e inténtalo de nuevo.',
+                $status === 529 => 'La IA está saturada ahora mismo. Inténtalo en unos minutos.',
+                $status >= 500  => 'El servicio de IA no está disponible temporalmente. Inténtalo en unos minutos.',
+                default         => 'No se pudo conectar con la IA. Inténtalo de nuevo.',
+            };
+            throw new \Exception($friendly);
         }
 
         $text = $response->json('content.0.text', '');
-        $text = preg_replace('/```json\s*|\s*```/m', '', $text);
+        // Limpiar posibles bloques de código markdown
+        $text = preg_replace('/^```(?:json)?\s*/m', '', $text);
+        $text = preg_replace('/\s*```$/m', '', $text);
+        // Extraer solo el JSON si hay texto antes/después
+        if (preg_match('/\{[\s\S]*\}/m', $text, $matches)) {
+            $text = $matches[0];
+        }
+
         $parsed = json_decode(trim($text), true);
 
-        if (!$parsed) {
-            throw new \Exception('La IA no devolvió un JSON válido.');
+        if (!$parsed || !is_array($parsed)) {
+            // Reintentar una vez si el JSON está malformado
+            if ($attempt === 1) {
+                sleep(1);
+                return $this->callApi($system, $messages, $maxTokens, 2);
+            }
+            throw new \Exception('La IA no pudo procesar tu solicitud. Inténtalo con una descripción diferente.');
         }
 
         return $parsed;

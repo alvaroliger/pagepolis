@@ -1,8 +1,10 @@
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
 
 export default function Register() {
+    const [acceptedTos, setAcceptedTos] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
@@ -12,6 +14,7 @@ export default function Register() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (!acceptedTos) return;
         post('/register');
     };
 
@@ -27,7 +30,8 @@ export default function Register() {
                         type="text"
                         value={data.name}
                         onChange={e => setData('name', e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                        autoComplete="name"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                         required
                     />
                     {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
@@ -39,7 +43,8 @@ export default function Register() {
                         type="email"
                         value={data.email}
                         onChange={e => setData('email', e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                        autoComplete="email"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                         required
                     />
                     {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
@@ -51,8 +56,10 @@ export default function Register() {
                         type="password"
                         value={data.password}
                         onChange={e => setData('password', e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                        autoComplete="new-password"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                         required
+                        minLength={8}
                     />
                     {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                 </div>
@@ -63,17 +70,34 @@ export default function Register() {
                         type="password"
                         value={data.password_confirmation}
                         onChange={e => setData('password_confirmation', e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                        autoComplete="new-password"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                         required
                     />
                 </div>
 
+                <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                        type="checkbox"
+                        checked={acceptedTos}
+                        onChange={e => setAcceptedTos(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 accent-violet-500 flex-shrink-0"
+                        required
+                    />
+                    <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors leading-snug">
+                        Acepto los{' '}
+                        <a href="/terminos" target="_blank" className="text-violet-400 hover:underline">términos de servicio</a>
+                        {' '}y la{' '}
+                        <a href="/privacidad" target="_blank" className="text-violet-400 hover:underline">política de privacidad</a>
+                    </span>
+                </label>
+
                 <button
                     type="submit"
-                    disabled={processing}
+                    disabled={processing || !acceptedTos}
                     className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 text-white py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
                 >
-                    {processing ? 'Creando cuenta...' : 'Crear cuenta gratis'}
+                    {processing ? 'Creando cuenta…' : 'Crear cuenta gratis'}
                 </button>
             </form>
 

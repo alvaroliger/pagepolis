@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
+import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
 
 interface Props {
     project: { id: number; name: string; slug: string } | null;
@@ -33,7 +34,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
             const res = await axios.post('/publicar/gratis', { project_id: project.id });
             setPublished(res.data.url);
         } catch (e: any) {
-            setError(e.response?.data?.message ?? 'Error al publicar.');
+            setError(e.response?.data?.error ?? e.response?.data?.message ?? 'Error al publicar.');
         } finally {
             setLoading(false);
         }
@@ -72,7 +73,9 @@ export default function PublishIndex({ project, baseDomain }: Props) {
             <AuthenticatedLayout header={<h1 className="text-2xl font-bold text-white">¡Publicado!</h1>}>
                 <Head title="Publicado" />
                 <div className="max-w-xl mx-auto px-4 py-16 text-center">
-                    <div className="text-6xl mb-6">🚀</div>
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                        <Rocket className="w-8 h-8 text-emerald-400" strokeWidth={1.75} />
+                    </div>
                     <h2 className="text-3xl font-black text-white mb-4">Tu web está online</h2>
                     <p className="text-gray-400 mb-8">Accede a ella en:</p>
                     <a
@@ -85,10 +88,10 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     </a>
                     <div className="mt-8 flex gap-3 justify-center">
                         <a
-                            href={`/editor/${project?.id}`}
+                            href={project ? `/editor/${project.id}` : '/dashboard'}
                             className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm"
                         >
-                            ← Volver al editor
+                            {project ? '← Volver al editor' : '← Volver al panel'}
                         </a>
                         <a
                             href={published}
@@ -126,7 +129,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                 : 'border-gray-700 hover:border-gray-600'
                         }`}
                     >
-                        <div className="text-2xl mb-2">🆓</div>
+                        <Link2 className="w-6 h-6 mb-2 text-emerald-400" strokeWidth={1.75} />
                         <div className="font-bold text-white text-sm mb-1">Ruta gratuita</div>
                         <div className="text-xs text-gray-400">
                             pagepolis.com/s/{project?.slug ?? 'tu-web'}
@@ -143,7 +146,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                 : 'border-gray-700 hover:border-gray-600'
                         }`}
                     >
-                        <div className="text-2xl mb-2">🌐</div>
+                        <Globe className="w-6 h-6 mb-2 text-violet-400" strokeWidth={1.75} />
                         <div className="font-bold text-white text-sm mb-1">Subdominio</div>
                         <div className="text-xs text-gray-400">tu-nombre.{baseDomain}</div>
                         <div className="mt-2 text-xs text-violet-400 font-semibold">Plan Básico</div>
@@ -158,7 +161,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                 : 'border-gray-700 hover:border-gray-600'
                         }`}
                     >
-                        <div className="text-2xl mb-2">✨</div>
+                        <Sparkles className="w-6 h-6 mb-2 text-violet-400" strokeWidth={1.75} />
                         <div className="font-bold text-white text-sm mb-1">Dominio propio</div>
                         <div className="text-xs text-gray-400">tu-negocio.com</div>
                         <div className="mt-2 text-xs text-violet-400 font-semibold">Plan Pro</div>
@@ -179,14 +182,16 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                             <div className="flex items-center gap-2"><span className="text-green-400">✓</span> SSL incluido</div>
                             <div className="flex items-center gap-2"><span className="text-green-400">✓</span> SEO básico</div>
                             <div className="flex items-center gap-2"><span className="text-yellow-500">~</span> URL en pagepolis.com/s/ (no dominio propio)</div>
+                            <div className="flex items-center gap-2"><span className="text-yellow-500">~</span> Pequeño sello “Hecho con Pagepolis” (se quita con un plan de pago)</div>
                         </div>
                         {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
                         <button
                             onClick={publishFree}
                             disabled={loading || !project}
-                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-opacity"
+                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-opacity inline-flex items-center justify-center gap-2"
                         >
-                            {loading ? 'Publicando…' : '🚀 Publicar gratis ahora'}
+                            <Rocket className="w-4 h-4" strokeWidth={2} />
+                            {loading ? 'Publicando…' : 'Publicar gratis ahora'}
                         </button>
                         <p className="text-center text-xs text-gray-600 mt-3">
                             ¿Quieres un dominio propio? Cambia al plan de pago arriba.

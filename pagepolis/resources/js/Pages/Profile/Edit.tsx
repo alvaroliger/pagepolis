@@ -7,14 +7,16 @@ interface User {
     name: string;
     email: string;
     email_verified_at: string | null;
+    whatsapp_phone: string | null;
 }
 
 export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<{ auth: { user: User } }>().props;
 
     const { data, setData, patch, errors, processing } = useForm({
-        name: auth.user.name,
-        email: auth.user.email,
+        name:            auth.user.name,
+        email:           auth.user.email,
+        whatsapp_phone:  auth.user.whatsapp_phone ?? '',
     });
 
     const { data: pwData, setData: setPwData, put: putPw, errors: pwErrors, processing: pwProcessing, reset } = useForm({
@@ -72,11 +74,25 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             />
                             {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                         </div>
+                        <div>
+                            <label className="block text-sm text-gray-400 mb-1">WhatsApp (opcional)</label>
+                            <input
+                                type="tel"
+                                value={data.whatsapp_phone}
+                                onChange={e => setData('whatsapp_phone', e.target.value)}
+                                placeholder="+34 612 345 678"
+                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                            />
+                            <p className="mt-1 text-xs text-gray-600">
+                                Vincula tu WhatsApp para editar tu web enviando mensajes.
+                            </p>
+                            {errors.whatsapp_phone && <p className="mt-1 text-sm text-red-400">{errors.whatsapp_phone}</p>}
+                        </div>
                         {mustVerifyEmail && !auth.user.email_verified_at && (
                             <p className="text-sm text-yellow-400">Tu email no está verificado.</p>
                         )}
                         <button type="submit" disabled={processing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
-                            {processing ? 'Guardando...' : 'Guardar cambios'}
+                            {processing ? 'Guardando…' : 'Guardar cambios'}
                         </button>
                     </form>
                 </div>
@@ -103,6 +119,21 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             {pwProcessing ? 'Actualizando...' : 'Cambiar contraseña'}
                         </button>
                     </form>
+                </div>
+
+                {/* Privacidad y datos */}
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+                    <h2 className="text-lg font-bold text-white mb-2">Privacidad y datos</h2>
+                    <p className="text-gray-400 text-sm mb-4">
+                        Descarga una copia de todos tus datos (perfil, proyectos y dominios) en
+                        formato JSON, conforme al RGPD.
+                    </p>
+                    <a
+                        href="/perfil/exportar"
+                        className="inline-block bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+                    >
+                        Exportar mis datos
+                    </a>
                 </div>
 
                 {/* Eliminar cuenta */}
