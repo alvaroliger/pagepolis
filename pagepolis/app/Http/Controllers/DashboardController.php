@@ -35,6 +35,7 @@ class DashboardController extends Controller
             'updated_at'  => $p->updated_at->diffForHumans(),
             'views_30d'   => (int) ($views30[$p->id] ?? 0),
             'domain'      => $p->domain?->domain,
+            'domain_type' => $p->domain?->type,
             'live_url'    => match ($p->domain?->type) {
                 'custom'    => 'https://' . $p->domain->domain,
                 'subdomain' => 'https://' . $p->domain->domain,

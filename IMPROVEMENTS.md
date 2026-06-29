@@ -17,9 +17,9 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Producto
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
-- 🟢 Autosave en el editor con debounce.
-- 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
-- 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
+- 🟢 Autosave en el editor con debounce. *(PR #2 abierta)*
+- ✅ Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
+- 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals. *(PR #3 abierta)*
 
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
@@ -27,3 +27,5 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Checklist de onboarding en `/dashboard`: 3 pasos (publicar, dominio propio, compartir) derivados
+  de los datos ya disponibles, sin migraciones nuevas. Botón "Compartir" copia el enlace público.

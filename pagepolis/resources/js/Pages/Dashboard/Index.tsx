@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Eye, Download, Trash2, ChevronDown, ChevronUp, Check, Share2 } from 'lucide-react';
 
 interface Project {
     id: number;
@@ -11,9 +11,13 @@ interface Project {
     updated_at: string;
     views_30d: number;
     domain: string | null;
+    domain_type: string | null;
     live_url: string | null;
     preview_url: string;
 }
+
+const ONBOARDING_SHARED_KEY = 'pagepolis_onboarding_shared';
+const ONBOARDING_DISMISSED_KEY = 'pagepolis_onboarding_dismissed';
 
 interface TrashedProject {
     id: number;
@@ -67,7 +71,58 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
     );
 }
 
-function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
+function OnboardingChecklist({ projects, onDismiss }: { projects: Project[]; onDismiss: () => void }) {
+    const [shared, setShared] = useState(() => localStorage.getItem(ONBOARDING_SHARED_KEY) === '1');
+
+    useEffect(() => {
+        const onStorage = () => setShared(localStorage.getItem(ONBOARDING_SHARED_KEY) === '1');
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
+
+    const published = projects.some(p => p.status === 'published');
+    const ownDomain = projects.some(p => p.domain_type === 'custom');
+
+    const steps = [
+        { label: 'Publica tu web', done: published, href: '/publicar' },
+        { label: 'Conecta tu dominio propio', done: ownDomain, href: '/publicar' },
+        { label: 'Comparte tu web', done: shared, href: undefined },
+    ];
+
+    if (steps.every(s => s.done)) return null;
+
+    return (
+        <div className="mb-6 p-5 bg-gray-900 border border-gray-800 rounded-2xl">
+            <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold text-white">Pon en marcha tu web</h2>
+                <button onClick={onDismiss} className="text-xs text-gray-600 hover:text-gray-400">
+                    Ocultar
+                </button>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+                {steps.map(step => (
+                    <div
+                        key={step.label}
+                        className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border ${step.done ? 'border-green-800/50 bg-green-900/10' : 'border-gray-800 bg-gray-800/40'}`}
+                    >
+                        <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${step.done ? 'bg-green-600' : 'bg-gray-700'}`}>
+                            {step.done && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                        </span>
+                        {!step.done && step.href ? (
+                            <Link href={step.href} className="text-sm text-gray-300 hover:text-white font-medium">
+                                {step.label}
+                            </Link>
+                        ) : (
+                            <span className={`text-sm font-medium ${step.done ? 'text-green-400' : 'text-gray-300'}`}>{step.label}</span>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function ProjectCard({ project, onDelete, onShare }: { project: Project; onDelete: (p: Project) => void; onShare: (url: string) => void }) {
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-colors group flex flex-col">
             {/* Thumbnail */}
@@ -127,6 +182,15 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                             Ver web
                         </a>
                     )}
+                    {project.status === 'published' && project.live_url && (
+                        <button
+                            onClick={() => onShare(project.live_url!)}
+                            title="Copiar enlace para compartir"
+                            className="px-3 flex items-center bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-white rounded-lg transition-colors"
+                        >
+                            <Share2 className="w-4 h-4" strokeWidth={1.75} />
+                        </button>
+                    )}
                     <a
                         href={`/proyectos/${project.id}/zip`}
                         title="Descargar web (ZIP)"
@@ -150,6 +214,7 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
 export default function Dashboard({ projects, trashed, isSubscribed, inGracePeriod }: Props) {
     const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
     const [showTrash, setShowTrash] = useState(false);
+    const [dismissOnboarding, setDismissOnboarding] = useState(() => localStorage.getItem(ONBOARDING_DISMISSED_KEY) === '1');
 
     const confirmDelete = () => {
         if (!deleteTarget) return;
@@ -161,6 +226,17 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
     const purge = (id: number) => {
         if (!confirm('¿Eliminar definitivamente? Esta acción no se puede deshacer.')) return;
         router.delete(`/proyectos/${id}/eliminar-definitivo`, { preserveScroll: true });
+    };
+
+    const share = (url: string) => {
+        navigator.clipboard?.writeText(url).catch(() => {});
+        localStorage.setItem(ONBOARDING_SHARED_KEY, '1');
+        window.dispatchEvent(new Event('storage'));
+    };
+
+    const dismissOnboardingChecklist = () => {
+        localStorage.setItem(ONBOARDING_DISMISSED_KEY, '1');
+        setDismissOnboarding(true);
     };
 
     const totalViews = projects.reduce((sum, p) => sum + (p.views_30d || 0), 0);
@@ -216,6 +292,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     </div>
                 )}
 
+                {projects.length > 0 && !dismissOnboarding && (
+                    <OnboardingChecklist projects={projects} onDismiss={dismissOnboardingChecklist} />
+                )}
+
                 {projects.length === 0 ? (
                     <div className="text-center py-24">
                         <div className="w-16 h-16 bg-gray-800 rounded-2xl mx-auto mb-6 flex items-center justify-center">
@@ -247,7 +327,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                             {projects.map(project => (
-                                <ProjectCard key={project.id} project={project} onDelete={setDeleteTarget} />
+                                <ProjectCard key={project.id} project={project} onDelete={setDeleteTarget} onShare={share} />
                             ))}
                         </div>
                     </>
