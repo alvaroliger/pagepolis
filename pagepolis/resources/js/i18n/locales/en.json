@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Automatic publishing", "desc": "Choose your own domain or use your pagepolis.com subdomain. Your site goes live in seconds after payment." },
       { "icon": "🔒", "title": "Secure and reliable", "desc": "SSL included, high-performance infrastructure, automatic backups and English support." },
       { "icon": "📱", "title": "Always responsive", "desc": "Every generated site is mobile-first. Preview on desktop, tablet and mobile before publishing." },
-      { "icon": "🤖", "title": "AI that understands you", "desc": "Request changes in plain English: make the background blue, add a pricing section, make it more modern." }
+      { "icon": "🤖", "title": "AI that understands you", "desc": "Request changes in plain English: make the background blue, add a pricing section, make it more modern." },
+      { "icon": "📩", "title": "Lead capture", "desc": "Every contact form on your site emails you instantly and saves the message in your Pagepolis inbox." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Need more?",
     "custom_link": "Contact us",
     "custom_suffix": "for a custom plan.",
-    "basic_features": ["3 active projects", "Unlimited AI", "Subdomain on pagepolis.com", "Code editor", "SSL included", "Email support"],
-    "pro_features": ["Unlimited projects", "Unlimited AI", "Custom domain included (.com)", "Advanced editor", "SSL included", "Priority support", "Basic analytics", "No Pagepolis branding"]
+    "basic_features": ["3 active projects", "Unlimited AI", "Subdomain on pagepolis.com", "Code editor", "SSL included", "Customer message inbox", "Email support"],
+    "pro_features": ["Unlimited projects", "Unlimited AI", "Custom domain included (.com)", "Advanced editor", "SSL included", "Customer message inbox", "Priority support", "Basic analytics", "No Pagepolis branding"]
   },
   "faq": {
     "title": "Frequently asked questions",

@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Publication automatique", "desc": "Choisissez votre propre domaine ou utilisez votre sous-domaine pagepolis.com. Le site est en ligne en secondes." },
       { "icon": "🔒", "title": "Sécurisé et fiable", "desc": "SSL inclus, infrastructure haute performance, sauvegardes automatiques et support en français." },
       { "icon": "📱", "title": "Toujours responsive", "desc": "Chaque site généré est mobile-first. Aperçu sur desktop, tablette et mobile avant de publier." },
-      { "icon": "🤖", "title": "Une IA qui vous comprend", "desc": "Demandez des modifications en français : mettez le fond en bleu, ajoutez une section tarifs, rendez-le plus moderne." }
+      { "icon": "🤖", "title": "Une IA qui vous comprend", "desc": "Demandez des modifications en français : mettez le fond en bleu, ajoutez une section tarifs, rendez-le plus moderne." },
+      { "icon": "📩", "title": "Capture de leads", "desc": "Chaque formulaire de contact de votre site vous alerte instantanément par email et enregistre le message dans votre boîte de réception Pagepolis." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Besoin de plus ?",
     "custom_link": "Contactez-nous",
     "custom_suffix": "pour un plan sur mesure.",
-    "basic_features": ["3 projets actifs", "IA illimitée", "Sous-domaine sur pagepolis.com", "Éditeur de code", "SSL inclus", "Support par email"],
-    "pro_features": ["Projets illimités", "IA illimitée", "Domaine personnalisé inclus (.com)", "Éditeur avancé", "SSL inclus", "Support prioritaire", "Analytics basique", "Sans publicité Pagepolis"]
+    "basic_features": ["3 projets actifs", "IA illimitée", "Sous-domaine sur pagepolis.com", "Éditeur de code", "SSL inclus", "Boîte de messages clients", "Support par email"],
+    "pro_features": ["Projets illimités", "IA illimitée", "Domaine personnalisé inclus (.com)", "Éditeur avancé", "SSL inclus", "Boîte de messages clients", "Support prioritaire", "Analytics basique", "Sans publicité Pagepolis"]
   },
   "faq": {
     "title": "Questions fréquentes",

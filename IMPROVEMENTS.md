@@ -8,8 +8,9 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
-- 🟢 **Vender la captura de leads** en landing/precios ("recibe los mensajes de tus clientes en tu
-  correo") — ahora es verdad, se puede anunciar. Copy en `resources/js/i18n/locales/*.json`.
+- ✅ **Vender la captura de leads** en landing/precios — nueva feature card "Captura de leads" en
+  `features.items` y línea "bandeja de mensajes de clientes" en `pricing.basic_features`/`pro_features`,
+  en los 6 idiomas (`resources/js/i18n/locales/*.json`) + icono `Mail` en `Landing.tsx`.
 - 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
@@ -27,3 +28,4 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Copy de venta de la captura de leads en landing/precios, 6 idiomas (suite 96 verde).
