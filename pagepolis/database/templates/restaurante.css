@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --font-head:'Playfair Display',serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --brand:#9c4221; --brand-2:#c05621; --on-brand:#fff;
+  --brand-soft:rgba(156,66,33,.12);
+  --bg:#fbf7f1; --surface:#ffffff; --text:#241a14; --muted:#7a6a5d;
+  --border:#ece2d6; --radius:14px; --maxw:1180px;
+  --header-bg:rgba(251,247,241,.92);
+  --footer-bg:#241a14; --footer-text:#cdbfb2;
+}
+.hero{--hero-bg:linear-gradient(180deg,#f3e9dc,#fbf7f1)}
+.logo{color:var(--brand)}
+#main-nav a{color:var(--text)}
+.gallery-sec{background:#f3e9dc}
+.testi{background:var(--brand);color:#fff}
+.testi .kicker{color:#f0c9a8}
+.testi .testi-author span{color:rgba(255,255,255,.7)}
+.testi-prev,.testi-next{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}

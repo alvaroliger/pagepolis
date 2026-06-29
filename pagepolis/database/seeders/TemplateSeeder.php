@@ -6,246 +6,75 @@ use App\Models\Template;
 use Illuminate\Database\Seeder;
 
 /**
- * Plantillas de inicio: cada una con un diseño DISTINTO, profesional, sin emojis
- * y responsive. Sirven como punto de partida que la IA luego personaliza.
+ * Plantillas de inicio: webs COMPLETAS y vendibles (multi-sección, varias con
+ * tienda), montadas desde archivos en database/templates/. Comparten un motor
+ * (engine.js) y un CSS base (base.css) que las hace interactivas y amoldables por
+ * la IA (misma convención de ids/clases que el generador).
  *
  * Idempotente (updateOrCreate por nombre): se puede ejecutar en cada deploy.
  */
 class TemplateSeeder extends Seeder
 {
+    /**
+     * @return array<int,array{key:string,name:string,category:string,tags:array<int,string>,premium?:bool}>
+     */
+    private function manifest(): array
+    {
+        return [
+            ['key' => 'restaurante', 'name' => 'Restaurante con pedidos', 'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', 'pedidos', 'tienda']],
+            ['key' => 'tienda',      'name' => 'Tienda online',          'category' => 'E-commerce',  'tags' => ['tienda', 'productos', 'carrito']],
+            ['key' => 'servicios',   'name' => 'Empresa de servicios',   'category' => 'Servicios',   'tags' => ['servicios', 'empresa', 'agencia']],
+            ['key' => 'clinica',     'name' => 'Clínica / Salud',        'category' => 'Salud',       'tags' => ['clínica', 'salud', 'citas']],
+            ['key' => 'gimnasio',    'name' => 'Gimnasio / Fitness',     'category' => 'Fitness',     'tags' => ['gimnasio', 'fitness', 'cuotas']],
+            ['key' => 'belleza',     'name' => 'Peluquería y estética',  'category' => 'Belleza',     'tags' => ['belleza', 'peluquería', 'reservas', 'tienda']],
+            ['key' => 'inmobiliaria','name' => 'Inmobiliaria',           'category' => 'Inmobiliaria','tags' => ['inmobiliaria', 'propiedades', 'venta']],
+            ['key' => 'abogados',    'name' => 'Bufete de abogados',     'category' => 'Servicios',   'tags' => ['abogados', 'legal', 'profesional']],
+            ['key' => 'fotografo',   'name' => 'Fotógrafo / Portfolio',  'category' => 'Portfolio',   'tags' => ['fotografía', 'portfolio', 'galería']],
+            ['key' => 'cafeteria',   'name' => 'Cafetería con tienda',   'category' => 'Restaurante', 'tags' => ['cafetería', 'café', 'pedidos', 'tienda']],
+            ['key' => 'saas',        'name' => 'App / SaaS',             'category' => 'SaaS',        'tags' => ['saas', 'startup', 'software']],
+            ['key' => 'coach',       'name' => 'Coach / Formación',      'category' => 'Servicios',   'tags' => ['coach', 'formación', 'cursos']],
+        ];
+    }
+
     public function run(): void
     {
+        $dir    = database_path('templates');
+        $base   = @file_get_contents("{$dir}/base.css") ?: '';
+        $engine = @file_get_contents("{$dir}/engine.js") ?: '';
+
         $names = [];
-        foreach ($this->templates() as $t) {
-            Template::updateOrCreate(['name' => $t['name']], $t);
+        foreach ($this->manifest() as $t) {
+            $html = @file_get_contents("{$dir}/{$t['key']}.html");
+            $css  = @file_get_contents("{$dir}/{$t['key']}.css");
+
+            // Si aún no existen los archivos de la plantilla, se omite (no rompe el deploy).
+            if ($html === false || $css === false) {
+                continue;
+            }
+
+            Template::updateOrCreate(
+                ['name' => $t['name']],
+                [
+                    'category'   => $t['category'],
+                    'tags'       => $t['tags'],
+                    'html'       => $html,
+                    'css'        => $base . "\n\n" . $css,
+                    'js'         => $engine,
+                    'is_premium' => $t['premium'] ?? false,
+                    'is_active'  => true,
+                ]
+            );
             $names[] = $t['name'];
         }
 
         // Elimina plantillas antiguas que ya no forman parte del set (sin romper
         // la FK: primero desvincula los proyectos que las usaban).
-        $obsolete = Template::whereNotIn('name', $names)->pluck('id');
-        if ($obsolete->isNotEmpty()) {
-            \App\Models\Project::whereIn('template_id', $obsolete)->update(['template_id' => null]);
-            Template::whereIn('id', $obsolete)->delete();
+        if (!empty($names)) {
+            $obsolete = Template::whereNotIn('name', $names)->pluck('id');
+            if ($obsolete->isNotEmpty()) {
+                \App\Models\Project::whereIn('template_id', $obsolete)->update(['template_id' => null]);
+                Template::whereIn('id', $obsolete)->delete();
+            }
         }
-    }
-
-    private function templates(): array
-    {
-        return [
-            $this->saas(),
-            $this->restaurante(),
-            $this->clinicaDental(),
-            $this->bufeteAbogados(),
-            $this->inmobiliaria(),
-            $this->fotografo(),
-            $this->barberia(),
-            $this->portfolio(),
-            $this->tienda(),
-            $this->arquitectura(),
-            $this->coach(),
-            $this->cafeteria(),
-        ];
-    }
-
-    // ── 1. SaaS / Startup (oscuro, gradientes) ───────────────────────────────
-    private function saas(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">Nimbus</div><div class="nav-links"><a href="#features">Producto</a><a href="#pricing">Precios</a><a href="#" class="btn-nav">Probar gratis</a></div></nav>
-<header class="hero"><span class="badge">Nuevo · Integración con IA</span><h1>El sistema operativo de tu equipo</h1><p>Centraliza tareas, documentos y métricas en un solo lugar. Menos herramientas, más resultados.</p><div class="hero-cta"><a href="#" class="btn-primary">Empezar gratis</a><a href="#" class="btn-ghost">Ver demo</a></div><div class="metrics"><div><strong>14 días</strong><span>de prueba</span></div><div><strong>+8.000</strong><span>equipos</span></div><div><strong>99,9%</strong><span>uptime</span></div></div></header>
-<section id="features" class="features"><h2>Diseñado para ir rápido</h2><div class="grid"><article><h3>Automatizaciones</h3><p>Conecta tus apps y deja que el flujo se ejecute solo, sin código.</p></article><article><h3>Paneles en vivo</h3><p>Métricas que importan, actualizadas al segundo y compartibles.</p></article><article><h3>Permisos finos</h3><p>Controla quién ve qué con roles claros y auditoría completa.</p></article><article><h3>API abierta</h3><p>Construye sobre Nimbus con una API documentada y webhooks.</p></article></div></section>
-<section id="pricing" class="pricing"><h2>Precios sin sorpresas</h2><div class="plans"><div class="plan"><span class="plan-name">Starter</span><div class="price">9€<small>/mes</small></div><a href="#" class="btn-outline">Elegir</a></div><div class="plan featured"><span class="tag">Recomendado</span><span class="plan-name">Pro</span><div class="price">29€<small>/mes</small></div><a href="#" class="btn-primary">Elegir</a></div><div class="plan"><span class="plan-name">Empresa</span><div class="price">A medida</div><a href="#" class="btn-outline">Hablar</a></div></div></section>
-<footer class="footer"><p>© 2025 Nimbus · Hecho para equipos exigentes</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--bg:#08080c;--card:#111118;--bd:#22222e;--ac:#7c5cff;--ac2:#22d3ee;--mut:#8b8b9a}body{font-family:Inter,sans-serif;background:var(--bg);color:#fff;line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 6%;position:sticky;top:0;background:rgba(8,8,12,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);z-index:50}.logo{font-weight:900;font-size:1.3rem;letter-spacing:-.03em}.nav-links{display:flex;gap:2rem;align-items:center}.nav-links a{color:var(--mut);text-decoration:none;font-size:.92rem}.nav-links a:hover{color:#fff}.btn-nav{background:var(--ac);color:#fff!important;padding:.55rem 1.1rem;border-radius:9px;font-weight:600}.hero{max-width:820px;margin:0 auto;text-align:center;padding:7rem 6% 4rem}.badge{display:inline-block;background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.4);color:#c4b5fd;font-size:.78rem;font-weight:600;padding:.35rem 1rem;border-radius:30px;margin-bottom:1.8rem}.hero h1{font-size:3.6rem;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:1.3rem;background:linear-gradient(120deg,#fff,#9ca3af);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hero p{color:var(--mut);font-size:1.2rem;max-width:560px;margin:0 auto 2.2rem}.hero-cta{display:flex;gap:1rem;justify-content:center}.btn-primary{background:linear-gradient(120deg,var(--ac),#9333ea);color:#fff;text-decoration:none;padding:.85rem 1.8rem;border-radius:11px;font-weight:700}.btn-ghost,.btn-outline{border:1px solid var(--bd);color:#fff;text-decoration:none;padding:.85rem 1.8rem;border-radius:11px;font-weight:600}.metrics{display:flex;gap:3rem;justify-content:center;margin-top:3.5rem;flex-wrap:wrap}.metrics strong{display:block;font-size:1.6rem;font-weight:800}.metrics span{color:var(--mut);font-size:.85rem}.features{max-width:1080px;margin:0 auto;padding:5rem 6%}.features h2{font-size:2.4rem;font-weight:800;text-align:center;letter-spacing:-.03em;margin-bottom:3rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem}.features article{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:2rem}.features h3{font-size:1.15rem;font-weight:700;margin-bottom:.6rem}.features p{color:var(--mut);font-size:.95rem}.pricing{max-width:980px;margin:0 auto;padding:4rem 6% 6rem;text-align:center}.pricing h2{font-size:2.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:3rem}.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}.plan{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:2.4rem 1.8rem;position:relative}.plan.featured{border-color:var(--ac);box-shadow:0 0 50px rgba(124,92,255,.18)}.tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--ac);font-size:.72rem;font-weight:700;padding:.25rem .9rem;border-radius:20px}.plan-name{color:var(--mut);font-size:.85rem;text-transform:uppercase;letter-spacing:.12em}.price{font-size:2.6rem;font-weight:900;margin:1rem 0 1.6rem}.price small{font-size:1rem;color:var(--mut);font-weight:400}.plan a{display:block}.footer{text-align:center;padding:2.5rem;color:var(--mut);border-top:1px solid var(--bd);font-size:.88rem}@media(max-width:760px){.hero h1{font-size:2.4rem}.grid,.plans{grid-template-columns:1fr}.nav-links a:not(.btn-nav){display:none}}
-CSS;
-        return ['name' => 'SaaS Moderno', 'category' => 'SaaS', 'tags' => ['oscuro', 'startup', 'software'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 2. Restaurante (elegante, serif, oscuro/dorado) ──────────────────────
-    private function restaurante(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="brand">La Toscana</div><div class="links"><a href="#carta">Carta</a><a href="#historia">Historia</a><a href="#reserva" class="cta">Reservar</a></div></nav>
-<header class="hero"><div class="hero-in"><span class="kicker">Cocina italiana · desde 1992</span><h1>El sabor de la tradición, en cada plato</h1><p>Pasta fresca elaborada a diario y una carta de vinos seleccionada con mimo.</p><a href="#reserva" class="cta-lg">Reservar mesa</a></div></header>
-<section id="carta" class="menu"><h2>Nuestra carta</h2><div class="menu-grid"><div class="col"><h3>Entrantes</h3><div class="item"><span>Burrata con tomate confitado</span><b>12€</b></div><div class="item"><span>Vitello tonnato</span><b>14€</b></div><div class="item"><span>Carpaccio de ternera</span><b>13€</b></div></div><div class="col"><h3>Principales</h3><div class="item"><span>Tagliatelle al ragú</span><b>16€</b></div><div class="item"><span>Risotto de setas y trufa</span><b>18€</b></div><div class="item"><span>Osso buco a la milanesa</span><b>22€</b></div></div></div></section>
-<section id="historia" class="story"><div class="story-in"><h2>Tres generaciones de cocina</h2><p>Lo que empezó como una pequeña trattoria familiar es hoy un referente. Seguimos cocinando con las recetas de la nonna y los mejores productos de temporada.</p></div></section>
-<section id="reserva" class="reserve"><h2>Reserva tu mesa</h2><p>Calle Mayor 24 · Madrid · 91 123 45 67</p><p class="hours">Martes a Domingo · 13:00–16:00 y 20:00–23:30</p></section>
-<footer class="foot"><p>© 2025 La Toscana</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--cream:#f7f2e9;--ink:#1c1813;--gold:#9c6b34;--mut:#6b6258}body{font-family:Jost,sans-serif;background:var(--cream);color:var(--ink);line-height:1.7}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 7%}.brand{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;letter-spacing:.02em}.links{display:flex;gap:2rem;align-items:center}.links a{color:var(--ink);text-decoration:none;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase}.cta{background:var(--ink);color:var(--cream)!important;padding:.55rem 1.2rem;border-radius:2px}.hero{height:84vh;min-height:520px;background:linear-gradient(rgba(20,16,12,.55),rgba(20,16,12,.65)),linear-gradient(135deg,#3a2c1d,#1c1813);display:flex;align-items:center;color:var(--cream)}.hero-in{max-width:680px;padding:0 7%}.kicker{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:#d9b27a}.hero h1{font-family:'Cormorant Garamond',serif;font-size:4.2rem;font-weight:600;line-height:1.08;margin:1.4rem 0}.hero p{font-weight:300;font-size:1.15rem;max-width:460px;margin-bottom:2.4rem;opacity:.9}.cta-lg{background:var(--gold);color:#fff;text-decoration:none;padding:1rem 2.4rem;letter-spacing:.12em;text-transform:uppercase;font-size:.82rem}.menu{max-width:920px;margin:0 auto;padding:6rem 7%}.menu h2,.story h2,.reserve h2{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:600;text-align:center;margin-bottom:3rem}.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem}.col h3{font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(156,107,52,.3);padding-bottom:.8rem;margin-bottom:1.4rem}.item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem;gap:1rem}.item span{font-weight:400}.item b{font-family:'Cormorant Garamond',serif;color:var(--gold);font-size:1.2rem}.story{background:var(--ink);color:var(--cream);padding:6rem 7%;text-align:center}.story-in{max-width:640px;margin:0 auto}.story p{font-weight:300;font-size:1.15rem;opacity:.85}.reserve{text-align:center;padding:6rem 7%}.reserve p{font-size:1.1rem;color:var(--mut)}.hours{font-size:.95rem;margin-top:.4rem}.foot{text-align:center;padding:2.4rem;background:var(--ink);color:#9b8f7e;font-size:.85rem}@media(max-width:760px){.hero h1{font-size:2.8rem}.menu-grid{grid-template-columns:1fr;gap:2.5rem}.links a:not(.cta){display:none}}
-CSS;
-        return ['name' => 'Restaurante Elegante', 'category' => 'Restaurante', 'tags' => ['elegante', 'gastronomía', 'reservas'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 3. Clínica dental (limpio, médico, azul/blanco) ──────────────────────
-    private function clinicaDental(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo"><span class="dot"></span>Dental Vital</div><div class="links"><a href="#serv">Servicios</a><a href="#equipo">Equipo</a><a href="#cita" class="btn">Pedir cita</a></div></nav>
-<header class="hero"><div class="hero-txt"><h1>Tu sonrisa, en las mejores manos</h1><p>Odontología avanzada con trato cercano. Primera visita y diagnóstico sin coste.</p><div class="cta-row"><a href="#cita" class="btn">Reservar primera visita</a><span class="phone">o llama al 900 123 456</span></div></div><div class="hero-card"><div class="stat"><b>+15.000</b><span>pacientes</span></div><div class="stat"><b>20 años</b><span>de experiencia</span></div><div class="stat"><b>4,9/5</b><span>valoración</span></div></div></header>
-<section id="serv" class="serv"><h2>Servicios</h2><div class="grid"><article><h3>Implantes</h3><p>Recupera tus dientes con implantes de titanio y resultados naturales.</p></article><article><h3>Ortodoncia invisible</h3><p>Alinea tu sonrisa de forma discreta y cómoda con férulas transparentes.</p></article><article><h3>Estética dental</h3><p>Blanqueamiento y carillas para una sonrisa luminosa y armónica.</p></article><article><h3>Odontopediatría</h3><p>Cuidamos la salud bucodental de los más pequeños sin estrés.</p></article></div></section>
-<section id="equipo" class="team"><h2>Un equipo que te cuida</h2><p>Profesionales colegiados en formación continua, con tecnología de diagnóstico de última generación.</p></section>
-<section id="cita" class="cita"><h2>Pide tu cita hoy</h2><p>Avenida de la Salud 8 · Lunes a Viernes 9:00–20:00</p><a href="tel:900123456" class="btn">900 123 456</a></section>
-<footer class="foot"><p>© 2025 Dental Vital · Clínica dental</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--blue:#0ea5e9;--ink:#0f2231;--soft:#eef7fc;--mut:#5a7184}body{font-family:Manrope,sans-serif;color:var(--ink);line-height:1.65;background:#fff}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 6%;border-bottom:1px solid #eaf2f7;position:sticky;top:0;background:#fff;z-index:40}.logo{font-weight:800;font-size:1.2rem;display:flex;align-items:center;gap:.5rem}.dot{width:12px;height:12px;border-radius:50%;background:var(--blue)}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-weight:600;font-size:.92rem}.btn{background:var(--blue);color:#fff!important;padding:.65rem 1.3rem;border-radius:30px;font-weight:700}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:center;max-width:1140px;margin:0 auto;padding:5rem 6%}.hero h1{font-size:3.2rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}.hero p{color:var(--mut);font-size:1.15rem;margin:1.2rem 0 2rem;max-width:440px}.cta-row{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}.phone{color:var(--mut);font-size:.9rem}.hero-card{background:var(--soft);border-radius:24px;padding:2.4rem;display:grid;gap:1.6rem}.stat b{font-size:1.8rem;font-weight:800;color:var(--blue);display:block}.stat span{color:var(--mut);font-size:.9rem}.serv{max-width:1080px;margin:0 auto;padding:5rem 6%}.serv h2,.team h2,.cita h2{font-size:2.3rem;font-weight:800;text-align:center;letter-spacing:-.02em;margin-bottom:2.6rem}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.3rem}.serv article{border:1px solid #e7eef3;border-radius:18px;padding:1.9rem;transition:.25s}.serv article:hover{border-color:var(--blue);box-shadow:0 14px 30px rgba(14,165,233,.08);transform:translateY(-3px)}.serv h3{font-size:1.12rem;font-weight:700;margin-bottom:.5rem}.serv p{color:var(--mut);font-size:.95rem}.team{background:var(--soft);text-align:center;padding:5rem 6%}.team p{color:var(--mut);max-width:560px;margin:0 auto;font-size:1.1rem}.cita{text-align:center;padding:5rem 6%}.cita p{color:var(--mut);margin-bottom:1.8rem}.foot{text-align:center;padding:2.2rem;background:var(--ink);color:#9fb6c6;font-size:.85rem}@media(max-width:820px){.hero{grid-template-columns:1fr}.hero h1{font-size:2.4rem}.grid{grid-template-columns:1fr}.links a:not(.btn){display:none}}
-CSS;
-        return ['name' => 'Clínica Dental', 'category' => 'Salud', 'tags' => ['clínica', 'médico', 'salud'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 4. Bufete de abogados (serif, navy, autoridad) ───────────────────────
-    private function bufeteAbogados(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="brand">Herrera &amp; Asociados</div><div class="links"><a href="#areas">Áreas</a><a href="#firma">La firma</a><a href="#contacto" class="cta">Contactar</a></div></nav>
-<header class="hero"><div class="hero-in"><span class="kick">Abogados desde 1987</span><h1>Defendemos lo que es tuyo con rigor y discreción</h1><p>Asesoramiento jurídico integral para empresas y particulares. Primera consulta sin compromiso.</p><a href="#contacto" class="cta-lg">Solicitar consulta</a></div></header>
-<section id="areas" class="areas"><h2>Áreas de práctica</h2><div class="grid"><article><span class="num">01</span><h3>Derecho mercantil</h3><p>Constitución de sociedades, contratos y operaciones societarias.</p></article><article><span class="num">02</span><h3>Civil y familia</h3><p>Herencias, divorcios y reclamaciones con cercanía y firmeza.</p></article><article><span class="num">03</span><h3>Laboral</h3><p>Despidos, negociación colectiva y defensa ante la jurisdicción social.</p></article><article><span class="num">04</span><h3>Penal económico</h3><p>Defensa especializada en delitos económicos y societarios.</p></article></div></section>
-<section id="firma" class="firm"><div class="firm-in"><h2>Experiencia que da resultados</h2><p>Más de tres décadas asesorando a clientes con un enfoque práctico y orientado a soluciones. Cada caso se trata con la atención que merece.</p><div class="figs"><div><b>35+</b><span>años</span></div><div><b>2.400</b><span>casos</span></div><div><b>96%</b><span>resueltos</span></div></div></div></section>
-<section id="contacto" class="contact"><h2>Hablemos de su caso</h2><p>Paseo de la Castellana 120 · Madrid · 91 555 00 11</p></section>
-<footer class="foot"><p>© 2025 Herrera &amp; Asociados · Todos los derechos reservados</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--navy:#13233f;--gold:#b8923f;--paper:#f6f4ef;--mut:#5d6470}body{font-family:Inter,sans-serif;color:#1b2435;line-height:1.7;background:#fff}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.4rem 7%;background:var(--navy)}.brand{font-family:'Libre Baskerville',serif;color:#fff;font-size:1.25rem}.links{display:flex;gap:2rem;align-items:center}.links a{color:#cdd6e4;text-decoration:none;font-size:.88rem;letter-spacing:.04em}.cta{border:1px solid var(--gold);color:var(--gold)!important;padding:.5rem 1.2rem}.hero{background:var(--navy);color:#fff;padding:6rem 7% 7rem}.hero-in{max-width:760px}.kick{color:var(--gold);font-size:.8rem;letter-spacing:.22em;text-transform:uppercase}.hero h1{font-family:'Libre Baskerville',serif;font-size:3.4rem;line-height:1.18;margin:1.4rem 0}.hero p{color:#c3cddd;font-size:1.15rem;max-width:560px;margin-bottom:2.4rem}.cta-lg{background:var(--gold);color:#fff;text-decoration:none;padding:1rem 2.2rem;font-weight:600;letter-spacing:.04em}.areas{max-width:1080px;margin:0 auto;padding:6rem 7%}.areas h2,.firm h2,.contact h2{font-family:'Libre Baskerville',serif;font-size:2.4rem;text-align:center;margin-bottom:3rem}.grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}.areas article{border-top:2px solid var(--navy);padding-top:1.4rem}.num{color:var(--gold);font-family:'Libre Baskerville',serif;font-size:1.3rem}.areas h3{font-family:'Libre Baskerville',serif;font-size:1.3rem;margin:.6rem 0}.areas p{color:#5d6470;font-size:.97rem}.firm{background:var(--paper);padding:6rem 7%}.firm-in{max-width:720px;margin:0 auto;text-align:center}.firm p{color:#5d6470;font-size:1.12rem}.figs{display:flex;justify-content:center;gap:3.5rem;margin-top:3rem}.figs b{font-family:'Libre Baskerville',serif;font-size:2.2rem;color:var(--navy);display:block}.figs span{color:#5d6470;font-size:.88rem}.contact{text-align:center;padding:6rem 7%}.contact p{color:#5d6470;font-size:1.1rem}.foot{text-align:center;padding:2.4rem;background:var(--navy);color:#8b97aa;font-size:.85rem}@media(max-width:760px){.hero h1{font-size:2.3rem}.grid{grid-template-columns:1fr}.figs{gap:2rem}.links a:not(.cta){display:none}}
-CSS;
-        return ['name' => 'Bufete de Abogados', 'category' => 'Servicios', 'tags' => ['legal', 'abogados', 'profesional'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 5. Inmobiliaria (tarjetas de propiedades) ────────────────────────────
-    private function inmobiliaria(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">Casa&amp;Co</div><div class="links"><a href="#props">Propiedades</a><a href="#serv">Servicios</a><a href="#contacto" class="btn">Vender mi casa</a></div></nav>
-<header class="hero"><h1>Encuentra el hogar que estás buscando</h1><p>Propiedades seleccionadas, acompañamiento de principio a fin y tasación gratuita.</p><div class="search"><input placeholder="Ciudad o zona"><select><option>Comprar</option><option>Alquilar</option></select><a href="#props" class="btn">Buscar</a></div></header>
-<section id="props" class="props"><h2>Destacados</h2><div class="grid"><article class="card"><div class="ph ph-a"><span class="price">320.000€</span></div><div class="body"><h3>Ático con terraza</h3><p>Chamberí, Madrid · 95 m² · 2 hab.</p></div></article><article class="card"><div class="ph ph-b"><span class="price">189.000€</span></div><div class="body"><h3>Piso reformado</h3><p>Gràcia, Barcelona · 70 m² · 2 hab.</p></div></article><article class="card"><div class="ph ph-c"><span class="price">540.000€</span></div><div class="body"><h3>Casa con jardín</h3><p>Pozuelo · 210 m² · 4 hab.</p></div></article></div></section>
-<section id="serv" class="serv"><h2>Te acompañamos en todo</h2><div class="three"><div><h3>Tasación gratuita</h3><p>Conoce el valor real de tu propiedad sin compromiso.</p></div><div><h3>Gestión completa</h3><p>Fotografía, visitas y papeleo: nos encargamos de todo.</p></div><div><h3>Asesoría hipotecaria</h3><p>Te ayudamos a conseguir la mejor financiación.</p></div></div></section>
-<section id="contacto" class="contact"><h2>¿Quieres vender?</h2><p>Llámanos al 91 444 22 11 y recibe una valoración hoy mismo.</p></section>
-<footer class="foot"><p>© 2025 Casa&amp;Co Inmobiliaria</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--green:#0f7b6c;--ink:#13211f;--soft:#f3f6f4;--mut:#5d6f6b}body{font-family:Poppins,sans-serif;color:var(--ink);line-height:1.6;background:#fff}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 6%;border-bottom:1px solid #edf1ef;position:sticky;top:0;background:#fff;z-index:40}.logo{font-weight:800;font-size:1.25rem;color:var(--green)}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-weight:500;font-size:.92rem}.btn{background:var(--green);color:#fff!important;padding:.6rem 1.3rem;border-radius:10px;font-weight:600}.hero{max-width:900px;margin:0 auto;text-align:center;padding:5rem 6% 3rem}.hero h1{font-size:3rem;font-weight:800;line-height:1.12}.hero p{color:var(--mut);font-size:1.15rem;margin:1.2rem auto 2.2rem;max-width:520px}.search{display:flex;gap:.6rem;max-width:580px;margin:0 auto;background:var(--soft);padding:.6rem;border-radius:14px}.search input,.search select{flex:1;border:none;background:#fff;padding:.8rem 1rem;border-radius:9px;font-family:inherit;font-size:.95rem}.props{max-width:1120px;margin:0 auto;padding:4rem 6%}.props h2,.serv h2,.contact h2{font-size:2.2rem;font-weight:800;text-align:center;margin-bottom:2.6rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem}.card{border:1px solid #e9eeec;border-radius:18px;overflow:hidden;transition:.25s}.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.08)}.ph{height:190px;position:relative;display:flex;align-items:flex-end;padding:1rem}.ph-a{background:linear-gradient(135deg,#0f7b6c,#34d399)}.ph-b{background:linear-gradient(135deg,#2563eb,#60a5fa)}.ph-c{background:linear-gradient(135deg,#b45309,#f59e0b)}.price{background:#fff;color:var(--ink);font-weight:700;padding:.35rem .8rem;border-radius:8px;font-size:.9rem}.body{padding:1.3rem}.body h3{font-size:1.1rem;font-weight:700}.body p{color:var(--mut);font-size:.9rem;margin-top:.2rem}.serv{background:var(--soft);padding:5rem 6%}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:980px;margin:0 auto}.three h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;color:var(--green)}.three p{color:var(--mut);font-size:.95rem}.contact{text-align:center;padding:5rem 6%}.contact p{color:var(--mut);font-size:1.1rem}.foot{text-align:center;padding:2.2rem;background:var(--ink);color:#9db5b0;font-size:.85rem}@media(max-width:820px){.hero h1{font-size:2.2rem}.grid,.three{grid-template-columns:1fr}.search{flex-direction:column}.links a:not(.btn){display:none}}
-CSS;
-        return ['name' => 'Inmobiliaria', 'category' => 'Inmobiliaria', 'tags' => ['propiedades', 'real estate', 'vivienda'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 6. Fotógrafo (galería, negro, minimal) ───────────────────────────────
-    private function fotografo(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="name">MARTA RUIZ</div><div class="links"><a href="#work">Trabajo</a><a href="#about">Sobre mí</a><a href="#book">Reservar</a></div></nav>
-<header class="hero"><h1>Fotografía que cuenta historias</h1><p>Bodas, retrato y editorial. Con sede en Valencia, disponible en toda Europa.</p></header>
-<section id="work" class="gallery"><div class="g g1"><span>Bodas</span></div><div class="g g2"><span>Retrato</span></div><div class="g g3"><span>Editorial</span></div><div class="g g4"><span>Producto</span></div><div class="g g5"><span>Eventos</span></div><div class="g g6"><span>Lifestyle</span></div></section>
-<section id="about" class="about"><div class="about-in"><h2>Hola, soy Marta</h2><p>Llevo diez años capturando momentos reales. Me interesa la luz natural, los gestos honestos y las historias que se cuentan solas. Cada sesión es única, como las personas que retrato.</p></div></section>
-<section id="book" class="book"><h2>Trabajemos juntos</h2><p>hola@martaruiz.com · +34 600 11 22 33</p></section>
-<footer class="foot"><p>© 2025 Marta Ruiz Photography</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=Spectral:ital,wght@0,400;1,400&display=swap');*{margin:0;padding:0;box-sizing:border-box}body{font-family:Archivo,sans-serif;background:#0a0a0a;color:#f2f2f2;line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.6rem 5%}.name{font-weight:800;letter-spacing:.3em;font-size:.95rem}.links{display:flex;gap:2rem}.links a{color:#9a9a9a;text-decoration:none;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase}.links a:hover{color:#fff}.hero{text-align:center;padding:7rem 5% 4rem;max-width:760px;margin:0 auto}.hero h1{font-family:Spectral,serif;font-weight:400;font-size:3.6rem;line-height:1.15}.hero p{color:#9a9a9a;font-size:1.05rem;margin-top:1.4rem;letter-spacing:.02em}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:2rem 5%}.g{aspect-ratio:3/4;display:flex;align-items:flex-end;padding:1.2rem;position:relative;overflow:hidden}.g span{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;z-index:2}.g1{background:linear-gradient(160deg,#3b3b52,#13131c)}.g2{background:linear-gradient(160deg,#5a3a3a,#1c1313)}.g3{background:linear-gradient(160deg,#33523f,#0f1c15)}.g4{background:linear-gradient(160deg,#444,#111)}.g5{background:linear-gradient(160deg,#3a4a5a,#121a22)}.g6{background:linear-gradient(160deg,#5a4a33,#1c160d)}.about{padding:7rem 5%}.about-in{max-width:640px;margin:0 auto;text-align:center}.about h2{font-family:Spectral,serif;font-weight:400;font-size:2.6rem;margin-bottom:1.4rem}.about p{color:#a6a6a6;font-size:1.12rem}.book{text-align:center;padding:5rem 5%;border-top:1px solid #1d1d1d}.book h2{font-family:Spectral,serif;font-weight:400;font-size:2.4rem;margin-bottom:1rem}.book p{color:#9a9a9a;letter-spacing:.04em}.foot{text-align:center;padding:2.4rem;color:#5a5a5a;font-size:.8rem;letter-spacing:.1em}@media(max-width:760px){.hero h1{font-size:2.4rem}.gallery{grid-template-columns:1fr 1fr}.links a{display:none}}
-CSS;
-        return ['name' => 'Fotógrafo', 'category' => 'Portfolio', 'tags' => ['fotografía', 'galería', 'minimalista'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 7. Barbería (vintage, oscuro, ámbar) ─────────────────────────────────
-    private function barberia(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">EL NAVAJAS</div><div class="links"><a href="#serv">Servicios</a><a href="#precios">Precios</a><a href="#cita" class="btn">Reservar</a></div></nav>
-<header class="hero"><div class="hero-in"><span class="est">Est. 2010</span><h1>Barbería clásica para el hombre moderno</h1><p>Cortes a navaja, afeitado tradicional y el mejor ambiente del barrio.</p><a href="#cita" class="btn-lg">Pedir cita</a></div></header>
-<section id="serv" class="serv"><h2>Lo que hacemos</h2><div class="grid"><div><h3>Corte de pelo</h3><p>Clásico o moderno, adaptado a tu estilo.</p></div><div><h3>Afeitado a navaja</h3><p>Toalla caliente, espuma y acabado perfecto.</p></div><div><h3>Arreglo de barba</h3><p>Perfilado, aceite y mantenimiento.</p></div><div><h3>Pack completo</h3><p>Corte + barba + ritual de afeitado.</p></div></div></section>
-<section id="precios" class="precios"><h2>Precios</h2><div class="list"><div class="row"><span>Corte de pelo</span><b>15€</b></div><div class="row"><span>Afeitado a navaja</span><b>18€</b></div><div class="row"><span>Arreglo de barba</span><b>12€</b></div><div class="row"><span>Pack completo</span><b>35€</b></div></div></section>
-<section id="cita" class="cita"><h2>Te esperamos</h2><p>Calle del Barrio 12 · Martes a Sábado 10:00–20:00</p><a href="#" class="btn-lg">Reservar online</a></section>
-<footer class="foot"><p>© 2025 El Navajas · Barbería</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--bg:#15110c;--amber:#d99a3a;--card:#1e1813;--mut:#9b8c79}body{font-family:Inter,sans-serif;background:var(--bg);color:#f0e9df;line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.3rem 6%;border-bottom:1px solid #2a2219}.logo{font-family:Oswald,sans-serif;font-weight:700;letter-spacing:.16em;font-size:1.3rem;color:var(--amber)}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}.btn{background:var(--amber);color:#15110c!important;padding:.55rem 1.2rem;font-weight:600}.hero{background:linear-gradient(rgba(21,17,12,.7),rgba(21,17,12,.85)),linear-gradient(135deg,#2a2017,#15110c);padding:6.5rem 6%}.hero-in{max-width:680px}.est{font-family:Oswald,sans-serif;color:var(--amber);letter-spacing:.3em;font-size:.85rem}.hero h1{font-family:Oswald,sans-serif;font-weight:700;font-size:4rem;line-height:1.05;text-transform:uppercase;margin:1.2rem 0}.hero p{color:#c8bba9;font-size:1.15rem;max-width:480px;margin-bottom:2.2rem}.btn-lg{background:var(--amber);color:#15110c;text-decoration:none;padding:.95rem 2.2rem;font-family:Oswald,sans-serif;font-weight:600;letter-spacing:.1em;text-transform:uppercase}.serv{max-width:1040px;margin:0 auto;padding:5.5rem 6%}.serv h2,.precios h2,.cita h2{font-family:Oswald,sans-serif;font-weight:700;font-size:2.6rem;text-transform:uppercase;text-align:center;margin-bottom:2.6rem;letter-spacing:.04em}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.3rem}.serv .grid>div{background:var(--card);border:1px solid #2a2219;border-radius:8px;padding:1.8rem}.serv h3{font-family:Oswald,sans-serif;font-weight:600;letter-spacing:.05em;margin-bottom:.5rem;color:var(--amber)}.serv p{color:var(--mut);font-size:.95rem}.precios{background:#100c08;padding:5.5rem 6%}.list{max-width:560px;margin:0 auto}.row{display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #2a2219}.row b{font-family:Oswald,sans-serif;color:var(--amber);font-size:1.3rem}.cita{text-align:center;padding:5.5rem 6%}.cita p{color:var(--mut);margin-bottom:1.8rem}.foot{text-align:center;padding:2.2rem;color:#6b5f4f;font-size:.85rem;border-top:1px solid #2a2219}@media(max-width:760px){.hero h1{font-size:2.6rem}.grid{grid-template-columns:1fr}.links a:not(.btn){display:none}}
-CSS;
-        return ['name' => 'Barbería', 'category' => 'Belleza', 'tags' => ['barbería', 'vintage', 'masculino'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 8. Portfolio personal (claro, tipográfico) ───────────────────────────
-    private function portfolio(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="me">Diego Soler</div><div class="links"><a href="#work">Proyectos</a><a href="#about">Sobre mí</a><a href="mailto:hola@diegosoler.com">Contacto</a></div></nav>
-<header class="hero"><h1>Diseñador de producto &amp; desarrollador front-end</h1><p>Ayudo a startups a convertir ideas en productos digitales claros y usables.</p></header>
-<section id="work" class="work"><h2>Proyectos seleccionados</h2><div class="list"><a class="proj" href="#"><div><h3>Finvo — App de finanzas</h3><p>Rediseño completo · UX/UI · 2024</p></div><span class="arrow">↗</span></a><a class="proj" href="#"><div><h3>Lumen — Plataforma SaaS</h3><p>Sistema de diseño · Front-end · 2023</p></div><span class="arrow">↗</span></a><a class="proj" href="#"><div><h3>Origen — E-commerce</h3><p>Diseño de marca y tienda · 2023</p></div><span class="arrow">↗</span></a></div></section>
-<section id="about" class="about"><div class="about-in"><h2>Sobre mí</h2><p>Combino diseño y código para crear experiencias cuidadas hasta el último detalle. Disponible para proyectos freelance y colaboraciones.</p><div class="skills"><span>Figma</span><span>React</span><span>TypeScript</span><span>Design Systems</span></div></div></section>
-<footer class="foot"><p>© 2025 Diego Soler · hola@diegosoler.com</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--ink:#16161a;--mut:#6b6b73;--ac:#5b3df5}body{font-family:'Space Grotesk',sans-serif;background:#fafafa;color:var(--ink);line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.6rem 7%}.me{font-weight:700;font-size:1.1rem}.links{display:flex;gap:1.8rem}.links a{color:var(--mut);text-decoration:none;font-size:.92rem}.links a:hover{color:var(--ink)}.hero{max-width:880px;padding:6rem 7% 4rem}.hero h1{font-size:3.4rem;font-weight:700;line-height:1.12;letter-spacing:-.02em;max-width:720px}.hero p{color:var(--mut);font-size:1.25rem;margin-top:1.4rem;max-width:520px}.work{max-width:880px;margin:0 auto;padding:3rem 7%}.work h2,.about h2{font-size:1rem;text-transform:uppercase;letter-spacing:.16em;color:var(--mut);margin-bottom:1.6rem}.list{border-top:1px solid #e4e4e7}.proj{display:flex;justify-content:space-between;align-items:center;padding:1.8rem 0;border-bottom:1px solid #e4e4e7;text-decoration:none;color:var(--ink);transition:.2s}.proj:hover{padding-left:1rem}.proj h3{font-size:1.5rem;font-weight:600}.proj p{color:var(--mut);font-size:.92rem;margin-top:.2rem}.arrow{color:var(--ac);font-size:1.4rem}.about{max-width:880px;margin:0 auto;padding:5rem 7%}.about-in{max-width:620px}.about p{font-size:1.15rem;color:#33333a}.skills{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.8rem}.skills span{border:1px solid #d8d8de;border-radius:30px;padding:.4rem 1rem;font-size:.85rem;color:var(--mut)}.foot{padding:3rem 7%;color:var(--mut);font-size:.9rem;border-top:1px solid #e4e4e7}@media(max-width:760px){.hero h1{font-size:2.3rem}.proj h3{font-size:1.2rem}.links a{display:none}}
-CSS;
-        return ['name' => 'Portfolio Personal', 'category' => 'Portfolio', 'tags' => ['portfolio', 'creativo', 'minimalista'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 9. Tienda online (e-commerce, productos) ─────────────────────────────
-    private function tienda(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">AURA</div><div class="links"><a href="#shop">Tienda</a><a href="#about">Marca</a><a href="#shop" class="cart">Cesta (0)</a></div></nav>
-<header class="hero"><div class="hero-in"><span class="kick">Nueva colección</span><h1>Básicos que duran toda la vida</h1><p>Prendas atemporales de algodón orgánico, hechas para usarse cada día.</p><a href="#shop" class="btn">Ver colección</a></div></header>
-<section id="shop" class="shop"><h2>Lo más vendido</h2><div class="grid"><article class="prod"><div class="img p1"></div><h3>Camiseta esencial</h3><div class="meta"><span>29€</span><a href="#">Añadir</a></div></article><article class="prod"><div class="img p2"></div><h3>Sudadera orgánica</h3><div class="meta"><span>59€</span><a href="#">Añadir</a></div></article><article class="prod"><div class="img p3"></div><h3>Pantalón relajado</h3><div class="meta"><span>69€</span><a href="#">Añadir</a></div></article><article class="prod"><div class="img p4"></div><h3>Gorro de punto</h3><div class="meta"><span>25€</span><a href="#">Añadir</a></div></article></div></section>
-<section id="about" class="band"><div class="band-in"><h2>Moda consciente</h2><p>Producción local, materiales certificados y envíos neutros en carbono. Menos, pero mejor.</p></div></section>
-<footer class="foot"><p>© 2025 AURA · Envío gratis a partir de 50€</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--ink:#26211c;--sand:#f0ebe3;--ac:#9a7b4f;--mut:#7a7066}body{font-family:Inter,sans-serif;background:#fbf9f5;color:var(--ink);line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 6%;border-bottom:1px solid #e7e1d7}.logo{font-family:Fraunces,serif;font-weight:600;font-size:1.4rem;letter-spacing:.12em}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-size:.92rem}.cart{border:1px solid var(--ink);padding:.45rem 1rem;border-radius:30px;color:var(--ink)!important}.hero{background:var(--sand);padding:5rem 6%}.hero-in{max-width:560px}.kick{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ac)}.hero h1{font-family:Fraunces,serif;font-weight:500;font-size:3.4rem;line-height:1.1;margin:1rem 0}.hero p{color:var(--mut);font-size:1.12rem;margin-bottom:2rem}.btn{background:var(--ink);color:#fff;text-decoration:none;padding:.85rem 2rem;border-radius:4px;font-weight:500}.shop{max-width:1120px;margin:0 auto;padding:5rem 6%}.shop h2,.band h2{font-family:Fraunces,serif;font-weight:500;font-size:2.2rem;text-align:center;margin-bottom:2.6rem}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem}.img{aspect-ratio:3/4;border-radius:10px;margin-bottom:.9rem}.p1{background:linear-gradient(160deg,#cdbfa6,#a8946f)}.p2{background:linear-gradient(160deg,#a7b0a0,#6f7a68)}.p3{background:linear-gradient(160deg,#c8b3a0,#9a7e66)}.p4{background:linear-gradient(160deg,#bfb0bd,#7d6f7c)}.prod h3{font-size:1rem;font-weight:600}.meta{display:flex;justify-content:space-between;align-items:center;margin-top:.4rem}.meta span{color:var(--mut)}.meta a{color:var(--ac);text-decoration:none;font-weight:600;font-size:.9rem}.band{background:var(--sand);padding:5rem 6%}.band-in{max-width:560px;margin:0 auto;text-align:center}.band p{color:var(--mut);font-size:1.12rem}.foot{text-align:center;padding:2.4rem;color:var(--mut);font-size:.88rem}@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:760px){.hero h1{font-size:2.4rem}.links a:not(.cart){display:none}}
-CSS;
-        return ['name' => 'Tienda Online', 'category' => 'E-commerce', 'tags' => ['tienda', 'moda', 'productos'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 10. Estudio de arquitectura (editorial, blanco) ──────────────────────
-    private function arquitectura(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">ESTUDIO MÉNDEZ</div><div class="links"><a href="#proj">Proyectos</a><a href="#studio">Estudio</a><a href="#contact">Contacto</a></div></nav>
-<header class="hero"><h1>Arquitectura que respira</h1><p>Espacios honestos, materiales nobles y luz natural. Diseñamos lugares para vivir, no solo para ver.</p></header>
-<section id="proj" class="proj"><div class="row"><div class="ph a"></div><div class="info"><span>2024 · Residencial</span><h3>Casa entre pinos</h3><p>Vivienda unifamiliar integrada en el bosque, con patios interiores y madera vista.</p></div></div><div class="row reverse"><div class="ph b"></div><div class="info"><span>2023 · Cultural</span><h3>Pabellón de exposiciones</h3><p>Estructura ligera de hormigón y vidrio para un nuevo espacio cultural.</p></div></div></section>
-<section id="studio" class="studio"><div class="studio-in"><h2>El estudio</h2><p>Fundado en 2009, trabajamos cada proyecto desde el contexto, el clima y las personas. Creemos en una arquitectura silenciosa que perdura.</p></div></section>
-<section id="contact" class="contact"><h2>Conversemos</h2><p>estudio@mendez.arq · Barcelona</p></section>
-<footer class="foot"><p>© 2025 Estudio Méndez Arquitectura</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500&family=Inter:wght@400;500;600&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--ink:#1a1a1a;--mut:#737373;--line:#e6e6e6}body{font-family:Inter,sans-serif;background:#fff;color:var(--ink);line-height:1.65}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.6rem 7%;border-bottom:1px solid var(--line)}.logo{font-weight:600;letter-spacing:.18em;font-size:.95rem}.links{display:flex;gap:2rem}.links a{color:var(--mut);text-decoration:none;font-size:.85rem;letter-spacing:.06em}.hero{max-width:900px;padding:7rem 7% 5rem}.hero h1{font-family:Cormorant,serif;font-weight:400;font-size:4.4rem;line-height:1.08;letter-spacing:-.01em}.hero p{color:var(--mut);font-size:1.2rem;margin-top:1.6rem;max-width:540px}.proj{max-width:1120px;margin:0 auto;padding:3rem 7%}.row{display:grid;grid-template-columns:1.1fr .9fr;gap:3.5rem;align-items:center;margin-bottom:5rem}.row.reverse{direction:rtl}.row.reverse .info{direction:ltr}.ph{aspect-ratio:4/3}.ph.a{background:linear-gradient(135deg,#cfcabf,#8a8276)}.ph.b{background:linear-gradient(135deg,#bcc3c7,#79858c)}.info span{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.info h3{font-family:Cormorant,serif;font-weight:500;font-size:2.2rem;margin:.7rem 0}.info p{color:var(--mut);font-size:1.02rem}.studio{background:#1a1a1a;color:#f2f2f2;padding:7rem 7%}.studio-in{max-width:640px;margin:0 auto;text-align:center}.studio h2,.contact h2{font-family:Cormorant,serif;font-weight:400;font-size:2.8rem;margin-bottom:1.4rem}.studio p{color:#b3b3b3;font-size:1.15rem}.contact{text-align:center;padding:6rem 7%}.contact p{color:var(--mut);font-size:1.1rem}.foot{text-align:center;padding:2.4rem;color:var(--mut);font-size:.85rem;border-top:1px solid var(--line)}@media(max-width:820px){.hero h1{font-size:2.8rem}.row,.row.reverse{grid-template-columns:1fr;direction:ltr;gap:1.6rem}.links a{display:none}}
-CSS;
-        return ['name' => 'Estudio de Arquitectura', 'category' => 'Servicios', 'tags' => ['arquitectura', 'editorial', 'minimalista'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 11. Coach / Consultor (marca personal, cálido) ───────────────────────
-    private function coach(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">Lucía Marín</div><div class="links"><a href="#prog">Programas</a><a href="#test">Opiniones</a><a href="#cta" class="btn">Reservar llamada</a></div></nav>
-<header class="hero"><div class="hero-txt"><span class="kick">Coach de carrera &amp; liderazgo</span><h1>Da el siguiente paso con claridad y confianza</h1><p>Acompaño a profesionales a tomar decisiones valientes y construir la carrera que quieren.</p><a href="#cta" class="btn">Primera sesión gratuita</a></div><div class="hero-side"><div class="quote">"Trabajar con Lucía cambió mi forma de liderar."</div><span class="who">— Ana, directora de operaciones</span></div></header>
-<section id="prog" class="prog"><h2>Cómo trabajamos</h2><div class="grid"><div class="step"><span class="n">1</span><h3>Sesión inicial</h3><p>Definimos dónde estás y a dónde quieres llegar.</p></div><div class="step"><span class="n">2</span><h3>Plan a medida</h3><p>Diseñamos un programa de 8 a 12 semanas adaptado a ti.</p></div><div class="step"><span class="n">3</span><h3>Resultados</h3><p>Acción, seguimiento y cambios que se notan.</p></div></div></section>
-<section id="test" class="test"><h2>Lo que dicen</h2><div class="cards"><blockquote>"Conseguí el ascenso que llevaba años persiguiendo."<cite>Marcos</cite></blockquote><blockquote>"Recuperé la motivación y el rumbo."<cite>Elena</cite></blockquote></div></section>
-<section id="cta" class="band"><h2>¿Empezamos?</h2><p>Reserva una llamada gratuita de 30 minutos y vemos cómo puedo ayudarte.</p><a href="#" class="btn">Reservar ahora</a></section>
-<footer class="foot"><p>© 2025 Lucía Marín · Coaching profesional</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--ink:#2a211c;--peach:#fbeee3;--ac:#e07a5f;--mut:#7c6f66}body{font-family:Sora,sans-serif;background:#fffaf6;color:var(--ink);line-height:1.6}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 6%}.logo{font-weight:700;font-size:1.2rem}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-size:.92rem;font-weight:500}.btn{background:var(--ac);color:#fff!important;padding:.7rem 1.4rem;border-radius:30px;font-weight:600}.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:3rem;align-items:center;max-width:1140px;margin:0 auto;padding:4rem 6% 5rem}.kick{color:var(--ac);font-weight:600;font-size:.9rem}.hero h1{font-size:3.2rem;font-weight:800;line-height:1.12;margin:1rem 0;letter-spacing:-.02em}.hero p{color:var(--mut);font-size:1.15rem;margin-bottom:2rem;max-width:460px}.hero-side{background:var(--peach);border-radius:24px;padding:2.2rem}.quote{font-size:1.3rem;font-weight:600;line-height:1.4}.who{color:var(--mut);font-size:.9rem;display:block;margin-top:1rem}.prog{max-width:1040px;margin:0 auto;padding:5rem 6%}.prog h2,.test h2,.band h2{font-size:2.3rem;font-weight:800;text-align:center;letter-spacing:-.02em;margin-bottom:2.8rem}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem}.step{background:#fff;border:1px solid #f0e3d8;border-radius:18px;padding:2rem}.n{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;background:var(--ac);color:#fff;border-radius:50%;font-weight:700;margin-bottom:1rem}.step h3{font-size:1.1rem;font-weight:700;margin-bottom:.4rem}.step p{color:var(--mut);font-size:.95rem}.test{background:var(--peach);padding:5rem 6%}.cards{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;max-width:840px;margin:0 auto}blockquote{background:#fff;border-radius:18px;padding:2rem;font-size:1.15rem;font-weight:500}cite{display:block;margin-top:1rem;color:var(--mut);font-style:normal;font-size:.9rem}.band{text-align:center;padding:5.5rem 6%}.band p{color:var(--mut);font-size:1.1rem;margin-bottom:1.8rem;max-width:480px;margin-left:auto;margin-right:auto}.foot{text-align:center;padding:2.2rem;color:var(--mut);font-size:.85rem}@media(max-width:820px){.hero{grid-template-columns:1fr}.hero h1{font-size:2.3rem}.grid,.cards{grid-template-columns:1fr}.links a:not(.btn){display:none}}
-CSS;
-        return ['name' => 'Coach / Consultor', 'category' => 'Servicios', 'tags' => ['coach', 'marca personal', 'consultoría'], 'html' => $html, 'css' => $css, 'js' => ''];
-    }
-
-    // ── 12. Cafetería (acogedor, cálido) ─────────────────────────────────────
-    private function cafeteria(): array
-    {
-        $html = <<<'HTML'
-<nav class="nav"><div class="logo">Grano &amp; Co</div><div class="links"><a href="#menu">Menú</a><a href="#local">El local</a><a href="#visit" class="btn">Visítanos</a></div></nav>
-<header class="hero"><div class="hero-in"><span class="kick">Tostadores de especialidad</span><h1>Café de origen, tostado cada semana</h1><p>Un rincón para tomarte el mejor café de la ciudad, con repostería casera.</p><a href="#menu" class="btn">Ver el menú</a></div></header>
-<section id="menu" class="menu"><h2>Nuestro menú</h2><div class="cols"><div><h3>Cafés</h3><div class="i"><span>Espresso</span><b>1,80€</b></div><div class="i"><span>Flat white</span><b>2,80€</b></div><div class="i"><span>Filtrado V60</span><b>3,20€</b></div></div><div><h3>Para acompañar</h3><div class="i"><span>Croissant artesano</span><b>2,20€</b></div><div class="i"><span>Tarta de zanahoria</span><b>3,80€</b></div><div class="i"><span>Tostada de aguacate</span><b>5,50€</b></div></div></div></section>
-<section id="local" class="local"><div class="local-in"><h2>Un lugar para quedarse</h2><p>Wifi, enchufes y luz natural. El sitio perfecto para trabajar, leer o charlar con una buena taza.</p></div></section>
-<section id="visit" class="visit"><h2>Te esperamos</h2><p>Plaza del Olmo 3 · Todos los días 8:00–20:00</p></section>
-<footer class="foot"><p>© 2025 Grano &amp; Co</p></footer>
-HTML;
-        $css = <<<'CSS'
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:wght@400&family=DM+Sans:wght@400;500;600;700&display=swap');*{margin:0;padding:0;box-sizing:border-box}:root{--ink:#33271c;--cream:#f5ede1;--ac:#a05a2c;--mut:#7a6a59}body{font-family:'DM Sans',sans-serif;background:#fdf8f1;color:var(--ink);line-height:1.65}.nav{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 6%}.logo{font-family:'DM Serif Display',serif;font-size:1.5rem}.links{display:flex;gap:1.8rem;align-items:center}.links a{color:var(--mut);text-decoration:none;font-size:.92rem;font-weight:500}.btn{background:var(--ink);color:#fff!important;padding:.6rem 1.3rem;border-radius:30px;font-weight:600}.hero{background:var(--cream);padding:5rem 6%}.hero-in{max-width:600px}.kick{font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);font-weight:600}.hero h1{font-family:'DM Serif Display',serif;font-size:3.6rem;line-height:1.08;margin:1rem 0}.hero p{color:var(--mut);font-size:1.15rem;margin-bottom:2rem}.menu{max-width:900px;margin:0 auto;padding:5rem 6%}.menu h2,.local h2,.visit h2{font-family:'DM Serif Display',serif;font-size:2.6rem;text-align:center;margin-bottom:2.6rem}.cols{display:grid;grid-template-columns:1fr 1fr;gap:4rem}.cols h3{font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ac);margin-bottom:1.2rem;border-bottom:1px solid #e6d8c6;padding-bottom:.7rem}.i{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.9rem}.i b{font-family:'DM Serif Display',serif;color:var(--ac)}.local{background:var(--cream);padding:5rem 6%}.local-in{max-width:580px;margin:0 auto;text-align:center}.local p{color:var(--mut);font-size:1.12rem}.visit{text-align:center;padding:5rem 6%}.visit p{color:var(--mut);font-size:1.1rem}.foot{text-align:center;padding:2.2rem;background:var(--ink);color:#c4b3a0;font-size:.85rem}@media(max-width:760px){.hero h1{font-size:2.5rem}.cols{grid-template-columns:1fr;gap:2.5rem}.links a:not(.btn){display:none}}
-CSS;
-        return ['name' => 'Cafetería', 'category' => 'Restaurante', 'tags' => ['café', 'acogedor', 'local'], 'html' => $html, 'css' => $css, 'js' => ''];
     }
 }

@@ -29,6 +29,15 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
                 'error'   => fn () => $request->session()->get('error'),
             ],
+            // Correo de soporte (configurable), disponible en todas las páginas.
+            'support' => [
+                'email' => config('pagepolis.support_email'),
+            ],
+            // Mensajes (leads) sin leer, para el badge de la navegación.
+            'leadsUnread' => fn () => $request->user()
+                ? \App\Models\Lead::whereIn('project_id', $request->user()->projects()->select('id'))
+                    ->whereNull('read_at')->count()
+                : 0,
         ]);
     }
 }

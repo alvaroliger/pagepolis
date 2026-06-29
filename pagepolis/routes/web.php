@@ -7,6 +7,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DomainController;
 use App\Http\Controllers\EditorController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublishController;
@@ -29,6 +30,14 @@ Route::get('/robots.txt',  [SitemapController::class, 'robots']);
 Route::get('/s/{slug}', [SiteController::class, 'show'])
     ->where('slug', '[a-z0-9\-]+')
     ->middleware('throttle:300,1');
+
+// Captura de leads: el formulario de contacto de la web publicada postea aquí.
+// Público (lo llama la web del cliente) → sin CSRF, con throttle anti-spam.
+Route::post('/s/{slug}/lead', [LeadController::class, 'store'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->middleware('throttle:20,1')
+    ->name('leads.store');
 
 // Tracking de visitas (pixel transparente)
 Route::get('/t/{projectId}', [TrackingController::class, 'track'])
@@ -57,6 +66,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Asistente de creación con IA ("a prueba de abuelos")
+    Route::get('/crear', fn () => \Inertia\Inertia::render('Create/Index'))->name('create.wizard');
+    Route::post('/crear-con-ia', [ProjectController::class, 'createWithAi'])
+        ->middleware('ai.ratelimit')
+        ->name('projects.create-ai');
+
     // Proyectos
     Route::post('/proyectos', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/proyectos/{project}/preview', [ProjectController::class, 'preview'])->name('projects.preview');
@@ -68,6 +83,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Analítica de visitas
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
+    // Bandeja de mensajes (leads capturados de las webs publicadas)
+    Route::get('/mensajes', [LeadController::class, 'index'])->name('leads.index');
+
     // Editor
     Route::get('/editor/{project}', [EditorController::class, 'index'])->name('editor.index');
     Route::post('/editor/{project}/guardar', [EditorController::class, 'save'])->name('editor.save');
@@ -76,12 +94,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/ai/generar', [AiController::class, 'generate'])
         ->middleware('ai.ratelimit')
         ->name('ai.generate');
-    Route::post('/ai/actualizar', [AiController::class, 'update'])
-        ->middleware('ai.ratelimit')
-        ->name('ai.update');
+    // Sin ai.ratelimit: el controlador solo cuenta cuota si cae en la IA (los
+    // cambios resueltos en local por IntentRouter son gratis e ilimitados).
+    Route::post('/ai/actualizar', [AiController::class, 'update'])->name('ai.update');
     Route::post('/ai/seo', [AiController::class, 'seo'])
         ->middleware('ai.ratelimit')
         ->name('ai.seo');
+    // Sondeo del estado de generación (sin rate-limit: no consume cuota de IA).
+    Route::get('/ai/estado/{project}', [AiController::class, 'status'])->name('ai.status');
 
     // Publicación
     Route::get('/publicar', [PublishController::class, 'index'])->name('publish.index');

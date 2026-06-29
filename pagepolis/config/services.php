@@ -23,6 +23,11 @@ return [
         // Modelo para usuarios gratis (excelente calidad, mucho más barato).
         'model_free' => env('ANTHROPIC_MODEL_FREE', 'claude-sonnet-4-6'),
 
+        // Tope de tokens de SALIDA por generación. Los sitios completos (multi-
+        // sección + tienda) necesitan margen para que quepan HTML + CSS + JS sin
+        // truncarse. El guardián de presupuesto sigue limitando el gasto total.
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 22000),
+
         // GUARDIÁN DE PRESUPUESTO: topes de gasto de IA. Al alcanzarlos, las
         // generaciones se pausan y nunca se gasta de más sin permiso explícito
         // (subir estos valores). Protege frente a abuso por bots o a mano.
@@ -51,6 +56,16 @@ return [
     'dinahosting' => [
         'user' => env('DINAHOSTING_USER'),
         'pass' => env('DINAHOSTING_PASS'),
+        // Datos de contacto del TITULAR para el registro WHOIS de dominios. Deben
+        // ser REALES y válidos (ICANN lo exige) o el registrador puede rechazar/
+        // suspender el dominio. Rellénalos en el .env de producción.
+        'contact' => [
+            'address' => env('OWNER_ADDRESS', 'Calle Principal 1'),
+            'city'    => env('OWNER_CITY', 'Madrid'),
+            'zip'     => env('OWNER_ZIP', '28001'),
+            'country' => env('OWNER_COUNTRY', 'ES'),
+            'phone'   => env('OWNER_PHONE', '+34.600000000'),
+        ],
     ],
 
     'whatsapp' => [

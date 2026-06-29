@@ -26,14 +26,15 @@ class PurchaseDomain implements ShouldQueue
     ): void {
         try {
             if ($this->domain->type === 'custom') {
+                $contact = config('services.dinahosting.contact');
                 $registrarId = $dinahosting->register($this->domain->domain, [
                     'firstname' => $this->domain->user->name,
                     'lastname'  => 'Pagepolis Client',
-                    'address'   => 'Calle Principal 1',
-                    'city'      => 'Madrid',
-                    'country'   => 'ES',
-                    'zip'       => '28001',
-                    'phone'     => '+34.600000000',
+                    'address'   => $contact['address'],
+                    'city'      => $contact['city'],
+                    'country'   => $contact['country'],
+                    'zip'       => $contact['zip'],
+                    'phone'     => $contact['phone'],
                     'email'     => $this->domain->user->email,
                 ]);
 

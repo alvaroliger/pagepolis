@@ -1,6 +1,6 @@
 import '@/i18n';
 import { useState, useEffect, useRef } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '@/Components/LanguageSelector';
 import PagepolisLogo from '@/Components/PagepolisLogo';
@@ -56,6 +56,7 @@ export default function Landing() {
     const { t, i18n } = useTranslation();
     const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
     const pricingRef = useRef<HTMLElement>(null);
+    const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
 
     const asArray = <T,>(val: unknown): T[] => Array.isArray(val) ? val as T[] : [];
     const asObj   = (val: unknown): Record<string, string> => (val && typeof val === 'object' && !Array.isArray(val)) ? val as Record<string, string> : {};
@@ -312,7 +313,7 @@ export default function Landing() {
                         </div>
                         <p className="text-center text-sm text-gray-600 mt-8">
                             {t('pricing.custom')}{' '}
-                            <a href="mailto:hola@pagepolis.com" className="text-violet-400 hover:underline">{t('pricing.custom_link')}</a>{' '}
+                            <a href={`mailto:${supportEmail}`} className="text-violet-400 hover:underline">{t('pricing.custom_link')}</a>{' '}
                             {t('pricing.custom_suffix')}
                         </p>
                     </div>
@@ -364,7 +365,7 @@ export default function Landing() {
                         <div className="flex gap-6">
                             <a href="/login" className="hover:text-gray-400 transition-colors">{t('footer.login')}</a>
                             <a href="/register" className="hover:text-gray-400 transition-colors">{t('footer.register')}</a>
-                            <a href="mailto:hola@pagepolis.com" className="hover:text-gray-400 transition-colors">{t('footer.contact')}</a>
+                            <a href={`mailto:${supportEmail}`} className="hover:text-gray-400 transition-colors">{t('footer.contact')}</a>
                         </div>
                         <p>© {new Date().getFullYear()} Pagepolis · {t('footer.rights')}</p>
                         <a

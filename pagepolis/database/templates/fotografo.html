@@ -1,0 +1,108 @@
+<header id="site-header">
+  <div class="container header-inner">
+    <a href="#inicio" class="logo">MARTA RUIZ</a>
+    <nav id="main-nav">
+      <a href="#trabajo">Trabajo</a>
+      <a href="#sobre">Sobre mí</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#contacto" class="btn btn-primary">Reservar</a>
+    </nav>
+    <button id="menu-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero hero-center">
+    <div class="container reveal">
+      <span class="kicker">Fotografía · Valencia</span>
+      <h1>Imágenes que cuentan tu historia</h1>
+      <p>Bodas, retrato y editorial con una mirada honesta y luz natural. Disponible en toda Europa.</p>
+      <a href="#trabajo" class="btn btn-primary btn-lg">Ver mi trabajo</a>
+    </div>
+  </section>
+
+  <section id="trabajo" class="section">
+    <div class="container">
+      <div class="eyebrow center reveal"><span class="kicker">Portfolio</span><h2 class="sec-title">Trabajo seleccionado</h2></div>
+      <div class="gallery-grid masonry">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr1/600/800" alt="Boda" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr2/600/600" alt="Retrato" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr3/600/750" alt="Editorial" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr4/600/600" alt="Producto" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr5/600/800" alt="Eventos" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr6/600/700" alt="Lifestyle" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr7/600/650" alt="Naturaleza" loading="lazy">
+        <img class="gallery-img reveal" src="https://picsum.photos/seed/mr8/600/780" alt="Moda" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre" class="story section">
+    <div class="container story-grid">
+      <div class="story-img reveal"><img src="https://picsum.photos/seed/marta-portrait/640/760" alt="Marta Ruiz" loading="lazy"></div>
+      <div class="story-text reveal">
+        <span class="kicker">Sobre mí</span>
+        <h2>Hola, soy Marta</h2>
+        <p>Llevo diez años capturando momentos reales. Me interesa la luz natural, los gestos honestos y las historias que se cuentan solas.</p>
+        <p>Cada sesión es única, como las personas que retrato. Trabajemos juntos para crear algo que perdure.</p>
+        <a href="#contacto" class="btn btn-primary">Trabajemos juntos</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicios" class="section">
+    <div class="container">
+      <div class="eyebrow center reveal"><span class="kicker">Servicios</span><h2 class="sec-title">Qué ofrezco</h2></div>
+      <div class="feature-grid">
+        <div class="feature-card reveal"><h3>Bodas</h3><p>Cobertura completa de tu día, desde los preparativos hasta el último baile.</p></div>
+        <div class="feature-card reveal"><h3>Retrato</h3><p>Sesiones individuales, de pareja o familia en estudio o exteriores.</p></div>
+        <div class="feature-card reveal"><h3>Editorial &amp; producto</h3><p>Imágenes para marcas, catálogos y publicaciones con identidad propia.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testi section">
+    <div class="container">
+      <div class="eyebrow center reveal"><span class="kicker">Opiniones</span><h2 class="sec-title">Lo que dicen</h2></div>
+      <div class="testi-slider reveal"><div class="testi-track">
+        <div class="testi-slide"><blockquote>“Marta capturó nuestra boda como un sueño. Las fotos son pura emoción.”</blockquote><div class="testi-author"><img src="https://picsum.photos/seed/mt1/80/80" alt=""><div><strong>Ana &amp; Pablo</strong><span>Boda 2025</span></div></div></div>
+        <div class="testi-slide"><blockquote>“Profesional, cercana y con un ojo increíble. Repetiremos seguro.”</blockquote><div class="testi-author"><img src="https://picsum.photos/seed/mt2/80/80" alt=""><div><strong>Estudio Nórdico</strong><span>Editorial</span></div></div></div>
+      </div><div class="testi-controls"><button class="testi-prev" aria-label="Anterior">‹</button><button class="testi-next" aria-label="Siguiente">›</button></div></div>
+    </div>
+  </section>
+
+  <section id="contacto" class="section contact-sec">
+    <div class="container contact-grid">
+      <div class="reveal">
+        <span class="kicker">Contacto</span>
+        <h2>Reserva tu sesión</h2>
+        <p class="muted">Cuéntame tu idea y te preparo un presupuesto a medida.</p>
+        <ul class="contact-list">
+          <li><strong>Email:</strong> hola@martaruiz.com</li>
+          <li><strong>Teléfono:</strong> +34 600 11 22 33</li>
+          <li><strong>Base:</strong> Valencia · disponible en toda Europa</li>
+        </ul>
+      </div>
+      <form id="contact-form" class="reveal">
+        <input type="text" name="nombre" placeholder="Tu nombre" required>
+        <input type="email" name="email" placeholder="Tu email" required>
+        <textarea name="mensaje" rows="4" placeholder="¿Qué tipo de sesión buscas?" required></textarea>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+        <div id="form-success" hidden>¡Gracias! Te responderé en menos de 48h.</div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="logo" style="color:#fff;letter-spacing:.2em">MARTA RUIZ</div><p style="opacity:.8;margin-top:.8rem">Fotografía que cuenta historias.</p></div>
+      <div><h4>Trabajo</h4><a href="#trabajo">Portfolio</a><a href="#servicios">Servicios</a></div>
+      <div><h4>Info</h4><a href="#sobre">Sobre mí</a><a href="#contacto">Contacto</a></div>
+      <div><h4>Sígueme</h4><a href="#">Instagram</a><a href="#">Behance</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 Marta Ruiz Photography</div>
+  </div>
+</footer>
+<button id="to-top" aria-label="Volver arriba">↑</button>

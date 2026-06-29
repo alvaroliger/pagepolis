@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --font-head:'Fraunces',serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --brand:#26211c; --brand-2:#9a7b4f; --on-brand:#fff;
+  --brand-soft:rgba(154,123,79,.15);
+  --bg:#fbf9f5; --surface:#ffffff; --text:#26211c; --muted:#7a7066;
+  --border:#ece5d9; --radius:12px; --maxw:1180px;
+  --header-bg:rgba(251,249,245,.92);
+  --footer-bg:#26211c; --footer-text:#cdc4b6;
+}
+.hero{--hero-bg:#f0ebe3}
+.logo{letter-spacing:.14em}
+.ventajas{background:#f0ebe3}
+.product-price{color:var(--brand-2)}
+.add-to-cart{background:var(--brand-2)}
+.testi{background:var(--brand);color:#fff}
+.testi .kicker{color:#d9c3a3}
+.testi .testi-author span{color:rgba(255,255,255,.7)}
+.testi-prev,.testi-next{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}
+.feature-card .ic{background:var(--brand-soft);color:var(--brand-2)}

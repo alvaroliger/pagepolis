@@ -2,120 +2,169 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\AiRateLimit;
+use App\Jobs\GenerateWebsiteJob;
 use App\Models\Project;
 use App\Services\AnthropicService;
+use App\Services\IntentRouter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AiController extends Controller
 {
-    public function generate(Request $request, AnthropicService $ai): JsonResponse
+    /**
+     * Encola la generación de una web completa. La construcción real (2 fases,
+     * varios minutos) corre en GenerateWebsiteJob; el editor sondea /ai/estado.
+     */
+    public function generate(Request $request): JsonResponse
     {
         $request->validate([
             'prompt'     => 'required|string|max:2000',
             'project_id' => 'required|exists:projects,id',
+            'images'     => 'nullable|array|max:4',
+            'images.*'   => 'image|mimes:jpeg,png,webp,gif|max:8192',
         ]);
 
         $project = Project::where('id', $request->project_id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        try {
-            $result = $ai->forUser(auth()->user())->generateWebsite($request->prompt);
-
-            $project->update([
-                'html'       => $result['html'],
-                'css'        => $result['css'],
-                'js'         => $result['js'] ?? '',
-                'ai_history' => array_merge($project->ai_history ?? [], [[
-                    'role'       => 'user',
-                    'content'    => $request->prompt,
-                    'created_at' => now()->toISOString(),
-                    'type'       => 'generate',
-                ], [
-                    'role'       => 'assistant',
-                    'content'    => $result['description'] ?? 'Web generada correctamente.',
-                    'created_at' => now()->toISOString(),
-                    'type'       => 'generate',
-                ]]),
-            ]);
-
-            return response()->json([
-                'success'     => true,
-                'html'        => $result['html'],
-                'css'         => $result['css'],
-                'js'          => $result['js'] ?? '',
-                'description' => $result['description'] ?? 'Web generada.',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        if ($project->ai_status === 'generating') {
+            return response()->json(['error' => 'Ya hay una generación en curso para esta web. Espera a que termine.'], 409);
         }
+
+        $project->update(['ai_status' => 'generating', 'ai_progress' => 'En cola…']);
+        GenerateWebsiteJob::dispatch($project->id, auth()->id(), 'generate', $request->prompt, $this->storeImages($request));
+
+        return response()->json(['success' => true, 'status' => 'generating']);
     }
 
     /**
-     * Aplica un cambio quirúrgico sin regenerar la web completa.
+     * Aplica un cambio. Primero intenta resolverlo en LOCAL sin IA (gratis, al
+     * instante) con el IntentRouter; solo si no lo reconoce, cae en la IA (que sí
+     * cuenta cuota) en segundo plano.
      */
-    public function update(Request $request, AnthropicService $ai): JsonResponse
+    public function update(Request $request, IntentRouter $router): JsonResponse
     {
         $request->validate([
             'instruction' => 'required|string|max:1000',
             'project_id'  => 'required|exists:projects,id',
+            'images'      => 'nullable|array|max:4',
+            'images.*'    => 'image|mimes:jpeg,png,webp,gif|max:8192',
         ]);
 
         $project = Project::where('id', $request->project_id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        try {
-            // Pasar las últimas 6 entradas del historial como contexto de conversación
-            $recentHistory = collect($project->ai_history ?? [])
-                ->filter(fn($e) => ($e['type'] ?? '') === 'update')
-                ->takeLast(6)
-                ->map(fn($e) => ['role' => $e['role'], 'content' => $e['content']])
-                ->values()
-                ->all();
-
-            $result = $ai->forUser(auth()->user())->updateWebsite(
-                $request->instruction,
-                $project->html ?? '',
-                $project->css  ?? '',
-                $project->js   ?? '',
-                $recentHistory
-            );
-
-            $newHtml = $result['html'] ?? $project->html;
-            $newCss  = $result['css']  ?? $project->css;
-            $newJs   = $result['js']   ?? $project->js;
-
-            $project->update([
-                'html'       => $newHtml,
-                'css'        => $newCss,
-                'js'         => $newJs,
-                'ai_history' => array_merge($project->ai_history ?? [], [[
-                    'role'       => 'user',
-                    'content'    => $request->instruction,
-                    'created_at' => now()->toISOString(),
-                    'type'       => 'update',
-                ], [
-                    'role'       => 'assistant',
-                    'content'    => $result['description'] ?? 'Cambio aplicado.',
-                    'created_at' => now()->toISOString(),
-                    'type'       => 'update',
-                    'changed'    => $result['changed'] ?? [],
-                ]]),
-            ]);
-
-            return response()->json([
-                'success'     => true,
-                'html'        => $newHtml,
-                'css'         => $newCss,
-                'js'          => $newJs,
-                'description' => $result['description'] ?? 'Cambio aplicado.',
-                'changed'     => $result['changed'] ?? [],
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        if ($project->ai_status === 'generating') {
+            return response()->json(['error' => 'Ya hay un cambio en curso para esta web. Espera a que termine.'], 409);
         }
+
+        // 1) Intento LOCAL sin IA (gratis, instantáneo). Solo si no hay imágenes
+        //    (las imágenes requieren visión de la IA).
+        if (!$request->hasFile('images')) {
+            $local = $router->handle($project, $request->instruction);
+            if ($local !== null) {
+                $project->update([
+                    'html'       => $local['html'],
+                    'css'        => $local['css'],
+                    'js'         => $local['js'],
+                    'ai_history' => array_merge($project->ai_history ?? [], [
+                        ['role' => 'user', 'content' => $request->instruction, 'created_at' => now()->toISOString(), 'type' => 'update'],
+                        ['role' => 'assistant', 'content' => $local['description'], 'created_at' => now()->toISOString(), 'type' => 'update', 'changed' => $local['changed'], 'instant' => true],
+                    ]),
+                ]);
+
+                // Si cambió algo y está en dominio propio, refléjalo en internet.
+                if (!empty($local['changed'])) {
+                    $project->deployToLiveDomain();
+                }
+
+                return response()->json([
+                    'success'     => true,
+                    'status'      => 'done',          // resuelto al instante, sin sondeo
+                    'instant'     => true,
+                    'html'        => $local['html'],
+                    'css'         => $local['css'],
+                    'js'          => $local['js'],
+                    'description' => $local['description'],
+                    'changed'     => $local['changed'],
+                ]);
+            }
+        }
+
+        // 2) Respaldo con IA (cuenta cuota diaria).
+        $user = auth()->user();
+        if (AiRateLimit::exceeded($user)) {
+            $limit = AiRateLimit::dailyLimit($user);
+            return response()->json([
+                'error'   => "Has alcanzado el límite de {$limit} generaciones con IA hoy. Se restablece " . now()->endOfDay()->diffForHumans() . '.',
+                'upgrade' => AiRateLimit::tier($user) === 'trial',
+            ], 429);
+        }
+
+        $project->update(['ai_status' => 'generating', 'ai_progress' => 'Aplicando tu cambio…']);
+        GenerateWebsiteJob::dispatch($project->id, $user->id, 'update', $request->instruction, $this->storeImages($request));
+        AiRateLimit::register($user);
+
+        return response()->json(['success' => true, 'status' => 'generating']);
+    }
+
+    /**
+     * Guarda las imágenes adjuntas en disco (storage/app/ai-uploads) y devuelve sus
+     * rutas para que el job las lea. El job las borra al terminar.
+     *
+     * @return array<int,string>
+     */
+    private function storeImages(Request $request): array
+    {
+        $paths = [];
+        foreach ((array) $request->file('images', []) as $file) {
+            if ($file && $file->isValid()) {
+                $paths[] = $file->store('ai-uploads', 'local');
+            }
+        }
+        return $paths;
+    }
+
+    /**
+     * Estado de la generación en curso (sondeo desde el editor). Cuando termina,
+     * devuelve el HTML/CSS/JS resultante y la descripción del asistente.
+     */
+    public function status(Project $project): JsonResponse
+    {
+        abort_unless($project->user_id === auth()->id(), 403);
+
+        $status = $project->ai_status ?: 'ready';
+
+        // Salvavidas: si lleva "generando" demasiado tiempo (worker caído, job
+        // perdido…), márcalo como error para no dejar al usuario sondeando sin fin.
+        if ($status === 'generating' && $project->updated_at && $project->updated_at->lt(now()->subMinutes(15))) {
+            $project->update(['ai_status' => 'error', 'ai_progress' => 'La generación tardó demasiado. Vuelve a intentarlo.']);
+            $status = 'error';
+        }
+
+        $payload = ['status' => $status, 'progress' => $project->ai_progress];
+
+        if ($status === 'ready') {
+            $last = collect($project->ai_history ?? [])
+                ->where('role', 'assistant')
+                ->last();
+
+            $payload += [
+                'html'        => $project->html ?? '',
+                'css'         => $project->css ?? '',
+                'js'          => $project->js ?? '',
+                'description' => $last['content'] ?? 'Listo.',
+                'changed'     => $last['changed'] ?? [],
+                'type'        => $last['type'] ?? 'generate',
+            ];
+        } elseif ($status === 'error') {
+            $payload['error'] = $project->ai_progress ?: 'No se pudo completar. Inténtalo de nuevo.';
+        }
+
+        return response()->json($payload);
     }
 
     /**

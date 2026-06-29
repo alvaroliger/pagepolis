@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+  --font-head:'Oswald',sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --brand:#d4ff3f; --brand-2:#a3e635; --on-brand:#0c0f0a;
+  --brand-soft:rgba(212,255,63,.14);
+  --bg:#0c0f0a; --surface:#14180f; --text:#f1f5e8; --muted:#9aa088;
+  --border:#262b1c; --radius:12px; --maxw:1180px;
+  --header-bg:rgba(12,15,10,.92);
+  --footer-bg:#080a06; --footer-text:#9aa088;
+}
+h1,h2,h3,.logo,.sec-title{text-transform:uppercase;letter-spacing:.01em}
+.hero{--hero-bg:linear-gradient(180deg,#10140c,#0c0f0a)}
+.logo{color:#fff}
+#main-nav a{color:var(--text)}
+.btn-outline{color:#fff;border-color:#2c331f}
+.feature-card .ic{background:var(--brand-soft);color:var(--brand-2)}
+.price-card .amount,.product-price,.step-n{color:var(--brand-2)}
+.testi{background:var(--brand);color:#0c0f0a}
+.testi .kicker{color:#5a6b1e}
+.testi .testi-author span{color:rgba(12,15,10,.65)}
+.testi-prev,.testi-next{background:rgba(0,0,0,.1);border-color:rgba(0,0,0,.2);color:#0c0f0a}
+.cta-band{background:var(--brand);color:#0c0f0a}
+.cta-band .btn-primary{background:#0c0f0a;color:var(--brand)}
+@media (max-width:860px){#main-nav{background:var(--surface)}}

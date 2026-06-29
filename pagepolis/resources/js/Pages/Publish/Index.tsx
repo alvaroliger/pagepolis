@@ -23,6 +23,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
     const [loading, setLoading]     = useState(false);
     const [error, setError]         = useState('');
     const [published, setPublished] = useState<string | null>(null);
+    const [provisioning, setProvisioning] = useState<string | null>(null);
 
     const freeUrl = project ? `${window.location.origin}/s/${project.slug}` : '';
 
@@ -48,10 +49,14 @@ export default function PublishIndex({ project, baseDomain }: Props) {
         setLoading(true);
         setError('');
         try {
-            await axios.post('/dominios/reservar', { domain, type: tier, project_id: project.id });
-            setStep(2);
+            const res = await axios.post('/dominios/reservar', { domain, type: tier, project_id: project.id });
+            if (res.data.needs_payment) {
+                setStep(2);                      // hay que pagar primero
+            } else {
+                setProvisioning(domain);         // ya suscrito: se está publicando
+            }
         } catch (e: any) {
-            setError(e.response?.data?.message ?? 'Error al reservar el dominio.');
+            setError(e.response?.data?.message ?? e.response?.data?.error ?? 'Error al reservar el dominio.');
         } finally {
             setLoading(false);
         }
@@ -67,6 +72,31 @@ export default function PublishIndex({ project, baseDomain }: Props) {
             setLoading(false);
         }
     };
+
+    if (provisioning) {
+        return (
+            <AuthenticatedLayout header={<h1 className="text-2xl font-bold text-white">Publicando…</h1>}>
+                <Head title="Publicando" />
+                <div className="max-w-xl mx-auto px-4 py-16 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
+                        <Globe className="w-8 h-8 text-violet-400 animate-pulse" strokeWidth={1.75} />
+                    </div>
+                    <h2 className="text-3xl font-black text-white mb-4">Estamos publicando tu web</h2>
+                    <p className="text-gray-400 mb-2">
+                        Tu web se está registrando y publicando en{' '}
+                        <span className="text-violet-300 font-mono break-all">{provisioning}</span>.
+                    </p>
+                    <p className="text-gray-500 text-sm mb-8">
+                        Tarda unos minutos en estar disponible (registro del dominio y propagación de DNS).
+                        Lo verás en tu panel cuando esté activo.
+                    </p>
+                    <a href="/dashboard" className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm">
+                        Ir a mi panel
+                    </a>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
 
     if (published) {
         return (

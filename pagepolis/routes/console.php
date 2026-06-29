@@ -11,3 +11,14 @@ Artisan::command('inspire', function () {
 Schedule::command('pagepolis:suspend-expired')->daily();
 Schedule::command('pagepolis:expiry-reminders')->dailyAt('09:00'); // Aviso 7 días antes
 Schedule::command('pagepolis:weekly-reports')->weeklyOn(1, '08:00'); // Lunes 8:00
+
+// Limpieza de imágenes adjuntas a la IA que quedaran huérfanas (el job las borra
+// al terminar; esto cubre el caso de jobs que no llegaron a ejecutarse).
+Schedule::call(function () {
+    $disk = \Illuminate\Support\Facades\Storage::disk('local');
+    foreach ($disk->files('ai-uploads') as $file) {
+        if ($disk->lastModified($file) < now()->subDay()->timestamp) {
+            $disk->delete($file);
+        }
+    }
+})->daily()->name('pagepolis:limpiar-subidas-ia')->withoutOverlapping();

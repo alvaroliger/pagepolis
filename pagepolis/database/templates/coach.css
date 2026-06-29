@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+:root{
+  --font-head:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --brand:#ea580c; --brand-2:#f97316; --on-brand:#fff;
+  --brand-soft:rgba(234,88,12,.12);
+  --bg:#fffaf5; --surface:#ffffff; --text:#241a12; --muted:#7a6657;
+  --border:#f2e4d6; --radius:18px; --maxw:1180px;
+  --header-bg:rgba(255,250,245,.92);
+  --footer-bg:#241a12; --footer-text:#d4c2b2;
+}
+h1,h2,h3,.logo{letter-spacing:-.02em}
+.hero{--hero-bg:linear-gradient(180deg,#fdeede,#fffaf5)}
+.logo{color:var(--brand)}
+.price-card .amount{color:var(--brand)}
+.price-card.featured{box-shadow:0 20px 50px rgba(234,88,12,.15)}
+.story{background:#fdeede}
+.testi{background:linear-gradient(135deg,#ea580c,#f97316);color:#fff}
+.testi blockquote{color:#fff}.testi .kicker{color:#ffe0c2}.testi .testi-author span{color:rgba(255,255,255,.78)}
+.testi-prev,.testi-next{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}
+.cta-band{background:linear-gradient(135deg,#ea580c,#f97316)}
+.cta-band .btn-primary{background:#fff;color:var(--brand)}

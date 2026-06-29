@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap');
+:root{
+  --font-head:'Cormorant Garamond',serif;
+  --font-body:'Jost',system-ui,sans-serif;
+  --brand:#c2748a; --brand-2:#a85673; --on-brand:#fff;
+  --brand-soft:rgba(194,116,138,.14);
+  --bg:#fdf8f6; --surface:#ffffff; --text:#3a2b30; --muted:#8a737a;
+  --border:#f0e2e3; --radius:16px; --maxw:1180px;
+  --header-bg:rgba(253,248,246,.92);
+  --footer-bg:#3a2b30; --footer-text:#d8c4c9;
+}
+.hero h1,.sec-title,.story-text h2{font-weight:600}
+.hero{--hero-bg:linear-gradient(180deg,#fbeef0,#fdf8f6)}
+.logo{color:var(--brand);font-size:1.6rem;letter-spacing:.03em}
+.tienda-sec{background:#fbeef0}
+.feature-card .ic{background:var(--brand-soft);color:var(--brand-2)}
+.product-price{color:var(--brand-2)}
+.add-to-cart{background:var(--brand-2)}
+.testi{background:var(--brand);color:#fff}
+.testi .kicker{color:#f3d6df}
+.testi .testi-author span{color:rgba(255,255,255,.75)}
+.testi-prev,.testi-next{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}

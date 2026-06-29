@@ -13,6 +13,24 @@ import { html as htmlLang } from '@codemirror/lang-html';
 import { css as cssLang } from '@codemirror/lang-css';
 import { javascript as jsLang } from '@codemirror/lang-javascript';
 
+// Guard para las vistas previas: evita que al pulsar enlaces el iframe navegue a la
+// app (lo que en local saturaba el servidor → "localhost rechaza la conexión").
+// Los enlaces de ancla hacen scroll; el resto no navega. Solo afecta a la PREVIEW,
+// no al sitio publicado real.
+const PREVIEW_GUARD = "(function(){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'){e.preventDefault();try{if(h.length>1){var el=document.querySelector(h);if(el)el.scrollIntoView({behavior:'smooth'});}}catch(x){}}else{e.preventDefault();}},true);document.addEventListener('submit',function(e){e.preventDefault();},true);})();";
+
+// Sugerencias rápidas del chat (modo Modificar). Muchas se resuelven gratis al
+// instante (color, fondo, fuente, WhatsApp, ocultar) sin gastar IA.
+type Suggestion = { label: string; text?: string; action?: 'image' };
+const SUGGESTIONS: Suggestion[] = [
+    { label: '🎨 Color principal', text: 'Cambia el color principal a azul' },
+    { label: '🖼️ Color de fondo',  text: 'Cambia el color de fondo a ' },
+    { label: '🔤 Tipografía',       text: 'Cambia la tipografía a Poppins' },
+    { label: '📱 Mi WhatsApp',      text: 'Mi WhatsApp para pedidos es +34 ' },
+    { label: '✂️ Quitar sección',   text: 'Quita la sección de testimonios' },
+    { label: '📷 Subir logo/foto',  action: 'image' },
+];
+
 interface ChatMessage {
     role: 'user' | 'assistant';
     content: string;
@@ -30,6 +48,8 @@ interface Project {
     ai_history: ChatMessage[];
     seo_meta: { title?: string; description?: string; keywords?: string } | null;
     status: string;
+    ai_status?: string | null;
+    ai_progress?: string | null;
 }
 
 interface AiUsage {
@@ -173,9 +193,32 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [seoLoading, setSeoLoading] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const [showUsageTooltip, setShowUsageTooltip] = useState(false);
+    const [progress, setProgress]   = useState('');
+    const [usedToday, setUsedToday] = useState(aiUsage.used);
+    const [images, setImages]       = useState<File[]>([]);
+    const [simpleMode, setSimpleMode] = useState(true);   // el usuario no ve código por defecto
 
     const iframeRef  = useRef<HTMLIFrameElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const pollRef    = useRef<number | null>(null);
+    const imageInput = useRef<HTMLInputElement>(null);
+    const promptInput = useRef<HTMLTextAreaElement>(null);
+
+    const addImages = (files: FileList | null) => {
+        if (!files) return;
+        const incoming = Array.from(files).filter(f => f.type.startsWith('image/'));
+        setImages(prev => [...prev, ...incoming].slice(0, 4));   // máximo 4
+    };
+
+    const applySuggestion = (s: Suggestion) => {
+        if (s.action === 'image') { imageInput.current?.click(); return; }
+        if (aiMode !== 'update') setAiMode('update');
+        setPrompt(s.text ?? '');
+        setTimeout(() => {
+            const el = promptInput.current;
+            if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+        }, 0);
+    };
 
     // Aviso al salir con cambios sin guardar
     useEffect(() => {
@@ -187,7 +230,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     }, [dirty]);
 
     const buildPreviewHtml = useCallback(() =>
-        `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`,
+        `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>${PREVIEW_GUARD}<\/script><script>${js}<\/script></body></html>`,
     [html, css, js]);
 
     useEffect(() => {
@@ -203,6 +246,58 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const handleHtmlChange = (v: string) => { setHtml(v); markDirty(); };
     const handleCssChange  = (v: string) => { setCss(v);  markDirty(); };
     const handleJsChange   = (v: string) => { setJs(v);   markDirty(); };
+
+    const stopPolling = useCallback(() => {
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+        setAiLoading(false);
+        setProgress('');
+    }, []);
+
+    // Sondea el estado de la generación en segundo plano hasta que termina.
+    const pollStatus = useCallback(() => {
+        if (pollRef.current) return;
+        setAiLoading(true);
+
+        const tick = async () => {
+            try {
+                const { data } = await axios.get(`/ai/estado/${project.id}`);
+                if (data.status === 'generating') {
+                    setProgress(data.progress || 'Trabajando…');
+                    return;
+                }
+                stopPolling();
+                if (data.status === 'ready') {
+                    setHtml(data.html); setCss(data.css); setJs(data.js ?? '');
+                    setDirty(true);
+                    setMessages(prev => [...prev, {
+                        role: 'assistant',
+                        content: data.description ?? 'Listo.',
+                        created_at: new Date().toISOString(),
+                        type: data.type ?? 'generate',
+                        changed: data.changed ?? [],
+                    }]);
+                } else if (data.status === 'error') {
+                    setAiError(data.error ?? 'No se pudo completar. Inténtalo de nuevo.');
+                }
+            } catch {
+                stopPolling();
+                setAiError('Se perdió la conexión con el servidor. Recarga la página.');
+            }
+        };
+
+        tick();
+        pollRef.current = window.setInterval(tick, 2500);
+    }, [project.id, stopPolling]);
+
+    // Si al abrir el editor ya hay una generación en curso, reanuda el sondeo.
+    useEffect(() => {
+        if (project.ai_status === 'generating') {
+            setProgress(project.ai_progress || 'Generando…');
+            pollStatus();
+        }
+        return () => { if (pollRef.current) clearInterval(pollRef.current); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const generateSeo = async () => {
         setSeoLoading(true);
@@ -244,55 +339,68 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     };
 
     const sendToAI = async () => {
-        if (!prompt.trim()) return;
-        setAiLoading(true);
+        if (aiLoading) return;
+        if (!prompt.trim() && images.length === 0) return;
         setAiError('');
 
+        const mode = aiMode;
+        const text = prompt.trim() || (mode === 'update'
+            ? 'Aplica el contenido de las imágenes que te he adjuntado.'
+            : 'Crea la web usando el contenido de las imágenes que te he adjuntado.');
+        const shown = prompt.trim()
+            ? prompt + (images.length ? `  📎 ${images.length} imagen(es)` : '')
+            : `📎 ${images.length} imagen(es) adjunta(s)`;
+
         const userMsg: ChatMessage = {
-            role: 'user', content: prompt,
+            role: 'user', content: shown,
             created_at: new Date().toISOString(),
-            type: aiMode,
+            type: mode,
         };
         setMessages(prev => [...prev, userMsg]);
+        const attached = images;
         setPrompt('');
+        setImages([]);
+        setAiLoading(true);
+        setProgress(mode === 'update' ? 'Aplicando tu cambio…' : 'Poniendo a trabajar a la IA…');
 
         try {
-            if (aiMode === 'update') {
-                const res = await axios.post('/ai/actualizar', { instruction: userMsg.content, project_id: project.id });
-                if (res.data.success) {
-                    setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
-                    setDirty(true);
-                    setMessages(prev => [...prev, {
-                        role: 'assistant', content: res.data.description,
-                        created_at: new Date().toISOString(),
-                        type: 'update', changed: res.data.changed ?? [],
-                    }]);
-                }
-            } else {
-                const res = await axios.post('/ai/generar', { prompt: userMsg.content, project_id: project.id });
-                if (res.data.success) {
-                    setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
-                    setDirty(true);
-                    setMessages(prev => [...prev, {
-                        role: 'assistant', content: res.data.description ?? 'Web generada.',
-                        created_at: new Date().toISOString(),
-                        type: 'generate',
-                    }]);
-                }
+            const url  = mode === 'update' ? '/ai/actualizar' : '/ai/generar';
+            const form = new FormData();
+            form.append('project_id', String(project.id));
+            form.append(mode === 'update' ? 'instruction' : 'prompt', text);
+            attached.forEach(f => form.append('images[]', f));
+
+            const res = await axios.post(url, form);
+            if (res.data.status === 'done') {
+                // Cambio resuelto en local, al instante y SIN gastar IA.
+                setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
+                setDirty(true);
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: res.data.description ?? 'Hecho.',
+                    created_at: new Date().toISOString(),
+                    type: 'update', changed: res.data.changed ?? [],
+                }]);
+                setAiLoading(false);
+                setProgress('');
+            } else if (res.data.status === 'generating') {
+                setUsedToday(u => u + 1);
+                pollStatus();   // empieza a sondear hasta que el job termine
             }
         } catch (err: any) {
             const errorText = err.response?.data?.error ?? 'Error al procesar. Inténtalo de nuevo.';
             setAiError(errorText);
             setMessages(prev => prev.slice(0, -1));
-        } finally {
+            setImages(attached);   // recupera las imágenes para reintentar
             setAiLoading(false);
+            setProgress('');
         }
     };
 
     const currentValue = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
     const handleChange = activeTab === 'html' ? handleHtmlChange : activeTab === 'css' ? handleCssChange : handleJsChange;
 
-    const usagePct = aiUsage.limit > 0 ? aiUsage.used / aiUsage.limit : 0;
+    const usagePct = aiUsage.limit > 0 ? usedToday / aiUsage.limit : 0;
     const usageColor = usagePct >= 1 ? 'text-red-400 bg-red-900/40'
         : usagePct >= 0.8 ? 'text-yellow-400 bg-yellow-900/40'
         : 'text-gray-500 bg-gray-800';
@@ -350,6 +458,17 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                             </button>
                         ))}
                     </div>
+                    <button
+                        onClick={() => setSimpleMode(s => !s)}
+                        title={simpleMode ? 'Mostrar el código (modo avanzado)' : 'Ocultar el código (modo sencillo)'}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+                            simpleMode
+                                ? 'bg-gray-800 text-gray-400 hover:text-white border-gray-700'
+                                : 'bg-violet-900/40 text-violet-300 border-violet-800/50'
+                        }`}
+                    >
+                        {simpleMode ? '‹ › Código' : '‹ › Ocultar código'}
+                    </button>
                     <button
                         onClick={save}
                         disabled={saving}
@@ -413,20 +532,44 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     {/* Historial de chat */}
                     <div className="flex-1 overflow-y-auto p-3">
                         {messages.length === 0 && (
-                            <div className="text-center py-8 text-gray-600 text-xs px-3 leading-relaxed">
-                                {aiMode === 'update'
-                                    ? 'Escribe lo que quieres cambiar. Por ejemplo: "pon el fondo azul" o "añade una sección de precios".'
-                                    : 'Describe la web que quieres crear. Por ejemplo: "web para una clínica dental en Málaga".'
-                                }
+                            <div className="py-6 px-1">
+                                {aiMode === 'update' ? (
+                                    <>
+                                        <div className="text-center mb-4">
+                                            <div className="text-2xl mb-1">💬</div>
+                                            <p className="text-sm text-gray-300 font-semibold">Dime qué quieres cambiar</p>
+                                            <p className="text-xs text-gray-600 mt-1 leading-relaxed">Escríbelo con tus palabras o usa una sugerencia. Lo simple es al instante y gratis.</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5 justify-center">
+                                            {SUGGESTIONS.map(s => (
+                                                <button
+                                                    key={s.label}
+                                                    onClick={() => applySuggestion(s)}
+                                                    className="text-[11px] font-medium bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-full px-2.5 py-1 transition-colors"
+                                                >
+                                                    {s.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="text-center text-gray-600 text-xs leading-relaxed">
+                                        Describe la web que quieres crear. Por ejemplo: "web para una clínica dental en Málaga con sección de servicios y contacto".
+                                    </p>
+                                )}
                             </div>
                         )}
                         {messages.map((msg, i) => <ChatBubble key={i} msg={msg} />)}
                         {aiLoading && (
                             <div className="flex justify-start mb-3">
-                                <div className="bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                    <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                    <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                <div className="bg-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 max-w-[85%]">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                        <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                    </div>
+                                    {progress && <p className="text-xs text-gray-400 mt-2 leading-snug">{progress}</p>}
+                                    <p className="text-[10px] text-gray-600 mt-1.5">Una web completa puede tardar 1-3 min. Puedes seguir editando mientras tanto.</p>
                                 </div>
                             </div>
                         )}
@@ -440,28 +583,78 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                                 <p className="text-xs text-red-400">{aiError}</p>
                             </div>
                         )}
-                        <textarea
-                            value={prompt}
-                            onChange={e => setPrompt(e.target.value)}
-                            placeholder={
-                                aiMode === 'update'
-                                    ? "¿Qué quieres cambiar? Ej: \"pon el menú en negro\" o \"cambia el horario a 9-20h\""
-                                    : "Describe la web que quieres crear desde cero..."
-                            }
-                            rows={3}
-                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-snug"
-                            onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendToAI(); }}
-                        />
+                        {/* Sugerencias rápidas (cuando ya hay conversación) */}
+                        {aiMode === 'update' && !aiLoading && messages.length > 0 && (
+                            <div className="mb-2 flex flex-wrap gap-1.5">
+                                {SUGGESTIONS.map(s => (
+                                    <button
+                                        key={s.label}
+                                        onClick={() => applySuggestion(s)}
+                                        className="text-[11px] font-medium bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white border border-gray-700 rounded-full px-2.5 py-1 transition-colors"
+                                    >
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {/* Imágenes adjuntas */}
+                        {images.length > 0 && (
+                            <div className="mb-2 flex flex-wrap gap-2">
+                                {images.map((f, i) => (
+                                    <div key={i} className="relative group">
+                                        <img src={URL.createObjectURL(f)} alt={f.name} className="w-14 h-14 object-cover rounded-lg border border-gray-700" />
+                                        <button
+                                            onClick={() => setImages(prev => prev.filter((_, j) => j !== i))}
+                                            className="absolute -top-1.5 -right-1.5 bg-gray-900 border border-gray-600 text-gray-300 hover:text-white rounded-full w-5 h-5 text-xs leading-none flex items-center justify-center"
+                                            title="Quitar"
+                                        >×</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex items-end gap-2">
+                            <textarea
+                                ref={promptInput}
+                                value={prompt}
+                                onChange={e => setPrompt(e.target.value)}
+                                placeholder={
+                                    aiMode === 'update'
+                                        ? "¿Qué quieres cambiar? Ej: \"pon el menú en negro\" o adjunta una foto de tu carta"
+                                        : "Describe tu web, o adjunta una foto (carta, logo, folleto)…"
+                                }
+                                rows={3}
+                                className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-snug"
+                                onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendToAI(); }}
+                            />
+                            <input
+                                ref={imageInput}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={e => { addImages(e.target.files); if (imageInput.current) imageInput.current.value = ''; }}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => imageInput.current?.click()}
+                                disabled={images.length >= 4}
+                                title="Adjuntar foto (carta, logo, folleto…)"
+                                className="flex-shrink-0 w-11 h-11 flex items-center justify-center bg-gray-800 border border-gray-700 rounded-xl text-gray-400 hover:text-white hover:border-gray-600 transition disabled:opacity-40"
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                            </button>
+                        </div>
                         <button
                             onClick={sendToAI}
-                            disabled={aiLoading || !prompt.trim() || aiUsage.used >= aiUsage.limit}
+                            disabled={aiLoading || (!prompt.trim() && images.length === 0) || (aiMode === 'generate' && usedToday >= aiUsage.limit)}
                             className={`mt-2 w-full text-white text-sm font-bold py-2.5 rounded-xl transition-opacity disabled:opacity-40 ${
                                 aiMode === 'update'
                                     ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90'
                                     : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90'
                             }`}
                         >
-                            {aiLoading ? 'Procesando…' : aiMode === 'update' ? 'Aplicar cambio' : 'Generar web'}
+                            {aiLoading ? 'Generando…' : aiMode === 'update' ? 'Aplicar cambio' : 'Generar web'}
                         </button>
 
                         {/* Contador de usos */}
@@ -473,7 +666,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                                     onMouseLeave={() => setShowUsageTooltip(false)}
                                     className={`text-xs font-semibold px-2 py-0.5 rounded-full cursor-default ${usageColor}`}
                                 >
-                                    {aiUsage.used}/{aiUsage.limit} hoy
+                                    {usedToday}/{aiUsage.limit} hoy
                                 </button>
                                 {showUsageTooltip && (
                                     <div className="absolute bottom-full right-0 mb-1 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-2 text-xs text-gray-300 whitespace-nowrap shadow-xl">
@@ -484,18 +677,18 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                             </div>
                         </div>
 
-                        {aiUsage.used >= aiUsage.limit && (
-                            <div className="mt-2 p-2 bg-red-900/20 border border-red-800/40 rounded-lg text-xs text-red-400">
-                                Has usado todos los cambios de hoy.{' '}
+                        {usedToday >= aiUsage.limit && (
+                            <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/40 rounded-lg text-xs text-amber-300/90 leading-relaxed">
+                                Has agotado tus cambios con <strong>IA</strong> de hoy. Los cambios sencillos (colores, fuente, WhatsApp, ocultar secciones…) <strong>siguen siendo gratis</strong>.{' '}
                                 {!aiUsage.isSubscribed && (
-                                    <a href="/publicar" className="underline text-violet-400">Mejora tu plan</a>
+                                    <a href="/publicar" className="underline text-violet-300">Mejora tu plan</a>
                                 )}
                             </div>
                         )}
 
-                        {!aiUsage.isSubscribed && aiUsage.used < aiUsage.limit && (
+                        {!aiUsage.isSubscribed && usedToday < aiUsage.limit && (
                             <a href="/publicar" className="mt-2 block text-center text-xs text-gray-600 hover:text-violet-400 transition-colors">
-                                Activar plan para mas cambios
+                                Activar plan para más cambios con IA
                             </a>
                         )}
                     </div>
@@ -513,7 +706,8 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     </div>
                 </div>
 
-                {/* Editor de código */}
+                {/* Editor de código (solo en modo avanzado) */}
+                {!simpleMode && (
                 <div className="w-96 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex flex-col">
                     <div className="flex border-b border-gray-800 flex-shrink-0">
                         {(['html', 'css', 'js'] as ActiveTab[]).map(tab => (
@@ -534,6 +728,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         <CodeMirrorEditor value={currentValue} onChange={handleChange} language={activeTab} />
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

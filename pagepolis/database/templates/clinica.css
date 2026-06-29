@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
+:root{
+  --font-head:'Manrope',sans-serif;
+  --font-body:'Manrope',system-ui,sans-serif;
+  --brand:#0ea5e9; --brand-2:#0284c7; --on-brand:#fff;
+  --brand-soft:rgba(14,165,233,.12);
+  --bg:#ffffff; --surface:#ffffff; --text:#0f2231; --muted:#5a7184;
+  --border:#e3eef5; --radius:16px; --maxw:1180px;
+  --header-bg:rgba(255,255,255,.92);
+  --footer-bg:#0f2231; --footer-text:#a9c2d4;
+}
+.hero{--hero-bg:linear-gradient(180deg,#eef8fd,#ffffff)}
+.logo{color:var(--brand);align-items:center}
+.logo-dot{width:12px;height:12px;border-radius:50%;background:var(--brand);display:inline-block}
+.story{background:#eef8fd}
+.testi{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff}
+.testi .kicker{color:#bfe6f7}
+.testi .testi-author span{color:rgba(255,255,255,.75)}
+.testi-prev,.testi-next{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff}

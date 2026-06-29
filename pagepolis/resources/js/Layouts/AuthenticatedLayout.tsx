@@ -6,7 +6,9 @@ interface AuthLayoutProps extends PropsWithChildren {
 }
 
 export default function AuthenticatedLayout({ header, children }: AuthLayoutProps) {
-    const { auth } = usePage<{ auth: { user: { name: string; email: string; role: string } } }>().props;
+    const page = usePage<{ auth: { user: { name: string; email: string; role: string } }; leadsUnread?: number }>().props;
+    const auth = page.auth;
+    const leadsUnread = page.leadsUnread ?? 0;
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
@@ -26,6 +28,14 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                 </Link>
                                 <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
                                     Analítica
+                                </Link>
+                                <Link href="/mensajes" className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1.5">
+                                    Mensajes
+                                    {leadsUnread > 0 && (
+                                        <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                                            {leadsUnread}
+                                        </span>
+                                    )}
                                 </Link>
                                 <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
                                     Plantillas

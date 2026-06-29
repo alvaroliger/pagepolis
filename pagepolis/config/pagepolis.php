@@ -15,4 +15,13 @@ return [
         'free_max_published' => (int) env('FREE_MAX_PUBLISHED', 3),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Correo de soporte
+    |--------------------------------------------------------------------------
+    | Dirección a la que los usuarios escriben para pedir ayuda. Créala como
+    | buzón en Dinahosting y ponla en SUPPORT_EMAIL en el .env de producción.
+    */
+    'support_email' => env('SUPPORT_EMAIL', 'soporte@pagepolis.com'),
+
 ];

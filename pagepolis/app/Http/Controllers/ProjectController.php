@@ -2,14 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateWebsiteJob;
 use App\Models\Project;
 use App\Models\Template;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 class ProjectController extends Controller
 {
+    /**
+     * Asistente "a prueba de abuelos": con 4 respuestas en lenguaje natural crea el
+     * proyecto y lanza la generación de la web en segundo plano. El editor (al que
+     * se redirige) muestra el progreso y aplica el resultado al terminar.
+     */
+    public function createWithAi(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'business_name' => 'required|string|max:100',
+            'description'   => 'required|string|max:1000',
+            'sells'         => 'boolean',
+            'whatsapp'      => 'nullable|string|max:30',
+            'style'         => 'nullable|string|max:40',
+            'location'      => 'nullable|string|max:80',
+        ]);
+
+        $user = auth()->user();
+
+        // Límite anti-abuso del tier gratuito (los de pago no tienen tope).
+        if (!$user->isSubscribed()) {
+            $max = config('pagepolis.limits.free_max_projects', 10);
+            if ($user->projects()->count() >= $max) {
+                return response()->json([
+                    'error' => "El plan gratuito permite hasta {$max} proyectos. Mejora a un plan de pago para crear más.",
+                ], 422);
+            }
+        }
+
+        $project = Project::create([
+            'user_id'     => $user->id,
+            'name'        => $data['business_name'],
+            'status'      => 'draft',
+            'ai_status'   => 'generating',
+            'ai_progress' => 'En cola…',
+        ]);
+
+        GenerateWebsiteJob::dispatch($project->id, $user->id, 'generate', $this->buildPrompt($data));
+
+        return response()->json([
+            'success'    => true,
+            'project_id' => $project->id,
+            'redirect'   => route('editor.index', $project->id),
+        ]);
+    }
+
+    /**
+     * Convierte las respuestas del asistente en un encargo claro para la IA.
+     */
+    private function buildPrompt(array $d): string
+    {
+        $p = "Crea la web profesional y completa del negocio «{$d['business_name']}».\n";
+        $p .= "A qué se dedica: {$d['description']}.\n";
+
+        if (!empty($d['location'])) {
+            $p .= "Ubicación: {$d['location']}.\n";
+        }
+        if (!empty($d['sells'])) {
+            $p .= "IMPORTANTE: el negocio VENDE PRODUCTOS ONLINE. Incluye una tienda completa con catálogo de productos, carrito y checkout.";
+            if (!empty($d['whatsapp'])) {
+                $p .= " Recibe los pedidos por WhatsApp en el número {$d['whatsapp']}.";
+            }
+            $p .= "\n";
+        }
+        if (!empty($d['style'])) {
+            $p .= "Estilo visual preferido: {$d['style']}.\n";
+        }
+
+        return trim($p);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -62,6 +134,10 @@ class ProjectController extends Controller
         $body = $project->html ?? '';
         $js   = $project->js   ?? '';
 
+        // Guard de la vista previa: evita que al pulsar enlaces el iframe navegue a
+        // la app (lo que saturaba el servidor local → "localhost rechaza la conexión").
+        $previewGuard = "(function(){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'){e.preventDefault();try{if(h.length>1){var el=document.querySelector(h);if(el)el.scrollIntoView({behavior:'smooth'});}}catch(x){}}else{e.preventDefault();}},true);document.addEventListener('submit',function(e){e.preventDefault();},true);})();";
+
         // La preview se sirve en un iframe sandboxed desde el editor.
         // Los headers CSP impiden acceso a cookies de pagepolis.com.
         $html = <<<HTML
@@ -78,6 +154,7 @@ class ProjectController extends Controller
 </head>
 <body>
 {$body}
+<script>{$previewGuard}</script>
 <script>{$js}</script>
 </body>
 </html>

@@ -169,12 +169,20 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
         <AuthenticatedLayout header={
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-bold text-white">Mis proyectos</h1>
-                <Link
-                    href="/plantillas"
-                    className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-                >
-                    + Nuevo proyecto
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/plantillas"
+                        className="bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                    >
+                        Plantillas
+                    </Link>
+                    <Link
+                        href="/crear"
+                        className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-opacity"
+                    >
+                        ✨ Crear con IA
+                    </Link>
+                </div>
             </div>
         }>
             <Head title="Mis proyectos" />

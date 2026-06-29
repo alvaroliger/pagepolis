@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
+// Evita que al pulsar enlaces en la vista previa el iframe navegue a la app
+// (lo que en local saturaba el servidor → "localhost rechaza la conexión").
+const PREVIEW_GUARD = "(function(){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'){e.preventDefault();try{if(h.length>1){var el=document.querySelector(h);if(el)el.scrollIntoView({behavior:'smooth'});}}catch(x){}}else{e.preventDefault();}},true);document.addEventListener('submit',function(e){e.preventDefault();},true);})();";
+
 interface Template {
     id: number;
     name: string;
@@ -176,7 +180,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}</body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0"
                             title={previewTemplate.name}

@@ -35,6 +35,8 @@ class EditorController extends Controller
                 'ai_history' => $project->ai_history ?? [],
                 'seo_meta'   => $project->seo_meta ?? null,
                 'status'     => $project->status,
+                'ai_status'  => $project->ai_status,
+                'ai_progress'=> $project->ai_progress,
             ],
             'aiUsage' => [
                 'used'        => (int) $user->ai_calls_today,
@@ -57,6 +59,9 @@ class EditorController extends Controller
         ]);
 
         $project->update($request->only(['name', 'html', 'css', 'js']));
+
+        // Si está en un dominio propio activo, refleja los cambios en internet.
+        $project->deployToLiveDomain();
 
         return response()->json(['success' => true]);
     }

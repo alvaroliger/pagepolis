@@ -19,6 +19,8 @@ class Project extends Model
         'css',
         'js',
         'ai_history',
+        'ai_status',
+        'ai_progress',
         'seo_meta',
         'status',
         'published_at',
@@ -63,6 +65,11 @@ class Project extends Model
         return $this->hasMany(\App\Models\PageView::class);
     }
 
+    public function leads()
+    {
+        return $this->hasMany(\App\Models\Lead::class);
+    }
+
     public function getPreviewUrlAttribute(): string
     {
         if ($this->domain?->status === 'active') {
@@ -70,5 +77,19 @@ class Project extends Model
         }
 
         return route('projects.preview', $this->id);
+    }
+
+    /**
+     * Si el proyecto está publicado en un dominio propio/subdominio ACTIVO, vuelve a
+     * desplegar los archivos estáticos para que la web en internet refleje los
+     * últimos cambios (editar "después" de publicar). Los sitios en /s/{slug}
+     * (type 'path') se sirven en vivo desde la BD, no necesitan re-despliegue.
+     */
+    public function deployToLiveDomain(): void
+    {
+        $domain = $this->domain()->first();
+        if ($domain && $domain->status === 'active' && in_array($domain->type, ['custom', 'subdomain'], true)) {
+            \App\Jobs\DeploySite::dispatch($this);
+        }
     }
 }

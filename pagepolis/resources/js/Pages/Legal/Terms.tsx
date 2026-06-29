@@ -1,6 +1,8 @@
+import { usePage } from '@inertiajs/react';
 import LegalLayout, { LegalSection } from '@/Components/LegalLayout';
 
 export default function Terms() {
+    const email = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
     return (
         <LegalLayout title="Términos de servicio" updated="9 de junio de 2026">
             <p className="text-[15px]">
@@ -16,7 +18,7 @@ export default function Terms() {
                     <strong className="text-white"> [NOMBRE O RAZÓN SOCIAL]</strong>, con NIF
                     <strong className="text-white"> [NIF/DNI]</strong> y domicilio en
                     <strong className="text-white"> [DIRECCIÓN]</strong>. Correo de contacto:
-                    <a href="mailto:hola@pagepolis.com" className="text-violet-400 hover:underline"> hola@pagepolis.com</a>.
+                    <a href={`mailto:${email}`} className="text-violet-400 hover:underline"> {email}</a>.
                 </p>
             </LegalSection>
 

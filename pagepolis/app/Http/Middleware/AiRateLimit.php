@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -23,51 +24,61 @@ class AiRateLimit
             return response()->json(['error' => 'No autenticado.'], 401);
         }
 
-        // Resetear contador si es un nuevo día
-        $today = now()->toDateString();
-        if ($user->ai_calls_reset_date !== $today) {
-            $user->update(['ai_calls_today' => 0, 'ai_calls_reset_date' => $today]);
-        }
-
-        $tier  = $this->getUserTier($user);
-        $limit = self::LIMITS[$tier];
-
-        if ($user->ai_calls_today >= $limit) {
-            $resetAt = now()->endOfDay()->diffForHumans();
+        if (self::exceeded($user)) {
+            $limit = self::dailyLimit($user);
             return response()->json([
-                'error'    => "Has alcanzado el límite de {$limit} generaciones con IA hoy. Se restablece {$resetAt}.",
-                'limit'    => $limit,
-                'used'     => $user->ai_calls_today,
-                'tier'     => $tier,
-                'upgrade'  => $tier === 'trial',
+                'error'   => "Has alcanzado el límite de {$limit} generaciones con IA hoy. Se restablece " . now()->endOfDay()->diffForHumans() . '.',
+                'limit'   => $limit,
+                'used'    => self::used($user),
+                'tier'    => self::tier($user),
+                'upgrade' => self::tier($user) === 'trial',
             ], 429);
         }
 
         $response = $next($request);
 
-        // Solo contar si la llamada fue exitosa
+        // Solo cuenta si la llamada (que SÍ usa IA) fue exitosa.
         if ($response->getStatusCode() === 200) {
-            $user->increment('ai_calls_today');
+            self::register($user);
         }
 
         return $response;
     }
 
-    private function getUserTier($user): string
+    /** Resetea el contador si es un nuevo día y devuelve los usos de hoy. */
+    public static function used(User $user): int
+    {
+        $today = now()->toDateString();
+        // OJO: ai_calls_reset_date es un cast 'date' (Carbon); hay que comparar por
+        // toDateString(), no por (string), o el contador se resetearía SIEMPRE y el
+        // límite diario de IA no se aplicaría nunca (riesgo de coste descontrolado).
+        if ($user->ai_calls_reset_date?->toDateString() !== $today) {
+            $user->update(['ai_calls_today' => 0, 'ai_calls_reset_date' => $today]);
+        }
+        return (int) $user->ai_calls_today;
+    }
+
+    public static function dailyLimit(User $user): int
+    {
+        return self::LIMITS[self::tier($user)] ?? 5;
+    }
+
+    public static function exceeded(User $user): bool
+    {
+        return self::used($user) >= self::dailyLimit($user);
+    }
+
+    /** Suma una llamada de IA al contador diario. */
+    public static function register(User $user): void
+    {
+        self::used($user); // asegura el reset diario
+        $user->increment('ai_calls_today');
+    }
+
+    public static function tier(User $user): string
     {
         if ($user->role === 'admin') return 'admin';
         if (!$user->isSubscribed()) return 'trial';
-
-        // Distinguir básico vs pro por el precio de la suscripción activa
-        $priceMonthlyId = config('services.stripe.price_monthly');
-        $priceYearlyId  = config('services.stripe.price_yearly');
-
-        $subscription = $user->subscription('default');
-        if (!$subscription) return 'trial';
-
-        // Si el precio es el "pro" (más caro), es pro. Si no, básico.
-        // Por simplicidad: si tiene suscripción activa = básico mínimo
-        // Aquí se puede refinar si se añaden price IDs distintos por plan
         return 'basic';
     }
 }

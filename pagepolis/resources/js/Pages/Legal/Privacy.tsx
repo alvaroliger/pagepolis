@@ -1,6 +1,8 @@
+import { usePage } from '@inertiajs/react';
 import LegalLayout, { LegalSection } from '@/Components/LegalLayout';
 
 export default function Privacy() {
+    const email = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
     return (
         <LegalLayout title="Política de privacidad" updated="9 de junio de 2026">
             <p className="text-[15px]">
@@ -15,7 +17,7 @@ export default function Privacy() {
                     Responsable: <strong className="text-white">[NOMBRE O RAZÓN SOCIAL]</strong>, NIF
                     <strong className="text-white"> [NIF/DNI]</strong>, domicilio en
                     <strong className="text-white"> [DIRECCIÓN]</strong>. Contacto:
-                    <a href="mailto:hola@pagepolis.com" className="text-violet-400 hover:underline"> hola@pagepolis.com</a>.
+                    <a href={`mailto:${email}`} className="text-violet-400 hover:underline"> {email}</a>.
                 </p>
             </LegalSection>
 
@@ -63,7 +65,7 @@ export default function Privacy() {
                 <p>
                     Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición,
                     limitación y portabilidad escribiendo a
-                    <a href="mailto:hola@pagepolis.com" className="text-violet-400 hover:underline"> hola@pagepolis.com</a>.
+                    <a href={`mailto:${email}`} className="text-violet-400 hover:underline"> {email}</a>.
                     Desde <strong className="text-white">Mi perfil → Exportar mis datos</strong> puedes
                     descargar en cualquier momento una copia de tus datos en formato JSON. También
                     puedes eliminar tu cuenta desde el propio panel.

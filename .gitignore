@@ -1,0 +1,10 @@
+
+# Claude Code local settings
+.claude/
+CLAUDE.md
+
+# Tooling de deploy local (contiene credenciales SSH del servidor — NO subir)
+scripts/
+
+# Backups locales
+*-backups/
