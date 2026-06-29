@@ -68,6 +68,8 @@ type ActiveTab = 'html' | 'css' | 'js';
 type ViewMode  = 'desktop' | 'tablet' | 'mobile';
 type AiMode    = 'update' | 'generate';
 
+const AUTOSAVE_DEBOUNCE_MS = 2500;
+
 const viewWidths: Record<ViewMode, string> = {
     desktop: '100%',
     tablet:  '768px',
@@ -325,6 +327,16 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             setSaving(false);
         }
     };
+
+    // Autoguardado: tras AUTOSAVE_DEBOUNCE_MS de inactividad con cambios sin
+    // guardar, persiste solo automáticamente. Evita perder trabajo si el
+    // usuario cierra la pestaña sin pulsar "Guardar".
+    useEffect(() => {
+        if (!dirty || saving) return;
+        const timer = window.setTimeout(() => { save(); }, AUTOSAVE_DEBOUNCE_MS);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dirty, saving, name, html, css, js]);
 
     const requestModeSwitch = (newMode: AiMode) => {
         if (newMode === aiMode) return;

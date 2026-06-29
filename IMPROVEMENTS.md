@@ -10,6 +10,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - 🟢 **Vender la captura de leads** en landing/precios ("recibe los mensajes de tus clientes en tu
   correo") — ahora es verdad, se puede anunciar. Copy en `resources/js/i18n/locales/*.json`.
+  PR abierto: `feature/landing-lead-capture-copy` (#1).
 - 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
@@ -17,7 +18,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Producto
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
-- 🟢 Autosave en el editor con debounce.
+- ✅ Autosave en el editor con debounce (2.5s tras dejar de escribir).
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
@@ -27,3 +28,5 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Autosave en el editor (`Pages/Editor/Index.tsx`): guarda solo a los 2.5s de inactividad si hay
+  cambios sin guardar. Antes solo existía el aviso `beforeunload`, sin persistir nada.
