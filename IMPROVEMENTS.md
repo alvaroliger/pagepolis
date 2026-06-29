@@ -13,7 +13,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
-- 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
+- ✅ **Email de bienvenida post-registro** con CTA a /crear (WelcomeMail + ShouldQueue listener, 5 tests).
 
 ## Producto
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
@@ -27,3 +27,4 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Email de bienvenida al registrarse con CTA a /crear (PR #5, 101/101 tests).
