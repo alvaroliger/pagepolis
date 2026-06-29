@@ -19,7 +19,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
 - 🟢 Autosave en el editor con debounce.
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
-- 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
+- ✅ Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
@@ -27,3 +27,5 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Code-splitting de CodeMirror en el editor: bundle inicial de la página 531 kB → ~18 kB; CodeMirror
+  (~514 kB) ahora se carga bajo demanda solo al activar el modo avanzado (ver código).
