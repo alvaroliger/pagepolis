@@ -19,7 +19,9 @@ class BillingWebhookTest extends TestCase
         ]);
 
         // El endpoint existe y Cashier rechaza la firma inválida.
-        $this->assertContains($response->status(), [400, 403]);
+        // Cashier puede devolver un Symfony Response directo (sin envolver en TestResponse),
+        // por lo que usamos getStatusCode() en lugar de status().
+        $this->assertContains($response->getStatusCode(), [400, 403]);
     }
 
     public function test_grace_period_set_on_subscription_deleted(): void
