@@ -22,6 +22,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
 ## Calidad
+- ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
