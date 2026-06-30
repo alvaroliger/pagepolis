@@ -25,5 +25,6 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Tests de ciclo de vida de proyecto (PR #13): autorización en forceDestroy, restore y publishFree; corrección de infraestructura de tests (APP_KEY en phpunit.xml, AnthropicService ?? '', BillingWebhookTest). Suite 102/102 verde en clone limpio.
