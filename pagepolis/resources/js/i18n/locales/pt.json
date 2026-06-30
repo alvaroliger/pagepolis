@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Publicação automática", "desc": "Escolha seu próprio domínio ou use seu subdomínio pagepolis.com. O site fica online em segundos após o pagamento." },
       { "icon": "🔒", "title": "Seguro e confiável", "desc": "SSL incluído, infraestrutura de alto desempenho, backups automáticos e suporte em português." },
       { "icon": "📱", "title": "Sempre responsivo", "desc": "Cada site gerado é mobile-first. Prévia em desktop, tablet e mobile antes de publicar." },
-      { "icon": "🤖", "title": "IA que te entende", "desc": "Peça mudanças em português: coloque o fundo azul, adicione seção de preços, deixe mais moderno." }
+      { "icon": "🤖", "title": "IA que te entende", "desc": "Peça mudanças em português: coloque o fundo azul, adicione seção de preços, deixe mais moderno." },
+      { "icon": "📩", "title": "Capture leads do seu site", "desc": "Qualquer formulário de contato do seu site coleta envios e os encaminha automaticamente para o seu e-mail. Sem configuração." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Precisa de mais?",
     "custom_link": "Fale conosco",
     "custom_suffix": "para um plano personalizado.",
-    "basic_features": ["3 projetos ativos", "IA ilimitada", "Subdomínio em pagepolis.com", "Editor de código", "SSL incluído", "Suporte por e-mail"],
-    "pro_features": ["Projetos ilimitados", "IA ilimitada", "Domínio próprio incluído (.com)", "Editor avançado", "SSL incluído", "Suporte prioritário", "Analytics básico", "Sem publicidade Pagepolis"]
+    "basic_features": ["3 projetos ativos", "IA ilimitada", "Subdomínio em pagepolis.com", "Editor de código", "SSL incluído", "Mensagens de clientes no seu e-mail", "Suporte por e-mail"],
+    "pro_features": ["Projetos ilimitados", "IA ilimitada", "Domínio próprio incluído (.com)", "Editor avançado", "SSL incluído", "Suporte prioritário", "Analytics básico", "Mensagens de clientes no seu e-mail", "Sem publicidade Pagepolis"]
   },
   "faq": {
     "title": "Perguntas frequentes",
