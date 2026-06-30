@@ -10,7 +10,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - 🟢 **Vender la captura de leads** en landing/precios ("recibe los mensajes de tus clientes en tu
   correo") — ahora es verdad, se puede anunciar. Copy en `resources/js/i18n/locales/*.json`.
-- 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
+- ✅ **Prueba social** real en landing/pricing — indicador de actividad en vivo ("Última web generada hace X min") respaldado por la BD, en los 6 idiomas.
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
 - 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
@@ -25,5 +25,6 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Indicador de actividad en vivo en la landing (prueba social real, PR #7). Suite: 98/98 verde.
