@@ -102,4 +102,20 @@ class LeadCaptureTest extends TestCase
 
         $this->assertNotNull($lead->fresh()->read_at);
     }
+
+    public function test_inbox_only_shows_own_leads(): void
+    {
+        // User A submits a lead to their own published site.
+        $projectA = $this->publishedProject();
+        $projectA->leads()->create(['email' => 'visitor@example.com', 'message' => 'hola', 'payload' => []]);
+
+        // User B has a completely separate account with no leads.
+        $userB = User::factory()->create(['email_verified_at' => now()]);
+
+        $response = $this->actingAs($userB)->get('/mensajes')->assertStatus(200);
+
+        // User B must not see User A's lead in the inbox data.
+        $leads = $response->original->getData()['page']['props']['leads'] ?? [];
+        $this->assertEmpty($leads, 'User B should not see leads belonging to User A');
+    }
 }

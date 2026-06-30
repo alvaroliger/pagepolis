@@ -97,4 +97,22 @@ class DomainFlowTest extends TestCase
 
         Queue::assertNotPushed(DeploySite::class);
     }
+
+    public function test_cannot_reserve_domain_for_another_users_project(): void
+    {
+        Queue::fake();
+        $owner  = $this->subscribedUser();
+        $hacker = $this->subscribedUser();
+        $p      = $this->project($owner);
+
+        // A different authenticated user tries to attach a domain to a project they don't own.
+        $this->actingAs($hacker)->postJson('/dominios/reservar', [
+            'domain'     => 'stolen.com',
+            'type'       => 'custom',
+            'project_id' => $p->id,
+        ])->assertStatus(404);
+
+        $this->assertDatabaseMissing('domains', ['domain' => 'stolen.com']);
+        Queue::assertNothingPushed();
+    }
 }
