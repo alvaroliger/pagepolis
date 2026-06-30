@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Listeners\HandleStripeWebhook;
+use App\Listeners\SendWelcomeEmail;
 use App\Models\Project;
 use App\Policies\ProjectPolicy;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
@@ -31,5 +33,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Lógica de negocio sobre el webhook de Stripe (mismo endpoint que Cashier).
         Event::listen(WebhookReceived::class, HandleStripeWebhook::class);
+
+        // Email de bienvenida al registrarse.
+        Event::listen(Registered::class, SendWelcomeEmail::class);
     }
 }
