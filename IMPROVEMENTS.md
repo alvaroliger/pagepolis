@@ -24,6 +24,22 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 Paginar la bandeja de `/mensajes` (hoy hay un `limit(200)` sin paginación real;
+  un usuario con muchos leads no puede ver los más antiguos).
+- 🟢 Rate limit en `GET /webhook/whatsapp` (el verify de Meta) — el POST ya tiene
+  `throttle:100,1`, el GET de verificación no tiene ninguno.
 
-## Hecho recientemente (2026-06-29)
-- Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+## Nota para próximas ejecuciones
+A fecha 2026-06-30 hay **20 PRs abiertas** (#1–#20) cubriendo casi todos los ítems 🟢
+de este backlog (ninguna mergeada todavía). **Revisa `gh pr list --state open` antes
+de elegir ítem** para no duplicar trabajo. Varias PRs además tocan las mismas líneas
+de infraestructura de tests (`phpunit.xml` sin `APP_KEY`, cast de `AnthropicService`,
+`BillingWebhookTest::status()` → `getStatusCode()`) — quien las mergee primero
+resuelve el resto con un rebase trivial.
+
+## Hecho recientemente
+- (2026-06-30) Fix race TOCTOU en el límite de publicación gratuita: el check de
+  cuántas webs tiene publicadas un usuario gratis y el publish en sí iban en dos
+  pasos separados, permitiendo que requests concurrentes cerca del límite lo
+  sobrepasaran. Ahora es un único `UPDATE` atómico (PR #20).
+- (2026-06-29) Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
