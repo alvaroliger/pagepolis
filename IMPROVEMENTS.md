@@ -25,5 +25,11 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- PRs en vuelo (#1–#14): landing copy, autosave, code-splitting, onboarding checklist, welcome email, wizard UX, live social proof, admin tests, mobile nav, editor save limits+tests, billing webhook tests, cross-user auth tests, project lifecycle tests, EditorController dedup.
+- EditorController deduplicado: usa AiRateLimit::used/dailyLimit/tier como fuente única de verdad. Elimina el array de límites duplicado y la lógica de reset diario redundante (PR #14).
+
+## Ideas nuevas
+- 🟢 Añadir índice DB explícito en `page_views(project_id, viewed_on)` si las consultas de analítica se vuelven lentas (actualmente la unique constraint sirve de índice en MySQL).
+- 🟢 Rate-limit global por IP en el endpoint de leads (actualmente `throttle:20,1` es por ruta, no cross-slug).
