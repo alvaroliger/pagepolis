@@ -25,5 +25,13 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
+## Ideas futuras
+- 🟢 Tests para WhatsApp webhook (flow de IA vía WA, firma de Meta, rate limit por usuario).
+- 🟢 Rate limiting en `DomainController::check()` para evitar abuso de la API del registrador.
+- 🟢 Tests para `BillingController::portal()` happy path (requiere mock de Stripe/Cashier).
+
+## Hecho recientemente (2026-06-30)
+- Suite de tests del checkout de facturación (5 tests); bug fix: `catch (\Throwable)` en BillingController para que errores de Stripe SDK no escapen el manejador; infraestructura de tests reparada (APP_KEY, AnthropicService, BillingWebhookTest). PR #15.
+
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
