@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\AiRateLimit;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,16 +15,7 @@ class EditorController extends Controller
     {
         $this->authorize('view', $project);
 
-        $user      = auth()->user();
-        $tier      = $user->isSubscribed() ? 'basic' : 'trial';
-        $limits    = ['trial' => 5, 'basic' => 30, 'pro' => 100, 'admin' => 9999];
-        $dailyLimit = $user->role === 'admin' ? 9999 : ($limits[$tier] ?? 5);
-
-        // Resetear contador si es un nuevo día
-        $today = now()->toDateString();
-        if ($user->ai_calls_reset_date?->toDateString() !== $today) {
-            $user->update(['ai_calls_today' => 0, 'ai_calls_reset_date' => $today]);
-        }
+        $user = auth()->user();
 
         return Inertia::render('Editor/Index', [
             'project' => [
@@ -39,9 +31,9 @@ class EditorController extends Controller
                 'ai_progress'=> $project->ai_progress,
             ],
             'aiUsage' => [
-                'used'        => (int) $user->ai_calls_today,
-                'limit'       => $dailyLimit,
-                'tier'        => $tier,
+                'used'        => AiRateLimit::used($user),
+                'limit'       => AiRateLimit::dailyLimit($user),
+                'tier'        => AiRateLimit::tier($user),
                 'isSubscribed'=> $user->isSubscribed(),
             ],
         ]);
