@@ -20,7 +20,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Landing pública
-Route::get('/', fn() => Inertia::render('Landing'))->name('home');
+Route::get('/', function () {
+    try {
+        $last = \App\Models\Project::latest()->first();
+        $minutesAgo = $last ? (int) $last->created_at->diffInMinutes(now()) : null;
+    } catch (\Exception) {
+        $minutesAgo = null;
+    }
+    return Inertia::render('Landing', ['lastActivityMinutes' => $minutesAgo]);
+})->name('home');
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);

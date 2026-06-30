@@ -20,7 +20,8 @@
     "disclaimer": "7 Tage kostenlos · Keine Kreditkarte · Jederzeit kündbar",
     "stat_sites": "erstellte Websites",
     "stat_time": "Generierungszeit",
-    "stat_rating": "Durchschnittsbewertung"
+    "stat_rating": "Durchschnittsbewertung",
+    "live_activity": "Letzte Website vor {{time}} erstellt"
   },
   "how": {
     "title": "Ihre Website in 3 Schritten",

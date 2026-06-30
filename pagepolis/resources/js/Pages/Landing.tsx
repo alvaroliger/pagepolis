@@ -52,11 +52,19 @@ function TypingAnimation() {
     return <span className="text-violet-300 font-mono">{displayed}<span className="animate-pulse">|</span></span>;
 }
 
+function formatLiveMinutes(minutes: number): string {
+    if (minutes < 60) return `${Math.max(1, minutes)} min`;
+    return `${Math.floor(minutes / 60)}h`;
+}
+
 export default function Landing() {
     const { t, i18n } = useTranslation();
     const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
     const pricingRef = useRef<HTMLElement>(null);
-    const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+    const pageProps = usePage().props as any;
+    const supportEmail = pageProps.support?.email ?? 'soporte@pagepolis.com';
+    const lastActivityMinutes: number | null = pageProps.lastActivityMinutes ?? null;
+    const showActivity = lastActivityMinutes !== null && lastActivityMinutes < 1440;
 
     const asArray = <T,>(val: unknown): T[] => Array.isArray(val) ? val as T[] : [];
     const asObj   = (val: unknown): Record<string, string> => (val && typeof val === 'object' && !Array.isArray(val)) ? val as Record<string, string> : {};
@@ -153,6 +161,12 @@ export default function Landing() {
                                 {t('hero.cta_secondary')}
                             </Link>
                         </div>
+                        {showActivity && (
+                            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500 mb-3">
+                                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
+                                {t('hero.live_activity', { time: formatLiveMinutes(lastActivityMinutes!) })}
+                            </div>
+                        )}
                         <p className="text-sm text-gray-600">{t('hero.disclaimer')}</p>
 
                         <div className="mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto">

@@ -20,7 +20,8 @@
     "disclaimer": "7 dias grátis · Sem cartão de crédito · Cancele quando quiser",
     "stat_sites": "sites criados",
     "stat_time": "tempo de geração",
-    "stat_rating": "avaliação média"
+    "stat_rating": "avaliação média",
+    "live_activity": "Último site gerado há {{time}}"
   },
   "how": {
     "title": "Seu site em 3 passos",

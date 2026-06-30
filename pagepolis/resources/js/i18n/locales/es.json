@@ -20,7 +20,8 @@
     "disclaimer": "7 días gratis · Sin tarjeta de crédito · Cancela cuando quieras",
     "stat_sites": "webs creadas",
     "stat_time": "tiempo de generación",
-    "stat_rating": "valoración media"
+    "stat_rating": "valoración media",
+    "live_activity": "Última web generada hace {{time}}"
   },
   "how": {
     "title": "Tu web en 3 pasos",

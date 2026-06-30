@@ -20,7 +20,8 @@
     "disclaimer": "7 days free · No credit card · Cancel anytime",
     "stat_sites": "websites created",
     "stat_time": "generation time",
-    "stat_rating": "average rating"
+    "stat_rating": "average rating",
+    "live_activity": "Last site built {{time}} ago"
   },
   "how": {
     "title": "Your website in 3 steps",
