@@ -25,5 +25,10 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- ✅ **Fix `SuspendExpiredSubscriptions` zombie state**: external service calls now happen before clearing `grace_period_ends_at`; if Dinahosting/Nginx fails, the user retains their grace period and the next daily run retries cleanly. DB cleanup wrapped in a transaction. 10 new tests, suite 106 green. Test infrastructure also fixed (APP_KEY, AnthropicService null-safety, BillingWebhookTest `status()`).
+
+## Ideas adicionales
+- 🟢 Tests para `SendExpiryReminders` y `SendWeeklyReports` (comandos de billing sin cobertura).
+- 🟢 Test para `ProfileController::exportData` (exportación GDPR).

@@ -14,12 +14,14 @@ class BillingWebhookTest extends TestCase
 
     public function test_cashier_webhook_endpoint_rejects_invalid_signature(): void
     {
+        config(['cashier.webhook.secret' => 'whsec_test_secret']);
+
         $response = $this->postJson('/stripe/webhook', ['type' => 'ping'], [
             'Stripe-Signature' => 'invalid',
         ]);
 
-        // El endpoint existe y Cashier rechaza la firma inválida.
-        $this->assertContains($response->status(), [400, 403]);
+        // Cashier's VerifyWebhookSignature middleware rejects the invalid signature.
+        $this->assertContains($response->getStatusCode(), [400, 403]);
     }
 
     public function test_grace_period_set_on_subscription_deleted(): void
