@@ -10,6 +10,34 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
     const auth = page.auth;
     const leadsUnread = page.leadsUnread ?? 0;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const navLinks = (
+        <>
+            <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Dashboard
+            </Link>
+            <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Analítica
+            </Link>
+            <Link href="/mensajes" className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1.5">
+                Mensajes
+                {leadsUnread > 0 && (
+                    <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                        {leadsUnread}
+                    </span>
+                )}
+            </Link>
+            <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Plantillas
+            </Link>
+            {auth.user.role === 'admin' && (
+                <Link href="/admin" className="text-gray-400 hover:text-violet-400 text-sm transition-colors">
+                    Admin
+                </Link>
+            )}
+        </>
+    );
 
     return (
         <div className="min-h-screen bg-gray-950 text-white">
@@ -23,31 +51,10 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                 </span>
                             </Link>
                             <div className="hidden md:flex gap-4">
-                                <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Dashboard
-                                </Link>
-                                <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Analítica
-                                </Link>
-                                <Link href="/mensajes" className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1.5">
-                                    Mensajes
-                                    {leadsUnread > 0 && (
-                                        <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
-                                            {leadsUnread}
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Plantillas
-                                </Link>
-                                {auth.user.role === 'admin' && (
-                                    <Link href="/admin" className="text-gray-400 hover:text-violet-400 text-sm transition-colors">
-                                        Admin
-                                    </Link>
-                                )}
+                                {navLinks}
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                             <span className="text-sm text-gray-400 hidden sm:block">{auth.user.name}</span>
                             <div className="relative">
                                 <button
@@ -75,9 +82,32 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     </div>
                                 )}
                             </div>
+                            {/* Hamburger button — only visible below md */}
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5 text-gray-400 hover:text-white"
+                                aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                                aria-expanded={mobileMenuOpen}
+                            >
+                                {mobileMenuOpen ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                )}
+                            </button>
                         </div>
                     </div>
                 </div>
+                {/* Mobile dropdown menu */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden border-t border-gray-800 bg-gray-900 px-4 py-3 flex flex-col gap-3">
+                        {navLinks}
+                    </div>
+                )}
             </nav>
 
             {header && (
