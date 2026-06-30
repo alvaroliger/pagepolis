@@ -53,9 +53,9 @@ class EditorController extends Controller
 
         $request->validate([
             'name' => 'sometimes|string|max:100',
-            'html' => 'sometimes|string',
-            'css'  => 'sometimes|string',
-            'js'   => 'sometimes|string',
+            'html' => 'sometimes|string|max:2097152',
+            'css'  => 'sometimes|string|max:524288',
+            'js'   => 'sometimes|string|max:524288',
         ]);
 
         $project->update($request->only(['name', 'html', 'css', 'js']));
