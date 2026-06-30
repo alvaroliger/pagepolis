@@ -25,5 +25,6 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- BillingWebhookTest extendido: test de firma rota (Laravel 13) corregido; 6 nuevos tests cubren invoice.payment_failed, checkout.session.completed (domain provisioning post-pago), domain suspension, reactivación parcial, y cliente desconocido. Suite 9/9 verde.
