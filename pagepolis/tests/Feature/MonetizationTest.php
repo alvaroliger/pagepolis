@@ -49,6 +49,35 @@ class MonetizationTest extends TestCase
         $this->assertSame('draft', $p2->fresh()->status);
     }
 
+    public function test_publish_free_never_exceeds_limit_even_at_exact_boundary(): void
+    {
+        config(['pagepolis.limits.free_max_published' => 2]);
+        $user = User::factory()->create();
+        $p1   = $this->project($user);
+        $p2   = $this->project($user);
+        $p3   = $this->project($user);
+
+        $this->actingAs($user)->postJson('/publicar/gratis', ['project_id' => $p1->id])->assertOk();
+        $this->actingAs($user)->postJson('/publicar/gratis', ['project_id' => $p2->id])->assertOk();
+        $this->actingAs($user)->postJson('/publicar/gratis', ['project_id' => $p3->id])->assertStatus(402);
+
+        $this->assertSame(2, $user->projects()->where('status', 'published')->count());
+    }
+
+    public function test_publish_free_ignores_soft_deleted_projects_in_limit_count(): void
+    {
+        config(['pagepolis.limits.free_max_published' => 1]);
+        $user = User::factory()->create();
+        $old  = $this->project($user, ['status' => 'published', 'published_at' => now()]);
+        $old->delete();
+        $new = $this->project($user);
+
+        $res = $this->actingAs($user)->postJson('/publicar/gratis', ['project_id' => $new->id]);
+
+        $res->assertOk();
+        $this->assertSame('published', $new->fresh()->status);
+    }
+
     public function test_free_user_blocked_after_project_limit(): void
     {
         config(['pagepolis.limits.free_max_projects' => 1]);
