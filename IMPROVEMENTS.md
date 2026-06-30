@@ -22,8 +22,13 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
 ## Calidad
-- 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
+- ✅ **Tests EditorController** — cobertura completa del endpoint de guardado (12 tests: auth, persistencia, autorización, límites de tamaño, deploy guard). PR #10.
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 Tests para BillingController (checkout + portal): flujo de pago sin cobertura.
+- 🟢 Tests para AnalyticsController: lógica de agregación de visitas sin cobertura.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
+- Bug fix: límites de tamaño en editor save (html 2 MB, css/js 512 KB). Suite 108 verde. PR #10.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
