@@ -25,5 +25,8 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
+## Hecho recientemente (2026-06-30)
+- Cross-user auth tests: lead inbox isolation + domain reservation ownership gate (suite 98 verde). PR #12.
+
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
