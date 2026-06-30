@@ -16,7 +16,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
 
 ## Producto
-- 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
+- ✅ Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
 - 🟢 Autosave en el editor con debounce.
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
@@ -25,5 +25,6 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+- Wizard UX: contador de caracteres en descripción, maxLength en todos los inputs, pista de validación al pulsar CTA con campos vacíos.
