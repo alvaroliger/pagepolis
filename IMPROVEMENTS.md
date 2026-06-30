@@ -23,7 +23,10 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
+- Menú hamburguesa en el layout autenticado: nav principal (Analítica, Mensajes, Plantillas) era inaccessible en móvil (PR #9).
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
