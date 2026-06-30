@@ -8,8 +8,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
-- 🟢 **Vender la captura de leads** en landing/precios ("recibe los mensajes de tus clientes en tu
-  correo") — ahora es verdad, se puede anunciar. Copy en `resources/js/i18n/locales/*.json`.
+- ✅ **Vender la captura de leads** en landing/precios — tarjeta de feature + línea en tablas de precio, 6 idiomas (PR #18).
 - 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
@@ -25,5 +24,9 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-06-30)
+- Captura de leads anunciada en landing (tarjeta feature) y precios (ambos planes), 6 idiomas (PR #18).
+- Infraestructura de tests saneada: APP_KEY en phpunit.xml, AnthropicService cast a string, BillingWebhookTest usa getStatusCode().
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
