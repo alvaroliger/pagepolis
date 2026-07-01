@@ -22,8 +22,12 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
 ## Calidad
-- 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
+- ✅ Tests de analytics/tracking pixel (13 tests, suite 109 verde). PR #23.
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 Tests de TemplateController (plantillas públicas).
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-01)
+- Analytics + tracking pixel: 13 tests cubriendo el ciclo completo (pixel → BD → dashboard). Descubierto bug en el cast de fecha de PageView (date cast almacena HH:MM:SS en SQLite, rompiendo la query de series). PR #23.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
