@@ -92,6 +92,53 @@ class LeadCaptureTest extends TestCase
             ->assertStatus(404);
     }
 
+    public function test_email_subject_includes_lead_name_when_known(): void
+    {
+        Mail::fake();
+        $this->publishedProject();
+
+        $this->postJson('/s/panaderia-x/lead', ['fields' => [
+            'nombre' => 'Carlos',
+            'email'  => 'carlos@example.com',
+        ]])->assertOk();
+
+        Mail::assertQueued(NewLeadMail::class, fn ($m) => str_contains($m->envelope()->subject, 'Carlos'));
+    }
+
+    public function test_email_subject_omits_name_gracefully_when_lead_is_anonymous(): void
+    {
+        Mail::fake();
+        $this->publishedProject();
+
+        $this->postJson('/s/panaderia-x/lead', ['fields' => [
+            'email'   => 'anon@example.com',
+            'mensaje' => 'Sin nombre',
+        ]])->assertOk();
+
+        Mail::assertQueued(NewLeadMail::class, function ($m) {
+            $subject = $m->envelope()->subject;
+            return str_contains($subject, 'Panadería La Espiga') && ! str_contains($subject, 'null');
+        });
+    }
+
+    public function test_reply_to_address_includes_lead_name(): void
+    {
+        Mail::fake();
+        $this->publishedProject();
+
+        $this->postJson('/s/panaderia-x/lead', ['fields' => [
+            'nombre' => 'María',
+            'email'  => 'maria@example.com',
+        ]])->assertOk();
+
+        Mail::assertQueued(NewLeadMail::class, function ($m) {
+            $replyTo = $m->envelope()->replyTo;
+            return count($replyTo) === 1
+                && $replyTo[0]->address === 'maria@example.com'
+                && $replyTo[0]->name === 'María';
+        });
+    }
+
     public function test_owner_sees_inbox_and_leads_get_marked_read(): void
     {
         $project = $this->publishedProject();

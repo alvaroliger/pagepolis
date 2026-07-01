@@ -25,5 +25,8 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-01)
+- Nombre del contacto en asunto y Reply-To del email de nuevo lead (3 tests añadidos, suite 99).
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
