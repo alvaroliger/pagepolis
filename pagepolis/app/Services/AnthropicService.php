@@ -16,7 +16,7 @@ class AnthropicService
 
     public function __construct(private AiBudgetGuard $budget)
     {
-        $this->apiKey    = config('services.anthropic.key');
+        $this->apiKey    = (string) (config('services.anthropic.key') ?? '');
         $this->paidModel = config('services.anthropic.model', 'claude-opus-4-8');
         $this->freeModel = config('services.anthropic.model_free', 'claude-sonnet-4-6');
         $this->maxTokens = (int) config('services.anthropic.max_tokens', 16000);
