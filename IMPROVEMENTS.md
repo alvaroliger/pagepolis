@@ -22,8 +22,14 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
 ## Calidad
-- 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
+- ✅ Tests del webhook WhatsApp (15 tests, cubre firma HMAC, comandos, límite diario, IA).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 Unificar límite diario WhatsApp con AiRateLimit (20 vs 30/100 por tier).
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-01)
+- Fix off-by-1 en cuenta de cambios restantes vía WhatsApp (`WhatsAppController`, línea 198).
+- Suite de tests WhatsApp (15 tests, 111/111 verde) + phpunit.xml con APP_KEY/ANTHROPIC/STRIPE.
+- Fix dos tests pre-existentes: AiBudgetGuardTest (fecha cruzando mes) y BillingWebhookTest (status()).
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.

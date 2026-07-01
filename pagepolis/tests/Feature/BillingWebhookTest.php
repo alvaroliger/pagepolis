@@ -19,7 +19,7 @@ class BillingWebhookTest extends TestCase
         ]);
 
         // El endpoint existe y Cashier rechaza la firma inválida.
-        $this->assertContains($response->status(), [400, 403]);
+        $this->assertContains($response->getStatusCode(), [400, 403]);
     }
 
     public function test_grace_period_set_on_subscription_deleted(): void
