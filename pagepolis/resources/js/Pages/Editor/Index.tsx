@@ -198,11 +198,12 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [images, setImages]       = useState<File[]>([]);
     const [simpleMode, setSimpleMode] = useState(true);   // el usuario no ve código por defecto
 
-    const iframeRef  = useRef<HTMLIFrameElement>(null);
-    const chatEndRef = useRef<HTMLDivElement>(null);
-    const pollRef    = useRef<number | null>(null);
-    const imageInput = useRef<HTMLInputElement>(null);
-    const promptInput = useRef<HTMLTextAreaElement>(null);
+    const iframeRef       = useRef<HTMLIFrameElement>(null);
+    const chatEndRef      = useRef<HTMLDivElement>(null);
+    const pollRef         = useRef<number | null>(null);
+    const imageInput      = useRef<HTMLInputElement>(null);
+    const promptInput     = useRef<HTMLTextAreaElement>(null);
+    const autosaveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const addImages = (files: FileList | null) => {
         if (!files) return;
@@ -325,6 +326,17 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             setSaving(false);
         }
     };
+
+    // Autosave: 2-second debounce after any content change while idle
+    useEffect(() => {
+        if (!dirty || saving || aiLoading) return;
+        if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+        autosaveTimer.current = setTimeout(save, 2_000);
+        return () => {
+            if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [html, css, js, name, dirty, saving, aiLoading]);
 
     const requestModeSwitch = (newMode: AiMode) => {
         if (newMode === aiMode) return;

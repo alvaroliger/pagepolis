@@ -171,4 +171,36 @@ class SmokeTest extends TestCase
 
         Queue::assertNothingPushed();
     }
+
+    public function test_editor_save_persists_content(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)->postJson("/editor/{$project->id}/guardar", [
+            'name' => 'Web actualizada',
+            'html' => '<h1>Nueva</h1>',
+            'css'  => 'h1{color:blue}',
+            'js'   => 'console.log("ok")',
+        ])->assertOk()->assertJson(['success' => true]);
+
+        $fresh = $project->fresh();
+        $this->assertSame('Web actualizada', $fresh->name);
+        $this->assertSame('<h1>Nueva</h1>', $fresh->html);
+        $this->assertSame('h1{color:blue}', $fresh->css);
+        $this->assertSame('console.log("ok")', $fresh->js);
+    }
+
+    public function test_editor_save_requires_ownership(): void
+    {
+        $owner   = $this->user();
+        $other   = $this->user();
+        $project = $this->project($owner);
+
+        $this->actingAs($other)->postJson("/editor/{$project->id}/guardar", [
+            'html' => '<h1>Hackeado</h1>',
+        ])->assertStatus(403);
+
+        $this->assertSame('<h1>Hola</h1><a href="#x">x</a>', $project->fresh()->html);
+    }
 }
