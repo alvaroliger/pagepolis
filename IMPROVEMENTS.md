@@ -25,5 +25,15 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
+## Ideas adicionales detectadas (2026-07-02)
+- 🟢 **Throttle en POST `/reset-password`**: sin límite de intentos (olvide-password POST sí lo tiene).
+- 🟢 **Índices de BD ausentes**: `users.grace_period_ends_at`, `domains.status`, `projects(user_id,status)` — full-table scans en comandos cron y sitemap.
+- 🟢 **Sitemap sin caché**: `GET /sitemap.xml` ejecuta 2 queries BD en cada petición sin throttle.
+- 🟢 **Email cuando la web generada está lista/falla** (`GenerateWebsiteJob`): el usuario no se entera si cierra el tab.
+- 🔵 **Link de baja en el email semanal** (requisito CAN-SPAM / GDPR art. 21 para emails comerciales recurrentes).
+
+## Hecho recientemente (2026-07-02)
+- Fix bandeja de leads: marcaba TODOS los no leídos como leídos al abrir, aunque solo se mostraban 200. Ahora solo marca los que realmente se mostraron (PR #32).
+
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
