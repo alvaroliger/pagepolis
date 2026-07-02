@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -14,10 +14,24 @@ export default function CreateWizard() {
     const [location, setLocation]         = useState('');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
+    const [touched, setTouched]           = useState({ businessName: false, description: false });
+    const descriptionRef                  = useRef<HTMLTextAreaElement>(null);
 
-    const canSubmit = businessName.trim().length > 1 && description.trim().length > 4 && !loading;
+    const businessNameOk = businessName.trim().length > 1;
+    const descriptionOk  = description.trim().length > 4;
+    const canSubmit      = businessNameOk && descriptionOk && !loading;
+
+    const businessNameError = touched.businessName && !businessNameOk
+        ? 'Escribe el nombre de tu negocio (mínimo 2 caracteres).'
+        : '';
+    const descriptionError  = touched.description && !descriptionOk
+        ? 'Cuéntanos un poco más (mínimo 5 caracteres).'
+        : '';
+
+    const touchAll = () => setTouched({ businessName: true, description: true });
 
     const submit = async () => {
+        touchAll();
         if (!canSubmit) return;
         setLoading(true);
         setError('');
@@ -59,9 +73,12 @@ export default function CreateWizard() {
                         <input
                             value={businessName}
                             onChange={e => setBusinessName(e.target.value)}
+                            onBlur={() => setTouched(t => ({ ...t, businessName: true }))}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); descriptionRef.current?.focus(); } }}
                             placeholder="Ej: Panadería La Espiga"
-                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 placeholder-gray-600"
+                            className={`w-full bg-gray-800 border ${businessNameError ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 placeholder-gray-600`}
                         />
+                        {businessNameError && <p className="text-xs text-red-400 mt-1.5">{businessNameError}</p>}
                     </div>
 
                     {/* 2. Descripción */}
@@ -70,13 +87,18 @@ export default function CreateWizard() {
                             2. ¿A qué te dedicas? Cuéntalo con tus palabras <span className="text-violet-400">*</span>
                         </label>
                         <textarea
+                            ref={descriptionRef}
                             value={description}
                             onChange={e => setDescription(e.target.value)}
+                            onBlur={() => setTouched(t => ({ ...t, description: true }))}
                             rows={4}
                             placeholder="Ej: Somos una panadería de barrio. Hacemos pan artesano, bollería y tartas por encargo. Llevamos 30 años en el centro de Sevilla."
-                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-relaxed"
+                            className={`w-full bg-gray-800 border ${descriptionError ? 'border-red-500' : 'border-gray-700'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-relaxed`}
                         />
-                        <p className="text-xs text-gray-600 mt-1.5">Cuanto más cuentes, mejor quedará. No necesitas saber nada de informática.</p>
+                        {descriptionError
+                            ? <p className="text-xs text-red-400 mt-1.5">{descriptionError}</p>
+                            : <p className="text-xs text-gray-600 mt-1.5">Cuanto más cuentes, mejor quedará. No necesitas saber nada de informática.</p>
+                        }
                     </div>
 
                     {/* 3. ¿Vende? */}
