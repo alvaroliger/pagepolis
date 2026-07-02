@@ -25,5 +25,8 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-02)
+- ✅ **GDPR export incluye leads** (PR #36): `/perfil/exportar` ahora incluye los mensajes recibidos de cada web. APP_KEY añadido a phpunit.xml para que la suite completa corra sin .env.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
