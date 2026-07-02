@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Publication automatique", "desc": "Choisissez votre propre domaine ou utilisez votre sous-domaine pagepolis.com. Le site est en ligne en secondes." },
       { "icon": "🔒", "title": "Sécurisé et fiable", "desc": "SSL inclus, infrastructure haute performance, sauvegardes automatiques et support en français." },
       { "icon": "📱", "title": "Toujours responsive", "desc": "Chaque site généré est mobile-first. Aperçu sur desktop, tablette et mobile avant de publier." },
-      { "icon": "🤖", "title": "Une IA qui vous comprend", "desc": "Demandez des modifications en français : mettez le fond en bleu, ajoutez une section tarifs, rendez-le plus moderne." }
+      { "icon": "🤖", "title": "Une IA qui vous comprend", "desc": "Demandez des modifications en français : mettez le fond en bleu, ajoutez une section tarifs, rendez-le plus moderne." },
+      { "icon": "✉️", "title": "Recevez les messages de vos visiteurs", "desc": "Chaque site publié inclut un formulaire de contact intégré. Quand quelqu'un vous écrit, vous recevez le message par email et vous pouvez le gérer depuis votre boîte de réception Pagepolis." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Besoin de plus ?",
     "custom_link": "Contactez-nous",
     "custom_suffix": "pour un plan sur mesure.",
-    "basic_features": ["3 projets actifs", "IA illimitée", "Sous-domaine sur pagepolis.com", "Éditeur de code", "SSL inclus", "Support par email"],
-    "pro_features": ["Projets illimités", "IA illimitée", "Domaine personnalisé inclus (.com)", "Éditeur avancé", "SSL inclus", "Support prioritaire", "Analytics basique", "Sans publicité Pagepolis"]
+    "basic_features": ["3 projets actifs", "IA illimitée", "Sous-domaine sur pagepolis.com", "Éditeur de code", "Formulaire de contact + leads par email", "SSL inclus", "Support par email"],
+    "pro_features": ["Projets illimités", "IA illimitée", "Domaine personnalisé inclus (.com)", "Éditeur avancé", "Formulaire de contact + leads par email", "SSL inclus", "Support prioritaire", "Analytics basique", "Sans publicité Pagepolis"]
   },
   "faq": {
     "title": "Questions fréquentes",
@@ -80,7 +81,8 @@
       { "q": "Que se passe-t-il avec mon domaine si j'annule ?", "a": "Vous bénéficiez de 30 jours de période d'essai après l'annulation. Votre site reste actif. Si vous ne réactivez pas, le domaine est libéré et les données sont supprimées automatiquement." },
       { "q": "Puis-je utiliser mon propre domaine ?", "a": "Oui. Le plan Pro inclut l'achat et la configuration automatique d'un domaine .com. Vous pouvez également utiliser un sous-domaine gratuit sur pagepolis.com." },
       { "q": "Puis-je exporter mon site ?", "a": "Oui. Le code HTML/CSS/JS généré vous appartient. Vous pouvez le copier et l'héberger où vous voulez." },
-      { "q": "Comment fonctionne la période d'essai ?", "a": "7 jours entièrement gratuits. Sans carte bancaire. Accès complet à toutes les fonctionnalités." }
+      { "q": "Comment fonctionne la période d'essai ?", "a": "7 jours entièrement gratuits. Sans carte bancaire. Accès complet à toutes les fonctionnalités." },
+      { "q": "Comment reçois-je les messages de contact de mon site ?", "a": "Chaque site publié inclut un formulaire de contact intégré. Quand un visiteur le remplit, vous recevez son message par email instantanément et il apparaît aussi dans la section « Messages » de votre tableau de bord." }
     ]
   },
   "cta": {

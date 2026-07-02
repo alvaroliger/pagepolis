@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Automatic publishing", "desc": "Choose your own domain or use your pagepolis.com subdomain. Your site goes live in seconds after payment." },
       { "icon": "🔒", "title": "Secure and reliable", "desc": "SSL included, high-performance infrastructure, automatic backups and English support." },
       { "icon": "📱", "title": "Always responsive", "desc": "Every generated site is mobile-first. Preview on desktop, tablet and mobile before publishing." },
-      { "icon": "🤖", "title": "AI that understands you", "desc": "Request changes in plain English: make the background blue, add a pricing section, make it more modern." }
+      { "icon": "🤖", "title": "AI that understands you", "desc": "Request changes in plain English: make the background blue, add a pricing section, make it more modern." },
+      { "icon": "✉️", "title": "Receive messages from your visitors", "desc": "Every published site includes a built-in contact form. When someone writes to you, you get the message by email and can manage all leads from your Pagepolis inbox." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Need more?",
     "custom_link": "Contact us",
     "custom_suffix": "for a custom plan.",
-    "basic_features": ["3 active projects", "Unlimited AI", "Subdomain on pagepolis.com", "Code editor", "SSL included", "Email support"],
-    "pro_features": ["Unlimited projects", "Unlimited AI", "Custom domain included (.com)", "Advanced editor", "SSL included", "Priority support", "Basic analytics", "No Pagepolis branding"]
+    "basic_features": ["3 active projects", "Unlimited AI", "Subdomain on pagepolis.com", "Code editor", "Contact form + email leads", "SSL included", "Email support"],
+    "pro_features": ["Unlimited projects", "Unlimited AI", "Custom domain included (.com)", "Advanced editor", "Contact form + email leads", "SSL included", "Priority support", "Basic analytics", "No Pagepolis branding"]
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -80,7 +81,8 @@
       { "q": "What happens to my domain if I cancel?", "a": "You have a 30-day trial period after cancellation. Your site stays active. If you don't reactivate, the domain is released and data is deleted automatically." },
       { "q": "Can I use my own domain?", "a": "Yes. The Pro plan includes automatic purchase and setup of a .com domain. You can also use a free subdomain on pagepolis.com." },
       { "q": "Can I export my website?", "a": "Yes. The generated HTML/CSS/JS code is yours. You can copy it and host it anywhere." },
-      { "q": "How does the trial period work?", "a": "7 days completely free. No credit card. Full access to all features." }
+      { "q": "How does the trial period work?", "a": "7 days completely free. No credit card. Full access to all features." },
+      { "q": "How do I receive contact messages from my website?", "a": "Every published site includes a built-in contact form. When a visitor fills it out, you receive their message by email instantly and it also appears in the Messages section of your dashboard." }
     ]
   },
   "cta": {
