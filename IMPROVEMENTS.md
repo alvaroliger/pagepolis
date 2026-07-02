@@ -13,7 +13,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
-- 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
+- ✅ **Email de bienvenida post-registro** con CTA a /plantillas (PR #30).
 
 ## Producto
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
