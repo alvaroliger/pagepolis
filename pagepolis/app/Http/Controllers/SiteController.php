@@ -27,7 +27,7 @@ class SiteController extends Controller
         $ogTitle = htmlspecialchars($seo['og_title']       ?? $seo['title']       ?? $project->name);
         $ogDesc  = htmlspecialchars($seo['og_description'] ?? $seo['description'] ?? '');
         $schema = isset($seo['schema'])
-            ? '<script type="application/ld+json">' . json_encode($seo['schema']) . '</script>'
+            ? '<script type="application/ld+json">' . json_encode($seo['schema'], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . '</script>'
             : '';
 
         $canonicalUrl = config('app.url') . '/s/' . $slug;

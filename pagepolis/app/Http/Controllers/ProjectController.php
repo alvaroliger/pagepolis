@@ -127,7 +127,7 @@ class ProjectController extends Controller
         $title = htmlspecialchars($seo['title'] ?? $project->name);
         $desc  = htmlspecialchars($seo['description'] ?? '');
         $schema = isset($seo['schema'])
-            ? '<script type="application/ld+json">' . json_encode($seo['schema']) . '</script>'
+            ? '<script type="application/ld+json">' . json_encode($seo['schema'], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) . '</script>'
             : '';
 
         $css  = $project->css  ?? '';
