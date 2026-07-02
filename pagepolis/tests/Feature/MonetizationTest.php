@@ -74,13 +74,24 @@ class MonetizationTest extends TestCase
 
     public function test_gdpr_export_returns_user_data(): void
     {
-        $user = User::factory()->create(['email' => 'export@test.com']);
-        $this->project($user);
+        $user    = User::factory()->create(['email' => 'export@test.com']);
+        $project = $this->project($user, ['status' => 'published', 'slug' => 'test-export']);
+        $project->leads()->create([
+            'name'    => 'Cliente Uno',
+            'email'   => 'cliente@example.com',
+            'phone'   => '600111222',
+            'message' => 'Quiero información',
+            'payload' => ['nombre' => 'Cliente Uno'],
+        ]);
 
         $res = $this->actingAs($user)->get('/perfil/exportar');
 
-        $res->assertOk()->assertJsonPath('usuario.email', 'export@test.com');
-        $res->assertJsonCount(1, 'proyectos');
+        $res->assertOk()
+            ->assertJsonPath('usuario.email', 'export@test.com')
+            ->assertJsonCount(1, 'proyectos')
+            ->assertJsonCount(1, 'proyectos.0.leads')
+            ->assertJsonPath('proyectos.0.leads.0.email', 'cliente@example.com')
+            ->assertJsonPath('proyectos.0.leads.0.mensaje', 'Quiero información');
     }
 
     public function test_zip_export_only_for_owner(): void

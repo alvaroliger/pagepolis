@@ -45,7 +45,7 @@ class ProfileController extends Controller
      */
     public function exportData(Request $request): JsonResponse
     {
-        $user = $request->user()->loadMissing(['projects', 'domains']);
+        $user = $request->user()->loadMissing(['projects.leads', 'domains']);
 
         $data = [
             'exportado_el' => now()->toIso8601String(),
@@ -70,6 +70,14 @@ class ProfileController extends Controller
                 'html'         => $p->html,
                 'css'          => $p->css,
                 'js'           => $p->js,
+                'leads'        => $p->leads->map(fn ($l) => [
+                    'id'          => $l->id,
+                    'nombre'      => $l->name,
+                    'email'       => $l->email,
+                    'telefono'    => $l->phone,
+                    'mensaje'     => $l->message,
+                    'recibido_el' => optional($l->created_at)->toIso8601String(),
+                ])->all(),
             ])->all(),
             'dominios' => $user->domains->map(fn ($d) => [
                 'dominio'    => $d->domain,
