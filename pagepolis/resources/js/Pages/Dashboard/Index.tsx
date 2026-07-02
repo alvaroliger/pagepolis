@@ -26,6 +26,7 @@ interface Props {
     trashed: TrashedProject[];
     isSubscribed: boolean;
     inGracePeriod: boolean;
+    onboarding: { published: boolean; domain: boolean };
 }
 
 const statusColors: Record<string, string> = {
@@ -41,6 +42,47 @@ const statusLabels: Record<string, string> = {
     suspended: 'Suspendido',
     deleted:   'Eliminado',
 };
+
+function OnboardingChecklist({ hasProject, hasPublished, hasDomain }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean }) {
+    if (hasProject && hasPublished && hasDomain) return null;
+
+    const steps = [
+        { done: hasProject,   label: 'Crea tu primera web',       href: '/crear' },
+        { done: hasPublished, label: 'Publica tu web',             href: '/publicar' },
+        { done: hasDomain,    label: 'Conecta tu dominio propio',  href: '/publicar' },
+    ];
+    const doneCount = steps.filter(s => s.done).length;
+
+    return (
+        <div className="mb-6 bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold text-white">Primeros pasos</p>
+                <span className="text-xs text-gray-500 font-medium tabular-nums">{doneCount} / 3</span>
+            </div>
+            <div className="space-y-2.5">
+                {steps.map(step => (
+                    <div key={step.label} className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border ${step.done ? 'bg-green-900/50 border-green-700' : 'border-gray-700'}`}>
+                            {step.done && (
+                                <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                                </svg>
+                            )}
+                        </div>
+                        <span className={`text-sm flex-1 ${step.done ? 'text-gray-600 line-through' : 'text-gray-300'}`}>
+                            {step.label}
+                        </span>
+                        {!step.done && (
+                            <Link href={step.href} className="text-xs font-semibold text-violet-400 hover:text-violet-300 whitespace-nowrap">
+                                Ir →
+                            </Link>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
 
 function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onConfirm: () => void; onCancel: () => void }) {
     return (
@@ -147,7 +189,7 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
     );
 }
 
-export default function Dashboard({ projects, trashed, isSubscribed, inGracePeriod }: Props) {
+export default function Dashboard({ projects, trashed, isSubscribed, inGracePeriod, onboarding }: Props) {
     const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
     const [showTrash, setShowTrash] = useState(false);
 
@@ -196,6 +238,12 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
             )}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+                <OnboardingChecklist
+                    hasProject={projects.length > 0}
+                    hasPublished={onboarding.published}
+                    hasDomain={onboarding.domain}
+                />
 
                 {inGracePeriod && (
                     <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700/40 rounded-xl text-sm text-yellow-300">
