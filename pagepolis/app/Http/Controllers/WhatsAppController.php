@@ -267,7 +267,7 @@ class WhatsAppController extends Controller
         $secret    = config('services.whatsapp.app_secret');
         $signature = $request->header('X-Hub-Signature-256', '');
 
-        if (!$secret) return true; // Sin secret configurado, pasar (desarrollo)
+        if (!$secret) return false; // Sin secret configurado → denegar (fallo cerrado)
 
         $expected = 'sha256=' . hash_hmac('sha256', $request->getContent(), $secret);
         return hash_equals($expected, $signature);
