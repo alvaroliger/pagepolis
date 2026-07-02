@@ -24,6 +24,10 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 **Limpiar imágenes IA en `GenerateWebsiteJob::failed()`** — cuando el job muere por SIGKILL/timeout el `finally` no corre y los uploads (hasta 4×8 MB por llamada) se acumulan en disco sin borrarse. Fix: llamar `cleanupImages()` desde `failed()`.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-02)
+- JSON-LD schema: `JSON_HEX_TAG | JSON_UNESCAPED_UNICODE` en los 3 call sites (SiteController, ProjectController, NginxService). 2 regression tests. Infra de tests arreglada (APP_KEY, ANTHROPIC_API_KEY, fecha AiBudgetGuard, BillingWebhook status). Suite: 98/98 verde. PR #28.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
