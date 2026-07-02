@@ -94,6 +94,7 @@ class LeadCaptureTest extends TestCase
 
     public function test_owner_sees_inbox_and_leads_get_marked_read(): void
     {
+        $this->withoutVite();
         $project = $this->publishedProject();
         $lead = $project->leads()->create(['email' => 'c@d.com', 'message' => 'hola', 'payload' => []]);
         $this->assertNull($lead->read_at);
@@ -101,5 +102,34 @@ class LeadCaptureTest extends TestCase
         $this->actingAs($project->user)->get('/mensajes')->assertStatus(200);
 
         $this->assertNotNull($lead->fresh()->read_at);
+    }
+
+    public function test_inbox_marks_only_displayed_leads_read_when_there_are_more_than_200(): void
+    {
+        $this->withoutVite();
+        $project = $this->publishedProject();
+
+        // Create 205 leads; the inbox displays the 200 most recent.
+        for ($i = 1; $i <= 205; $i++) {
+            $project->leads()->create([
+                'email'   => "user{$i}@example.com",
+                'message' => "Message {$i}",
+                'payload' => [],
+            ]);
+        }
+
+        $this->actingAs($project->user)->get('/mensajes')->assertOk();
+
+        // The 200 most recently created leads should now be read.
+        $markedRead = \App\Models\Lead::where('project_id', $project->id)
+            ->whereNotNull('read_at')
+            ->count();
+        $this->assertEquals(200, $markedRead);
+
+        // The 5 oldest leads were not displayed and must remain unread.
+        $stillUnread = \App\Models\Lead::where('project_id', $project->id)
+            ->whereNull('read_at')
+            ->count();
+        $this->assertEquals(5, $stillUnread);
     }
 }

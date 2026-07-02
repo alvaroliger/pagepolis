@@ -76,26 +76,28 @@ class LeadController extends Controller
 
         $unread = Lead::whereIn('project_id', $projectIds)->whereNull('read_at')->count();
 
-        $leads = Lead::whereIn('project_id', $projectIds)
+        $fetched = Lead::whereIn('project_id', $projectIds)
             ->with('project:id,name,slug')
             ->latest()
             ->limit(200)
-            ->get()
-            ->map(fn (Lead $l) => [
-                'id'         => $l->id,
-                'project'    => $l->project?->name,
-                'name'       => $l->name,
-                'email'      => $l->email,
-                'phone'      => $l->phone,
-                'message'    => $l->message,
-                'is_new'     => $l->read_at === null,
-                'created_at' => $l->created_at->diffForHumans(),
-            ]);
+            ->get();
 
-        // Al abrir la bandeja, marca como leídos.
-        if ($unread > 0) {
-            Lead::whereIn('project_id', $projectIds)->whereNull('read_at')->update(['read_at' => now()]);
+        // Only mark as read the leads that were actually fetched and shown.
+        $displayedUnreadIds = $fetched->whereNull('read_at')->pluck('id');
+        if ($displayedUnreadIds->isNotEmpty()) {
+            Lead::whereIn('id', $displayedUnreadIds)->update(['read_at' => now()]);
         }
+
+        $leads = $fetched->map(fn (Lead $l) => [
+            'id'         => $l->id,
+            'project'    => $l->project?->name,
+            'name'       => $l->name,
+            'email'      => $l->email,
+            'phone'      => $l->phone,
+            'message'    => $l->message,
+            'is_new'     => $l->read_at === null,
+            'created_at' => $l->created_at->diffForHumans(),
+        ]);
 
         return Inertia::render('Leads/Index', [
             'leads'       => $leads,
