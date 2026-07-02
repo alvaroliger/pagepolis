@@ -16,7 +16,7 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
 
 ## Producto
-- 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
+- ✅ Wizard de creación: pulir validación/UX — inline errors on blur + Enter avanza al textarea (PR #37).
 - 🟢 Autosave en el editor con debounce.
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
