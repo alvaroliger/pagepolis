@@ -25,5 +25,13 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-02)
+- Exportación CSV de leads con BOM UTF-8 (Excel-compatible), sin límite de filas, aislada por usuario. Fix test AiBudgetGuard que fallaba los días 1-2 del mes.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+
+## Ideas nuevas
+- 🟢 **Exportar leads**: hecho (PR #35). Posible siguiente paso: permitir filtrar por proyecto antes de exportar.
+- 🟢 **Eliminar/archivar un lead** de la bandeja (botón de borrado individual).
+- 🟢 **Paginación de la bandeja** de mensajes (actualmente limitada a 200).
