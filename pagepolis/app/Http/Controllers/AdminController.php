@@ -44,7 +44,9 @@ class AdminController extends Controller
 
     public function suspendUser(User $user): JsonResponse
     {
-        $user->update(['grace_period_ends_at' => now()->addDays(30)]);
+        // admin_suspended_at, no grace_period_ends_at: el comando pagepolis:suspend-expired
+        // eliminaría permanentemente los datos del usuario si grace_period_ends_at expirara.
+        $user->update(['admin_suspended_at' => now()]);
         $user->domains()->update(['status' => 'suspended', 'suspended_at' => now()]);
 
         return response()->json(['success' => true]);
@@ -62,7 +64,9 @@ class AdminController extends Controller
 
     public function reactivateUser(User $user): JsonResponse
     {
-        $user->update(['grace_period_ends_at' => null]);
+        // También limpiamos grace_period_ends_at para que el usuario reactivado no sea
+        // eliminado por pagepolis:suspend-expired si su periodo de gracia había expirado.
+        $user->update(['admin_suspended_at' => null, 'grace_period_ends_at' => null]);
         $user->domains()->where('status', 'suspended')->update([
             'status'               => 'active',
             'suspended_at'         => null,

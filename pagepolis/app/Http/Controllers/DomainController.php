@@ -46,6 +46,10 @@ class DomainController extends Controller
 
         $user = auth()->user();
 
+        if ($user->isAdminSuspended()) {
+            return response()->json(['error' => 'Tu cuenta está suspendida.'], 403);
+        }
+
         $project = Project::where('id', $request->project_id)
             ->where('user_id', $user->id)
             ->firstOrFail();

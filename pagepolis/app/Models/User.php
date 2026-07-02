@@ -21,6 +21,7 @@ class User extends Authenticatable
         'password',
         'role',
         'grace_period_ends_at',
+        'admin_suspended_at',
         'ai_calls_today',
         'ai_calls_reset_date',
         'whatsapp_phone',
@@ -38,6 +39,7 @@ class User extends Authenticatable
             'email_verified_at'    => 'datetime',
             'password'             => 'hashed',
             'grace_period_ends_at' => 'datetime',
+            'admin_suspended_at'   => 'datetime',
             'trial_ends_at'        => 'datetime',
             'ai_calls_reset_date'  => 'date',
         ];
@@ -62,6 +64,11 @@ class User extends Authenticatable
     public function inGracePeriod(): bool
     {
         return $this->grace_period_ends_at && $this->grace_period_ends_at->isFuture();
+    }
+
+    public function isAdminSuspended(): bool
+    {
+        return $this->admin_suspended_at !== null;
     }
 
     public function isAdmin(): bool

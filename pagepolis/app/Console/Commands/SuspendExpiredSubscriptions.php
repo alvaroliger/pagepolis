@@ -18,6 +18,7 @@ class SuspendExpiredSubscriptions extends Command
     {
         User::whereNotNull('grace_period_ends_at')
             ->where('grace_period_ends_at', '<=', now())
+            ->whereNull('admin_suspended_at')
             ->each(function (User $user) {
                 try {
                     $user->update(['grace_period_ends_at' => null]);
