@@ -19,11 +19,14 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
 - 🟢 Autosave en el editor con debounce.
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
-- 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
+- ✅ Code-splitting del editor: `vendor-codemirror` chunk estable (~512 kB); componente del editor pasa a ~19 kB. Usuarios que vuelven al editor ahorran 96% de re-descarga tras cada deploy.
 
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-02)
+- Code-splitting del editor: `vendor-codemirror` vendor chunk estable. Fixing date-boundary bug en AiBudgetGuardTest (fallaba en días 1–2 de mes). PR #34.
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
