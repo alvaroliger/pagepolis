@@ -24,6 +24,12 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 AiController::seo() devuelve `$e->getMessage()` en la respuesta 500 → puede filtrar la API key de Anthropic. Cambiar a `report($e)` + mensaje genérico.
+- 🟢 Dashboard: DeleteModal carece de `role="dialog"`, `aria-modal` y focus trap. Botones icono usan `title` en vez de `aria-label`. Botón papelera sin `aria-expanded`.
+- 🟢 Leads/Index.tsx: múltiples enlaces "Responder" idénticos sin contexto para lectores de pantalla (`aria-label` con nombre del contacto).
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-02)
+- ✅ **Seguridad WhatsApp webhook**: `validateSignature()` fallaba abierto (`return true`) sin secreto configurado. Ahora falla cerrado (`return false`). 3 tests. Suite 99/99 verde. (PR #27)
+
+## Hecho anteriormente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
