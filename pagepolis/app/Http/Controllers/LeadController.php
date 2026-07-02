@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LeadController extends Controller
 {
@@ -101,6 +102,40 @@ class LeadController extends Controller
             'leads'       => $leads,
             'unreadCount' => $unread,
         ]);
+    }
+
+    /**
+     * Descarga todos los leads del usuario como CSV (sin límite de 200 filas).
+     * Incluye BOM UTF-8 para que Excel lo abra correctamente sin configuración.
+     */
+    public function export(): StreamedResponse
+    {
+        $user       = auth()->user();
+        $projectIds = $user->projects()->pluck('id');
+
+        $leads = Lead::whereIn('project_id', $projectIds)
+            ->with('project:id,name')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $filename = 'mensajes-' . now()->toDateString() . '.csv';
+
+        return response()->streamDownload(function () use ($leads) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF"); // BOM UTF-8 para compatibilidad con Excel
+            fputcsv($out, ['Fecha', 'Web', 'Nombre', 'Email', 'Teléfono', 'Mensaje']);
+            foreach ($leads as $lead) {
+                fputcsv($out, [
+                    $lead->created_at->format('Y-m-d H:i'),
+                    $lead->project?->name ?? '',
+                    $lead->name    ?? '',
+                    $lead->email   ?? '',
+                    $lead->phone   ?? '',
+                    $lead->message ?? '',
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /**
