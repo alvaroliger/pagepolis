@@ -23,7 +23,10 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ Menú hamburguesa en móvil (AuthenticatedLayout): navegación inaccesible en pantallas < md.
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+
+## Hecho recientemente (2026-07-03)
+- Menú hamburguesa en móvil: navegación completamente ausente en pantallas pequeñas (PR #42).
