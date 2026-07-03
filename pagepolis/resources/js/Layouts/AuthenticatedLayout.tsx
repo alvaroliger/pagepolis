@@ -1,5 +1,6 @@
 import { useState, PropsWithChildren, ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import { Menu, X } from 'lucide-react';
 
 interface AuthLayoutProps extends PropsWithChildren {
     header?: ReactNode;
@@ -10,41 +11,56 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
     const auth = page.auth;
     const leadsUnread = page.leadsUnread ?? 0;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+    const navLinks = (
+        <>
+            <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Dashboard
+            </Link>
+            <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Analítica
+            </Link>
+            <Link href="/mensajes" className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1.5">
+                Mensajes
+                {leadsUnread > 0 && (
+                    <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                        {leadsUnread}
+                    </span>
+                )}
+            </Link>
+            <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Plantillas
+            </Link>
+            {auth.user.role === 'admin' && (
+                <Link href="/admin" className="text-gray-400 hover:text-violet-400 text-sm transition-colors">
+                    Admin
+                </Link>
+            )}
+        </>
+    );
 
     return (
         <div className="min-h-screen bg-gray-950 text-white">
             <nav className="border-b border-gray-800 bg-gray-900">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                                aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
+                                aria-expanded={mobileNavOpen}
+                                className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                            >
+                                {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </button>
                             <Link href="/dashboard">
                                 <span className="text-xl font-black bg-gradient-to-r from-violet-500 to-cyan-400 bg-clip-text text-transparent">
                                     Pagepolis
                                 </span>
                             </Link>
                             <div className="hidden md:flex gap-4">
-                                <Link href="/dashboard" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Dashboard
-                                </Link>
-                                <Link href="/analytics" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Analítica
-                                </Link>
-                                <Link href="/mensajes" className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1.5">
-                                    Mensajes
-                                    {leadsUnread > 0 && (
-                                        <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
-                                            {leadsUnread}
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link href="/plantillas" className="text-gray-400 hover:text-white text-sm transition-colors">
-                                    Plantillas
-                                </Link>
-                                {auth.user.role === 'admin' && (
-                                    <Link href="/admin" className="text-gray-400 hover:text-violet-400 text-sm transition-colors">
-                                        Admin
-                                    </Link>
-                                )}
+                                {navLinks}
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -52,6 +68,8 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                             <div className="relative">
                                 <button
                                     onClick={() => setMenuOpen(!menuOpen)}
+                                    aria-label="Menú de usuario"
+                                    aria-expanded={menuOpen}
                                     className="w-8 h-8 rounded-full bg-violet-600 text-white text-sm font-bold flex items-center justify-center"
                                 >
                                     {auth.user.name[0].toUpperCase()}
@@ -78,6 +96,32 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                         </div>
                     </div>
                 </div>
+
+                {mobileNavOpen && (
+                    <div className="md:hidden border-t border-gray-800 px-4 py-3 flex flex-col gap-1">
+                        {[
+                            { href: '/dashboard', label: 'Dashboard' },
+                            { href: '/analytics', label: 'Analítica' },
+                            { href: '/mensajes', label: 'Mensajes' },
+                            { href: '/plantillas', label: 'Plantillas' },
+                            ...(auth.user.role === 'admin' ? [{ href: '/admin', label: 'Admin' }] : []),
+                        ].map(({ href, label }) => (
+                            <Link
+                                key={href}
+                                href={href}
+                                onClick={() => setMobileNavOpen(false)}
+                                className="px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+                            >
+                                {label}
+                                {label === 'Mensajes' && leadsUnread > 0 && (
+                                    <span className="ml-2 bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                                        {leadsUnread}
+                                    </span>
+                                )}
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </nav>
 
             {header && (
