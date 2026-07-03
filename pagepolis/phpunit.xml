@@ -18,6 +18,9 @@
         </include>
     </source>
     <php>
+        <env name="APP_KEY" value="base64:GbtRZbWmCB00BJOsWl83BDX+cc/8bKvQ5n8FlT3BHTE="/>
+        <env name="ANTHROPIC_API_KEY" value="sk-ant-test-fake-key-for-testing-only"/>
+        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_fake_secret"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_KEY" value="base64:HnwrOTjJiIb+cjoZ0pDmy89sCzvdxq8PXKOIsyiVr/4="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

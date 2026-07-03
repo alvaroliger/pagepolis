@@ -171,4 +171,42 @@ class SmokeTest extends TestCase
 
         Queue::assertNothingPushed();
     }
+
+    public function test_jsonld_schema_angle_brackets_are_hex_encoded_in_public_site(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, [
+            'status'   => 'published',
+            'slug'     => 'schema-xss-test',
+            'seo_meta' => [
+                'schema' => ['@type' => 'LocalBusiness', 'name' => 'Tienda <Test>'],
+            ],
+        ]);
+
+        $html = $this->get('/s/schema-xss-test')->assertStatus(200)->getContent();
+
+        // JSON_HEX_TAG must encode < as \u003C (6 chars). Without this flag
+        // < appears as a literal 1-char byte inside the JSON-LD <script>, which is
+        // incorrect per OWASP and makes the code fragile against future changes.
+        $this->assertStringContainsString('\u003C', $html);
+        $this->assertStringContainsString('\u003E', $html);
+    }
+
+    public function test_jsonld_schema_angle_brackets_are_hex_encoded_in_preview(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, [
+            'seo_meta' => [
+                'schema' => ['@type' => 'LocalBusiness', 'name' => 'Negocio <Test>'],
+            ],
+        ]);
+
+        $html = $this->actingAs($user)
+            ->get("/proyectos/{$project->id}/preview")
+            ->assertStatus(200)
+            ->getContent();
+
+        $this->assertStringContainsString('\u003C', $html);
+        $this->assertStringContainsString('\u003E', $html);
+    }
 }

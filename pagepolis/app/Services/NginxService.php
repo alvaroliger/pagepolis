@@ -85,7 +85,7 @@ NGINX;
         $keywords    = htmlspecialchars($seo['keywords']    ?? '');
         $ogTitle     = htmlspecialchars($seo['og_title']    ?? $title);
         $ogDesc      = htmlspecialchars($seo['og_description'] ?? $description);
-        $schema      = isset($seo['schema']) ? json_encode($seo['schema']) : '';
+        $schema      = isset($seo['schema']) ? json_encode($seo['schema'], JSON_HEX_TAG | JSON_UNESCAPED_UNICODE) : '';
 
         $seoTags = <<<META
     <title>{$title}</title>
