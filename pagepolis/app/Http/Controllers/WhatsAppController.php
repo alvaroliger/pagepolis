@@ -197,7 +197,7 @@ class WhatsAppController extends Controller
             $user->increment('ai_calls_today');
 
             $description = $result['description'] ?? 'Cambio aplicado correctamente.';
-            $remaining   = $dailyLimit - ($user->ai_calls_today + 1);
+            $remaining   = $dailyLimit - $user->ai_calls_today;
 
             $msg = "Listo. {$description}\n\n";
             $msg .= "Los cambios ya están guardados en *{$project->name}*.\n";
