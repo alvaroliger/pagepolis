@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AiRateLimit
 {
@@ -24,8 +25,11 @@ class AiRateLimit
             return response()->json(['error' => 'No autenticado.'], 401);
         }
 
-        if (self::exceeded($user)) {
+        // Reserve a slot atomically BEFORE processing. This closes the TOCTOU race
+        // where two concurrent requests both pass an exceeded() check simultaneously.
+        if (!self::reserve($user)) {
             $limit = self::dailyLimit($user);
+            $user->refresh();
             return response()->json([
                 'error'   => "Has alcanzado el límite de {$limit} generaciones con IA hoy. Se restablece " . now()->endOfDay()->diffForHumans() . '.',
                 'limit'   => $limit,
@@ -37,9 +41,9 @@ class AiRateLimit
 
         $response = $next($request);
 
-        // Solo cuenta si la llamada (que SÍ usa IA) fue exitosa.
-        if ($response->getStatusCode() === 200) {
-            self::register($user);
+        // Release the reserved slot if the endpoint returned an error (e.g. 409).
+        if ($response->getStatusCode() !== 200) {
+            DB::table('users')->where('id', $user->id)->decrement('ai_calls_today');
         }
 
         return $response;
@@ -68,11 +72,23 @@ class AiRateLimit
         return self::used($user) >= self::dailyLimit($user);
     }
 
+    /**
+     * Atomically reserve one AI quota slot if the user is still under the daily limit.
+     * Returns true when the slot was reserved, false when the quota was already full.
+     */
+    public static function reserve(User $user): bool
+    {
+        self::used($user); // ensure daily reset before the atomic increment
+        return (bool) DB::table('users')
+            ->where('id', $user->id)
+            ->where('ai_calls_today', '<', self::dailyLimit($user))
+            ->increment('ai_calls_today');
+    }
+
     /** Suma una llamada de IA al contador diario. */
     public static function register(User $user): void
     {
-        self::used($user); // asegura el reset diario
-        $user->increment('ai_calls_today');
+        self::reserve($user);
     }
 
     public static function tier(User $user): string

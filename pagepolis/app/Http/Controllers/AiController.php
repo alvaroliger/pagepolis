@@ -94,9 +94,9 @@ class AiController extends Controller
             }
         }
 
-        // 2) Respaldo con IA (cuenta cuota diaria).
+        // 2) Respaldo con IA (cuenta cuota diaria). reserve() is atomic — no TOCTOU race.
         $user = auth()->user();
-        if (AiRateLimit::exceeded($user)) {
+        if (!AiRateLimit::reserve($user)) {
             $limit = AiRateLimit::dailyLimit($user);
             return response()->json([
                 'error'   => "Has alcanzado el límite de {$limit} generaciones con IA hoy. Se restablece " . now()->endOfDay()->diffForHumans() . '.',
@@ -106,7 +106,6 @@ class AiController extends Controller
 
         $project->update(['ai_status' => 'generating', 'ai_progress' => 'Aplicando tu cambio…']);
         GenerateWebsiteJob::dispatch($project->id, $user->id, 'update', $request->instruction, $this->storeImages($request));
-        AiRateLimit::register($user);
 
         return response()->json(['success' => true, 'status' => 'generating']);
     }
