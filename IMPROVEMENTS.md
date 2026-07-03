@@ -73,6 +73,7 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
