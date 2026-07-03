@@ -6,6 +6,18 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
+Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
+general a ingresos:
+1. **Interfaz de PagePolis y plantillas con 3D** — ítems de la sección "Diseño / nivel
+   visual" (variantes del hero 3D, rendimiento en móviles de gama baja, extenderlo donde
+   aporte). El listón sigue siendo motionsites.ai / agencia premium.
+2. **Mejorar la web y el servicio para los clientes** — wizard, onboarding, editor,
+   captura de leads, i18n/crecimiento: todo lo que haga que un cliente reciba más valor
+   esta semana sin necesitar decisiones de Álvaro.
+Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
+no abras PR.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - 🟢 **Vender la captura de leads** en landing/precios ("recibe los mensajes de tus clientes en tu
