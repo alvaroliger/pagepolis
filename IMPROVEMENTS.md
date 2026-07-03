@@ -25,5 +25,15 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
-## Hecho recientemente (2026-06-29)
+## Hecho recientemente (2026-07-03)
+- ✅ **Tests de restablecimiento de contraseña** (9 tests: envío de enlace, token inválido, token de un solo uso, contraseña corta, confirmación errónea). Sin cobertura previa en ruta de auth crítica.
+- ✅ **APP_KEY en phpunit.xml** — toda la suite fallaba con "No application encryption key" sin un .env presente.
+
+## Hecho (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
+
+## Ideas nuevas identificadas
+- 🟢 Rate limiting en `POST /reset-password` (actualmente sin throttle; `POST /forgot-password` sí lo tiene).
+- 🟢 Rate limiting en `POST /dominios/verificar` y `POST /dominios/reservar` (sin throttle; llaman a API externa).
+- 🟢 Tests para `SuspendExpiredSubscriptions` y `SendWeeklyReports` (comandos sin cobertura).
+- 🟢 Índice compuesto `(user_id, status)` en `projects` para las consultas de publicación y report semanal.
