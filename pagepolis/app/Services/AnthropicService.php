@@ -443,7 +443,16 @@ SYSTEM;
               ->post('https://api.anthropic.com/v1/messages', [
                   'model'      => $this->model(),
                   'max_tokens' => $maxTokens,
-                  'system'     => $system,
+                  // El prompt de sistema es largo y estático (no cambia entre
+                  // llamadas): marcarlo con cache_control lo cachea 5 min en la
+                  // API (lecturas a ~10% del precio). Ahorra en reintentos, en
+                  // ráfagas de ediciones de un mismo usuario y entre usuarios
+                  // concurrentes, sin cambiar en nada la respuesta.
+                  'system'     => [[
+                      'type'          => 'text',
+                      'text'          => $system,
+                      'cache_control' => ['type' => 'ephemeral'],
+                  ]],
                   'messages'   => $messages,
                   'stream'     => true,
               ]);
@@ -520,7 +529,15 @@ SYSTEM;
 
                 switch ($evt['type'] ?? '') {
                     case 'message_start':
-                        $inputTokens = (int) ($evt['message']['usage']['input_tokens'] ?? 0);
+                        // Con prompt caching, la entrada se reparte en tres cifras
+                        // con precios distintos: normal (×1), escritura de caché
+                        // (×1,25) y lectura de caché (×0,10). Se convierten aquí a
+                        // "tokens equivalentes" a tarifa normal para que el guardián
+                        // de presupuesto (que tarifica plano) siga contando bien.
+                        $usage       = $evt['message']['usage'] ?? [];
+                        $inputTokens = (int) ($usage['input_tokens'] ?? 0)
+                            + (int) ceil((int) ($usage['cache_creation_input_tokens'] ?? 0) * 1.25)
+                            + (int) ceil((int) ($usage['cache_read_input_tokens'] ?? 0) * 0.10);
                         break;
                     case 'content_block_delta':
                         $text .= $evt['delta']['text'] ?? '';

@@ -63,9 +63,11 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 ## Calidad
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
-- 🟢 Prompt caching de Anthropic (bloques `system` con `cache_control`) en
-  `AnthropicService::requestText` — los prompts de sistema son largos y estáticos en su
-  mayoría; cachearlos abarata cada generación/edición sin cambiar el resultado.
+- ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
+  ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
+  ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
+  `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
+  (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
 ## Hecho recientemente (2026-07-03)
 - Motor 3D propio (`hero3d.js`) + `tilt-3d` para un nivel visual de agencia premium
