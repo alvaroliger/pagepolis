@@ -5,7 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { FadeIn } from '@/Components/Motion';
 
-const STYLES = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
+const STYLES  = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
+const DESC_MAX = 1000;
 
 export default function CreateWizard() {
     const [businessName, setBusinessName] = useState('');
@@ -16,10 +17,21 @@ export default function CreateWizard() {
     const [location, setLocation]         = useState('');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
+    const [touched, setTouched]           = useState(false);
 
-    const canSubmit = businessName.trim().length > 1 && description.trim().length > 4 && !loading;
+    const nameOk    = businessName.trim().length > 1;
+    const descOk    = description.trim().length > 4;
+    const canSubmit = nameOk && descOk && !loading;
+
+    const validationHint = touched && !canSubmit && !loading
+        ? (!nameOk ? 'Añade el nombre de tu negocio.' : 'Cuéntanos un poco más sobre lo que haces.')
+        : '';
+
+    const descLen       = description.length;
+    const descNearLimit = descLen > DESC_MAX * 0.85;
 
     const submit = async () => {
+        setTouched(true);
         if (!canSubmit) return;
         setLoading(true);
         setError('');
@@ -61,6 +73,8 @@ export default function CreateWizard() {
                         <input
                             value={businessName}
                             onChange={e => setBusinessName(e.target.value)}
+                            onBlur={() => setTouched(true)}
+                            maxLength={100}
                             placeholder="Ej: Panadería La Espiga"
                             className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 placeholder-gray-600"
                         />
@@ -74,11 +88,18 @@ export default function CreateWizard() {
                         <textarea
                             value={description}
                             onChange={e => setDescription(e.target.value)}
+                            onBlur={() => setTouched(true)}
+                            maxLength={DESC_MAX}
                             rows={4}
                             placeholder="Ej: Somos una panadería de barrio. Hacemos pan artesano, bollería y tartas por encargo. Llevamos 30 años en el centro de Sevilla."
                             className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 resize-none placeholder-gray-600 leading-relaxed"
                         />
-                        <p className="text-xs text-gray-600 mt-1.5">Cuanto más cuentes, mejor quedará. No necesitas saber nada de informática.</p>
+                        <div className="flex justify-between items-center mt-1.5">
+                            <p className="text-xs text-gray-600">Cuanto más cuentes, mejor quedará. No necesitas saber nada de informática.</p>
+                            <span className={`text-xs tabular-nums shrink-0 ml-3 ${descNearLimit ? 'text-amber-400' : 'text-gray-600'}`}>
+                                {descLen}/{DESC_MAX}
+                            </span>
+                        </div>
                     </div>
 
                     {/* 3. ¿Vende? */}
@@ -106,6 +127,7 @@ export default function CreateWizard() {
                                 <input
                                     value={whatsapp}
                                     onChange={e => setWhatsapp(e.target.value)}
+                                    maxLength={30}
                                     placeholder="Ej: +34 600 123 456"
                                     className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-600"
                                 />
@@ -133,6 +155,7 @@ export default function CreateWizard() {
                             <input
                                 value={location}
                                 onChange={e => setLocation(e.target.value)}
+                                maxLength={80}
                                 placeholder="Ej: Sevilla"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-600"
                             />
@@ -157,11 +180,16 @@ export default function CreateWizard() {
 
                     <button
                         onClick={submit}
-                        disabled={!canSubmit}
+                        disabled={!canSubmit || loading}
                         className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40"
                     >
                         {loading ? 'Creando tu web…' : '✨ Crear mi web con IA'}
                     </button>
+
+                    {validationHint && !error && (
+                        <p className="text-center text-xs text-amber-400 -mt-4">{validationHint}</p>
+                    )}
+
                     <p className="text-center text-xs text-gray-600">
                         Tardará 1-3 minutos. Verás cómo se construye en pantalla.
                     </p>
