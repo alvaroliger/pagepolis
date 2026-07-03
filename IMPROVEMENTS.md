@@ -25,5 +25,9 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 - 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 
+## Hecho recientemente (2026-07-03)
+- Fix: WhatsApp edits now deploy to live custom/subdomain sites (PR #41). One missing `deployToLiveDomain()` call; 6 new tests.
+- phpunit.xml: added APP_KEY so the full feature test suite can run (pre-existing gap).
+
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
