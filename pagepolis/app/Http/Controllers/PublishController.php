@@ -6,6 +6,7 @@ use App\Models\Domain;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,15 +52,34 @@ class PublishController extends Controller
             ->firstOrFail();
 
         // Límite anti-abuso: cuántas webs puede tener publicadas un usuario gratis.
+        // El check de cuenta y el publish van en el mismo UPDATE para que sea atómico:
+        // dos requests concurrentes ya no pueden colar ambas pasando el límite (TOCTOU).
         if (!$user->isSubscribed() && $project->status !== 'published') {
             $max = config('pagepolis.limits.free_max_published', 3);
-            $publishedCount = $user->projects()->where('status', 'published')->count();
-            if ($publishedCount >= $max) {
+
+            $reserved = DB::table('projects')
+                ->where('id', $project->id)
+                ->where('user_id', $user->id)
+                ->where('status', '!=', 'published')
+                ->whereRaw(
+                    '(select count(*) from projects where user_id = ? and status = ? and deleted_at is null) < ?',
+                    [$user->id, 'published', $max]
+                )
+                ->update(['status' => 'published', 'published_at' => now()]);
+
+            if (!$reserved) {
                 return response()->json([
                     'error'   => "El plan gratuito permite publicar hasta {$max} webs. Mejora a un plan de pago para publicar más.",
                     'upgrade' => true,
                 ], 402);
             }
+
+            $project->refresh();
+        } else {
+            $project->update([
+                'status'       => 'published',
+                'published_at' => now(),
+            ]);
         }
 
         Domain::updateOrCreate(
@@ -71,11 +91,6 @@ class PublishController extends Controller
                 'status'  => 'active',
             ]
         );
-
-        $project->update([
-            'status'       => 'published',
-            'published_at' => now(),
-        ]);
 
         return response()->json([
             'success' => true,
