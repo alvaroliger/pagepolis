@@ -27,7 +27,7 @@ class BillingController extends Controller
                 ]);
 
             return response()->json(['url' => $checkout->url]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
