@@ -4,6 +4,8 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '@/Components/LanguageSelector';
 import PagepolisLogo from '@/Components/PagepolisLogo';
+import Hero3D from '@/Components/Hero3D';
+import { Reveal, FadeIn, TiltCard } from '@/Components/Motion';
 import { LayoutTemplate, PencilLine, Rocket, Zap, Code2, Globe, ShieldCheck, Smartphone, Sparkles, Check } from 'lucide-react';
 
 const STEP_ICONS = [LayoutTemplate, PencilLine, Rocket];
@@ -113,80 +115,95 @@ export default function Landing() {
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-violet-700/20 rounded-full blur-[130px]" />
                         <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] bg-fuchsia-700/12 rounded-full blur-[100px]" />
+                        <Hero3D className="absolute inset-0 w-full h-full opacity-70" />
                     </div>
                     <div className="max-w-5xl mx-auto text-center relative">
-                        <div className="inline-flex items-center gap-2 bg-violet-950/70 border border-violet-700/40 text-violet-300 text-xs font-semibold px-4 py-2 rounded-full mb-8 backdrop-blur-sm">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                            {t('hero.badge')}
-                        </div>
-
-                        <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-tight tracking-tight">
-                            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                                {t('hero.h1_1')}
-                            </span>
-                            <br />
-                            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
-                                {t('hero.h1_2')}
-                            </span>
-                        </h1>
-
-                        <p className="text-xl text-gray-400 mb-4 max-w-2xl mx-auto leading-relaxed">
-                            {t('hero.subtitle')}
-                        </p>
-
-                        <div className="mb-10 mx-auto max-w-2xl bg-gray-900/80 border border-gray-700/50 rounded-2xl p-5 backdrop-blur-sm text-left shadow-xl">
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                                <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                                <span className="ml-2 text-xs text-gray-500">{t('hero.input_hint')}</span>
+                        <FadeIn>
+                            <div className="inline-flex items-center gap-2 bg-violet-950/70 border border-violet-700/40 text-violet-300 text-xs font-semibold px-4 py-2 rounded-full mb-8 backdrop-blur-sm">
+                                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                                {t('hero.badge')}
                             </div>
-                            <p className="text-sm text-gray-500 mb-2">{t('hero.input_label')}</p>
-                            <p className="text-base min-h-[28px]"><TypingAnimation /></p>
-                        </div>
+                        </FadeIn>
 
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                            <Link href="/register" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-opacity shadow-xl shadow-violet-900/40">
-                                {t('hero.cta_primary')}
-                            </Link>
-                            <Link href="/plantillas" className="border border-gray-700 text-gray-300 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-violet-600/60 hover:text-white transition-colors">
-                                {t('hero.cta_secondary')}
-                            </Link>
-                        </div>
-                        <p className="text-sm text-gray-600">{t('hero.disclaimer')}</p>
+                        <FadeIn delay={0.08}>
+                            <h1 className="text-5xl sm:text-7xl font-black mb-6 leading-tight tracking-tight">
+                                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                                    {t('hero.h1_1')}
+                                </span>
+                                <br />
+                                <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+                                    {t('hero.h1_2')}
+                                </span>
+                            </h1>
+                        </FadeIn>
 
-                        <div className="mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto">
-                            {[
-                                { n: '+2.000', l: t('hero.stat_sites') },
-                                { n: '<10s',   l: t('hero.stat_time') },
-                                { n: '4.9★',   l: t('hero.stat_rating') },
-                            ].map(s => (
-                                <div key={s.l} className="text-center">
-                                    <div className="text-2xl font-black text-white">{s.n}</div>
-                                    <div className="text-xs text-gray-500 mt-1">{s.l}</div>
+                        <FadeIn delay={0.16}>
+                            <p className="text-xl text-gray-400 mb-4 max-w-2xl mx-auto leading-relaxed">
+                                {t('hero.subtitle')}
+                            </p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.24}>
+                            <div className="mb-10 mx-auto max-w-2xl bg-gray-900/80 border border-gray-700/50 rounded-2xl p-5 backdrop-blur-sm text-left shadow-xl">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                                    <span className="w-3 h-3 rounded-full bg-green-500/80" />
+                                    <span className="ml-2 text-xs text-gray-500">{t('hero.input_hint')}</span>
                                 </div>
-                            ))}
-                        </div>
+                                <p className="text-sm text-gray-500 mb-2">{t('hero.input_label')}</p>
+                                <p className="text-base min-h-[28px]"><TypingAnimation /></p>
+                            </div>
+                        </FadeIn>
+
+                        <FadeIn delay={0.32}>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                                <Link href="/register" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-violet-900/40 hover:shadow-2xl hover:shadow-violet-800/50 hover:-translate-y-0.5">
+                                    {t('hero.cta_primary')}
+                                </Link>
+                                <Link href="/plantillas" className="border border-gray-700 text-gray-300 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-violet-600/60 hover:text-white transition-all hover:-translate-y-0.5">
+                                    {t('hero.cta_secondary')}
+                                </Link>
+                            </div>
+                            <p className="text-sm text-gray-600">{t('hero.disclaimer')}</p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.42}>
+                            <div className="mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto">
+                                {[
+                                    { n: '+2.000', l: t('hero.stat_sites') },
+                                    { n: '<10s',   l: t('hero.stat_time') },
+                                    { n: '4.9★',   l: t('hero.stat_rating') },
+                                ].map(s => (
+                                    <div key={s.l} className="text-center">
+                                        <div className="text-2xl font-black text-white">{s.n}</div>
+                                        <div className="text-xs text-gray-500 mt-1">{s.l}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </FadeIn>
                     </div>
                 </section>
 
                 {/* CÓMO FUNCIONA */}
                 <section className="py-24 px-6 bg-gray-900/40 border-y border-gray-800/50">
                     <div className="max-w-5xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-black mb-3">{t('how.title')}</h2>
+                        <Reveal className="text-center mb-16">
+                            <h2 className="text-4xl font-black mb-3 tracking-tight">{t('how.title')}</h2>
                             <p className="text-gray-400">{t('how.subtitle')}</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        </Reveal>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ perspective: '1200px' }}>
                             {steps.map((step, i) => {
                                 const Icon = STEP_ICONS[i] ?? LayoutTemplate;
                                 return (
-                                    <div key={step.n} className="bg-gray-900 border border-gray-800 rounded-2xl p-8 relative">
-                                        <span className="text-5xl font-black text-gray-800/70 absolute top-5 right-6">{step.n}</span>
-                                        <Icon className="w-8 h-8 text-violet-400 mb-4" strokeWidth={1.5} />
-                                        <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                                        <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
-                                    </div>
+                                    <Reveal key={step.n} delay={i * 0.1}>
+                                        <TiltCard className="bg-gray-900 border border-gray-800 rounded-2xl p-8 relative h-full hover:border-violet-800/50 hover:shadow-xl hover:shadow-violet-950/30">
+                                            <span className="text-5xl font-black text-gray-800/70 absolute top-5 right-6">{step.n}</span>
+                                            <Icon className="w-8 h-8 text-violet-400 mb-4" strokeWidth={1.5} />
+                                            <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                                            <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                                        </TiltCard>
+                                    </Reveal>
                                 );
                             })}
                         </div>
@@ -196,19 +213,21 @@ export default function Landing() {
                 {/* FEATURES */}
                 <section className="py-24 px-6">
                     <div className="max-w-6xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-black mb-3">{t('features.title')}</h2>
+                        <Reveal className="text-center mb-16">
+                            <h2 className="text-4xl font-black mb-3 tracking-tight">{t('features.title')}</h2>
                             <p className="text-gray-400 max-w-xl mx-auto">{t('features.subtitle')}</p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        </Reveal>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" style={{ perspective: '1200px' }}>
                             {featureList.map((f, i) => {
                                 const Icon = FEATURE_ICONS[i] ?? Sparkles;
                                 return (
-                                    <div key={f.title} className="bg-gray-900 border border-gray-800 rounded-2xl p-7 hover:border-violet-800/60 transition-colors group cursor-default">
-                                        <Icon className="w-7 h-7 text-violet-400 mb-4" strokeWidth={1.5} />
-                                        <h3 className="font-bold text-lg mb-2 group-hover:text-violet-300 transition-colors">{f.title}</h3>
-                                        <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
-                                    </div>
+                                    <Reveal key={f.title} delay={(i % 3) * 0.08}>
+                                        <TiltCard className="bg-gray-900 border border-gray-800 rounded-2xl p-7 h-full hover:border-violet-800/60 hover:shadow-xl hover:shadow-violet-950/30 group cursor-default">
+                                            <Icon className="w-7 h-7 text-violet-400 mb-4" strokeWidth={1.5} />
+                                            <h3 className="font-bold text-lg mb-2 group-hover:text-violet-300 transition-colors">{f.title}</h3>
+                                            <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+                                        </TiltCard>
+                                    </Reveal>
                                 );
                             })}
                         </div>
@@ -218,13 +237,13 @@ export default function Landing() {
                 {/* TESTIMONIALS */}
                 <section className="py-24 px-6 bg-gray-900/40 border-y border-gray-800/50">
                     <div className="max-w-5xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl font-black mb-3">{t('testimonials.title')}</h2>
+                        <Reveal className="text-center mb-16">
+                            <h2 className="text-4xl font-black mb-3 tracking-tight">{t('testimonials.title')}</h2>
                             <p className="text-gray-400">{t('testimonials.subtitle')}</p>
-                        </div>
+                        </Reveal>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {testimonials.map(t2 => (
-                                <div key={t2.name} className="bg-gray-900 border border-gray-800 rounded-2xl p-7 flex flex-col">
+                            {testimonials.map((t2, i) => (
+                                <Reveal key={t2.name} delay={i * 0.1} className="bg-gray-900 border border-gray-800 rounded-2xl p-7 flex flex-col">
                                     <div className="flex items-center gap-3 mb-5">
                                         <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${t2.color} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
                                             {t2.avatar}
@@ -236,7 +255,7 @@ export default function Landing() {
                                         <div className="ml-auto text-yellow-400 text-xs">★★★★★</div>
                                     </div>
                                     <p className="text-gray-300 text-sm leading-relaxed flex-1">"{t2.text}"</p>
-                                </div>
+                                </Reveal>
                             ))}
                         </div>
                     </div>
@@ -245,8 +264,8 @@ export default function Landing() {
                 {/* PRICING */}
                 <section ref={pricingRef} id="precios" className="py-24 px-6 bg-gray-900/40 border-y border-gray-800/50">
                     <div className="max-w-4xl mx-auto">
-                        <div className="text-center mb-12">
-                            <h2 className="text-4xl font-black mb-3">{t('pricing.title')}</h2>
+                        <Reveal className="text-center mb-12">
+                            <h2 className="text-4xl font-black mb-3 tracking-tight">{t('pricing.title')}</h2>
                             <p className="text-gray-400 mb-8">{t('pricing.subtitle')}</p>
                             <div className="inline-flex items-center bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1">
                                 <button onClick={() => setCycle('monthly')} className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${cycle === 'monthly' ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'}`}>
@@ -261,9 +280,9 @@ export default function Landing() {
                                 <Check className="w-4 h-4 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                                 <span>{t('pricing.free_note')}</span>
                             </p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                        </Reveal>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto" style={{ perspective: '1200px' }}>
+                            <Reveal className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
                                 <div className="text-gray-400 text-sm font-semibold uppercase tracking-wider mb-3">{t('pricing.basic_name')}</div>
                                 <div className="flex items-end gap-1 mb-4">
                                     <span className="text-5xl font-black">{sym}{basicPrice}</span>
@@ -284,8 +303,9 @@ export default function Landing() {
                                 <Link href="/register" className="block text-center border border-gray-700 hover:border-violet-600 text-white py-3 rounded-xl transition-colors font-semibold text-sm">
                                     {t('pricing.cta')}
                                 </Link>
-                            </div>
-                            <div className="bg-gradient-to-b from-violet-950/50 to-gray-900 border border-violet-700/60 rounded-2xl p-8 relative shadow-2xl shadow-violet-950/30">
+                            </Reveal>
+                            <Reveal delay={0.12}>
+                            <TiltCard max={4} className="bg-gradient-to-b from-violet-950/50 to-gray-900 border border-violet-700/60 rounded-2xl p-8 relative shadow-2xl shadow-violet-950/30 h-full">
                                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">
                                     {t('pricing.popular')}
                                 </div>
@@ -309,7 +329,8 @@ export default function Landing() {
                                 <Link href="/register" className="block text-center bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3 rounded-xl transition-opacity font-bold text-sm shadow-lg shadow-violet-900/40">
                                     {t('pricing.cta')}
                                 </Link>
-                            </div>
+                            </TiltCard>
+                            </Reveal>
                         </div>
                         <p className="text-center text-sm text-gray-600 mt-8">
                             {t('pricing.custom')}{' '}
@@ -322,8 +343,10 @@ export default function Landing() {
                 {/* FAQ */}
                 <section className="py-24 px-6">
                     <div className="max-w-2xl mx-auto">
-                        <h2 className="text-4xl font-black text-center mb-12">{t('faq.title')}</h2>
-                        <div className="space-y-3">
+                        <Reveal>
+                            <h2 className="text-4xl font-black text-center mb-12 tracking-tight">{t('faq.title')}</h2>
+                        </Reveal>
+                        <Reveal delay={0.1} className="space-y-3">
                             {faqItems.map(item => (
                                 <details key={item.q} className="group bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                                     <summary className="flex justify-between items-center p-5 cursor-pointer list-none font-semibold text-sm hover:text-violet-300 transition-colors select-none">
@@ -333,7 +356,7 @@ export default function Landing() {
                                     <p className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">{item.a}</p>
                                 </details>
                             ))}
-                        </div>
+                        </Reveal>
                     </div>
                 </section>
 
@@ -342,17 +365,17 @@ export default function Landing() {
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-800/15 rounded-full blur-[110px]" />
                     </div>
-                    <div className="max-w-2xl mx-auto text-center relative">
-                        <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
+                    <Reveal className="max-w-2xl mx-auto text-center relative">
+                        <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight tracking-tight">
                             {t('cta.title_1')}
                             <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent"> {t('cta.title_2')}</span>
                         </h2>
                         <p className="text-gray-400 text-lg mb-8">{t('cta.subtitle')}</p>
-                        <Link href="/register" className="inline-block bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 hover:opacity-90 text-white px-12 py-5 rounded-2xl font-black text-xl transition-opacity shadow-2xl shadow-violet-900/50">
+                        <Link href="/register" className="inline-block bg-gradient-to-r from-violet-600 via-fuchsia-600 to-cyan-600 hover:opacity-90 text-white px-12 py-5 rounded-2xl font-black text-xl transition-all shadow-2xl shadow-violet-900/50 hover:-translate-y-0.5 hover:shadow-violet-800/60">
                             {t('cta.button')}
                         </Link>
                         <p className="text-gray-600 text-sm mt-5">{t('cta.disclaimer')}</p>
-                    </div>
+                    </Reveal>
                 </section>
 
                 {/* FOOTER */}
