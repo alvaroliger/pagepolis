@@ -40,7 +40,9 @@ class AiBudgetGuardTest extends TestCase
     public function test_blocks_when_monthly_budget_exceeded(): void
     {
         config(['services.anthropic.monthly_budget_usd' => 10, 'services.anthropic.daily_budget_usd' => 0]);
-        AiSpend::create(['day' => now()->subDays(2)->toDateString(), 'est_cost_usd' => 12]);
+        // Use startOfMonth() so the spend is always within the current month,
+        // avoiding a flaky failure on the 1st–2nd when subDays(2) lands in the prior month.
+        AiSpend::create(['day' => now()->startOfMonth()->toDateString(), 'est_cost_usd' => 12]);
 
         $g = $this->guard();
         $this->assertFalse($g->isWithinBudget());
