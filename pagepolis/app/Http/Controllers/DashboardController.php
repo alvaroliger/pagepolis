@@ -52,11 +52,22 @@ class DashboardController extends Controller
                 'deleted_at' => $p->deleted_at->diffForHumans(),
             ]);
 
+        // Onboarding checklist: qué pasos clave ha completado ya el usuario.
+        // 'domain' solo se activa con dominio propio/subdominio (paid), no con /s/slug.
+        $onboarding = [
+            'published' => $projects->contains('status', 'published'),
+            'domain'    => $user->domains()
+                ->whereIn('type', ['custom', 'subdomain'])
+                ->where('status', 'active')
+                ->exists(),
+        ];
+
         return Inertia::render('Dashboard/Index', [
             'projects'       => $mapped,
             'trashed'        => $trashed,
             'isSubscribed'   => $user->isSubscribed(),
             'inGracePeriod'  => $user->inGracePeriod(),
+            'onboarding'     => $onboarding,
         ]);
     }
 }
