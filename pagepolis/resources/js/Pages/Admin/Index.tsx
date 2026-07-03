@@ -12,6 +12,7 @@ interface User {
     projects_count: number;
     domains_count: number;
     grace_period_ends_at: string | null;
+    admin_suspended_at: string | null;
 }
 
 interface Stats {
@@ -124,13 +125,19 @@ export default function AdminIndex({ users, stats, ai }: Props) {
                             </thead>
                             <tbody>
                                 {users.data.map(user => (
-                                    <tr key={user.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                                    <tr key={user.id} className={`border-b border-gray-800/50 hover:bg-gray-800/30 ${user.admin_suspended_at ? 'bg-red-950/10' : ''}`}>
                                         <td className="px-6 py-4 text-white font-medium">{user.name}</td>
                                         <td className="px-6 py-4 text-gray-400">{user.email}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${user.role === 'admin' ? 'bg-violet-900/50 text-violet-300' : 'bg-gray-800 text-gray-400'}`}>
-                                                {user.role}
-                                            </span>
+                                            {user.admin_suspended_at ? (
+                                                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-red-900/50 text-red-300">
+                                                    suspendido
+                                                </span>
+                                            ) : (
+                                                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${user.role === 'admin' ? 'bg-violet-900/50 text-violet-300' : 'bg-gray-800 text-gray-400'}`}>
+                                                    {user.role}
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-gray-400">{user.projects_count}</td>
                                         <td className="px-6 py-4 text-gray-400">{user.domains_count}</td>
