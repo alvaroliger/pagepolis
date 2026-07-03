@@ -23,7 +23,17 @@ class SitemapController extends Controller
             ['loc' => $baseUrl . '/plantillas', 'priority' => '0.8', 'changefreq' => 'weekly'],
         ]);
 
-        // Añadir los subdominios de pagepolis.com si existen
+        // Sitios publicados en /s/{slug} (tier gratuito)
+        foreach ($sites->where('type', 'path') as $domain) {
+            $urls->push([
+                'loc'        => $baseUrl . '/s/' . $domain->domain,
+                'priority'   => '0.5',
+                'changefreq' => 'weekly',
+                'lastmod'    => $domain->project->updated_at->toAtomString(),
+            ]);
+        }
+
+        // Subdominios propios de pagepolis.com
         foreach ($sites->where('type', 'subdomain') as $domain) {
             $urls->push([
                 'loc'        => 'https://' . $domain->domain,
