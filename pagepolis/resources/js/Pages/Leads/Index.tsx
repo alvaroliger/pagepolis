@@ -15,9 +15,22 @@ interface Lead {
 export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) {
     return (
         <AuthenticatedLayout header={
-            <div>
-                <h1 className="text-2xl font-bold text-white">Mensajes</h1>
-                <p className="text-gray-400 text-sm mt-1">Los contactos que llegan desde tus webs publicadas.</p>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Mensajes</h1>
+                    <p className="text-gray-400 text-sm mt-1">Los contactos que llegan desde tus webs publicadas.</p>
+                </div>
+                {leads.length > 0 && (
+                    <a
+                        href="/mensajes/exportar"
+                        className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-4 py-2 rounded-lg border border-gray-700 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Exportar CSV
+                    </a>
+                )}
             </div>
         }>
             <Head title="Mensajes" />

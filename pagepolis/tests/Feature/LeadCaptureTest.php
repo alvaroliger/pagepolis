@@ -165,4 +165,69 @@ class LeadCaptureTest extends TestCase
         $leads = $response->original->getData()['page']['props']['leads'] ?? [];
         $this->assertEmpty($leads, 'User B should not see leads belonging to User A');
     }
+
+    // ── CSV export ──────────────────────────────────────────────────────
+
+    public function test_csv_export_requires_auth(): void
+    {
+        $this->get('/mensajes/exportar')->assertRedirect('/login');
+    }
+
+    public function test_csv_export_returns_correct_headers_and_data(): void
+    {
+        $project = $this->publishedProject();
+        $project->leads()->create([
+            'name'    => 'Pedro',
+            'email'   => 'pedro@example.com',
+            'phone'   => '600999888',
+            'message' => 'Quiero información',
+            'payload' => [],
+        ]);
+
+        $response = $this->actingAs($project->user)->get('/mensajes/exportar');
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+
+        $body = $response->streamedContent();
+        // BOM UTF-8 presente para Excel
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $body);
+        $this->assertStringContainsString('Fecha,Web,Nombre,Email,', $body);
+        $this->assertStringContainsString('Pedro', $body);
+        $this->assertStringContainsString('pedro@example.com', $body);
+        $this->assertStringContainsString('Quiero información', $body);
+    }
+
+    public function test_csv_export_with_no_leads_returns_header_row_only(): void
+    {
+        $project = $this->publishedProject();
+
+        $response = $this->actingAs($project->user)->get('/mensajes/exportar');
+
+        $response->assertStatus(200);
+        $body = $response->streamedContent();
+        $lines = array_filter(explode("\n", ltrim($body, "\xEF\xBB\xBF")));
+        $this->assertCount(1, $lines, 'Solo debe haber la fila de cabecera');
+    }
+
+    public function test_csv_export_does_not_include_other_users_leads(): void
+    {
+        $project      = $this->publishedProject();
+        $otherUser    = User::factory()->create(['email_verified_at' => now()]);
+        $otherProject = Project::create([
+            'user_id' => $otherUser->id,
+            'name'    => 'Otra web',
+            'html'    => '', 'css' => '', 'js' => '',
+            'status'  => 'published',
+            'slug'    => 'otra-web-x',
+        ]);
+        $otherProject->leads()->create(['email' => 'secreto@rival.com', 'message' => 'dato privado', 'payload' => []]);
+
+        $body = $this->actingAs($project->user)
+            ->get('/mensajes/exportar')
+            ->streamedContent();
+
+        $this->assertStringNotContainsString('secreto@rival.com', $body);
+        $this->assertStringNotContainsString('dato privado', $body);
+    }
 }

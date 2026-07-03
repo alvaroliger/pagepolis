@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Bandeja de mensajes (leads capturados de las webs publicadas)
     Route::get('/mensajes', [LeadController::class, 'index'])->name('leads.index');
+    Route::get('/mensajes/exportar', [LeadController::class, 'export'])->name('leads.export');
 
     // Editor
     Route::get('/editor/{project}', [EditorController::class, 'index'])->name('editor.index');
