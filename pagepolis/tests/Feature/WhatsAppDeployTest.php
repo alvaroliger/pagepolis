@@ -42,6 +42,16 @@ class WhatsAppDeployTest extends TestCase
         ];
     }
 
+
+    /** POST firmado (el webhook es fail-closed: sin firma válida devuelve 401). */
+    private function postWebhook(array $payload)
+    {
+        config(['services.whatsapp.app_secret' => 'test-secret']);
+        $sig = 'sha256=' . hash_hmac('sha256', json_encode($payload), 'test-secret');
+
+        return $this->postJson('/webhook/whatsapp', $payload, ['X-Hub-Signature-256' => $sig]);
+    }
+
     private function userWithProject(): array
     {
         $user = User::factory()->create([
@@ -90,7 +100,7 @@ class WhatsAppDeployTest extends TestCase
             'status'     => 'active',
         ]);
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         Queue::assertPushed(DeploySite::class);
@@ -111,7 +121,7 @@ class WhatsAppDeployTest extends TestCase
             'status'     => 'active',
         ]);
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         Queue::assertPushed(DeploySite::class);
@@ -125,7 +135,7 @@ class WhatsAppDeployTest extends TestCase
 
         $this->userWithProject();
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         Queue::assertNotPushed(DeploySite::class);
@@ -146,7 +156,7 @@ class WhatsAppDeployTest extends TestCase
             'status'     => 'active',
         ]);
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         Queue::assertNotPushed(DeploySite::class);
@@ -160,7 +170,7 @@ class WhatsAppDeployTest extends TestCase
 
         [$user, $project] = $this->userWithProject();
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         $this->assertDatabaseHas('projects', [
@@ -177,7 +187,7 @@ class WhatsAppDeployTest extends TestCase
 
         [$user] = $this->userWithProject();
 
-        $this->postJson('/webhook/whatsapp', $this->webhookPayload('34600000001', 'pon el fondo azul'))
+        $this->postWebhook($this->webhookPayload('34600000001', 'pon el fondo azul'))
             ->assertOk();
 
         $this->assertSame(1, (int) $user->fresh()->ai_calls_today);

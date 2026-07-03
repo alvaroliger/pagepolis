@@ -80,7 +80,10 @@ class AdminControllerTest extends TestCase
             ->assertOk()
             ->assertJson(['success' => true]);
 
-        $this->assertNotNull($target->fresh()->grace_period_ends_at);
+        // La suspensión de admin usa admin_suspended_at; NO toca grace_period_ends_at
+        // (eso dispararía el borrado permanente de datos vía pagepolis:suspend-expired).
+        $this->assertNotNull($target->fresh()->admin_suspended_at);
+        $this->assertNull($target->fresh()->grace_period_ends_at);
     }
 
     public function test_suspending_user_suspends_their_domains(): void

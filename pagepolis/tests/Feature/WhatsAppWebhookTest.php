@@ -22,7 +22,7 @@ class WhatsAppWebhookTest extends TestCase
         parent::setUp();
         config([
             'services.whatsapp.verify_token' => 'verify-tok',
-            'services.whatsapp.app_secret'   => null,      // sin secreto → bypass firma (modo test)
+            'services.whatsapp.app_secret'   => 'test-secret', // fail-closed: se firma cada petición (postWebhook)
             'services.whatsapp.token'        => 'wa-token',
             'services.whatsapp.phone_id'     => 'ph123',
         ]);
@@ -55,7 +55,16 @@ class WhatsAppWebhookTest extends TestCase
                 'id' => $msgId, 'from' => $from, 'type' => 'text',
                 'text' => ['body' => $text],
             ]],
-        ]]]]]]];
+        ]]]]]];
+    }
+
+
+    /** POST firmado con el secreto de test (el webhook es fail-closed). */
+    private function postWebhook(array $payload)
+    {
+        $sig = 'sha256=' . hash_hmac('sha256', json_encode($payload), config('services.whatsapp.app_secret'));
+
+        return $this->postJson('/webhook/whatsapp', $payload, ['X-Hub-Signature-256' => $sig]);
     }
 
     /** Payload de un mensaje NO textual (imagen, audio, etc.). */
@@ -64,7 +73,7 @@ class WhatsAppWebhookTest extends TestCase
         return ['entry' => [['changes' => [['field' => 'messages', 'value' => [
             'contacts' => [['wa_id' => $from]],
             'messages' => [['id' => 'wamid.img', 'from' => $from, 'type' => $type]],
-        ]]]]]]];
+        ]]]]]];
     }
 
     /**
@@ -129,7 +138,7 @@ class WhatsAppWebhookTest extends TestCase
 
     public function test_unknown_phone_gets_registration_message(): void
     {
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34699999999', 'hola'))
+        $this->postWebhook($this->textPayload('34699999999', 'hola'))
             ->assertOk();
 
         $this->assertStringContainsString('vincular', $this->sentMessage());
@@ -141,7 +150,7 @@ class WhatsAppWebhookTest extends TestCase
     {
         $user = $this->user(['whatsapp_phone' => '34600111111']);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600111111', 'ayuda'))
+        $this->postWebhook($this->textPayload('34600111111', 'ayuda'))
             ->assertOk();
 
         $this->assertStringContainsString('asistente de Pagepolis', $this->sentMessage());
@@ -154,7 +163,7 @@ class WhatsAppWebhookTest extends TestCase
         $user = $this->user(['whatsapp_phone' => '34600222222']);
         $this->project($user, ['name' => 'Panadería Espiga', 'status' => 'published']);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600222222', 'mis webs'))
+        $this->postWebhook($this->textPayload('34600222222', 'mis webs'))
             ->assertOk();
 
         $this->assertStringContainsString('Panadería Espiga', $this->sentMessage());
@@ -164,7 +173,7 @@ class WhatsAppWebhookTest extends TestCase
     {
         $user = $this->user(['whatsapp_phone' => '34600333333']);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600333333', 'proyectos'))
+        $this->postWebhook($this->textPayload('34600333333', 'proyectos'))
             ->assertOk();
 
         $this->assertStringContainsString('No tienes ninguna', $this->sentMessage());
@@ -177,7 +186,7 @@ class WhatsAppWebhookTest extends TestCase
         $user    = $this->user(['whatsapp_phone' => '34600444444']);
         $project = $this->project($user);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600444444', 'web 1'))
+        $this->postWebhook($this->textPayload('34600444444', 'web 1'))
             ->assertOk();
 
         $this->assertSame($project->id, $user->fresh()->whatsapp_active_project);
@@ -187,7 +196,7 @@ class WhatsAppWebhookTest extends TestCase
     {
         $user = $this->user(['whatsapp_phone' => '34600555555']);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600555555', 'web 99'))
+        $this->postWebhook($this->textPayload('34600555555', 'web 99'))
             ->assertOk();
 
         $this->assertStringContainsString('No encontré', $this->sentMessage());
@@ -209,7 +218,7 @@ class WhatsAppWebhookTest extends TestCase
             ]);
         });
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600666666', 'cambia el título'))
+        $this->postWebhook($this->textPayload('34600666666', 'cambia el título'))
             ->assertOk();
 
         $this->assertSame(1, $user->fresh()->ai_calls_today);
@@ -235,7 +244,7 @@ class WhatsAppWebhookTest extends TestCase
             ]);
         });
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600747474', 'cambia algo'))
+        $this->postWebhook($this->textPayload('34600747474', 'cambia algo'))
             ->assertOk();
 
         $msg = $this->sentMessage();
@@ -255,7 +264,7 @@ class WhatsAppWebhookTest extends TestCase
             'ai_calls_reset_date'     => now()->toDateString(),
         ]);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34600888888', 'cambia algo'))
+        $this->postWebhook($this->textPayload('34600888888', 'cambia algo'))
             ->assertOk();
 
         $this->assertStringContainsString('límite', $this->sentMessage());
@@ -268,7 +277,7 @@ class WhatsAppWebhookTest extends TestCase
     {
         $user = $this->user(['whatsapp_phone' => '34600999999']);
 
-        $this->postJson('/webhook/whatsapp', $this->nonTextPayload('34600999999'))
+        $this->postWebhook($this->nonTextPayload('34600999999'))
             ->assertOk();
 
         $this->assertStringContainsString('asistente', $this->sentMessage());
@@ -280,7 +289,7 @@ class WhatsAppWebhookTest extends TestCase
     {
         $user = $this->user(['whatsapp_phone' => '34601000000']);
 
-        $this->postJson('/webhook/whatsapp', $this->textPayload('34601000000', 'cambia el título'))
+        $this->postWebhook($this->textPayload('34601000000', 'cambia el título'))
             ->assertOk();
 
         $this->assertStringContainsString('selecciona', $this->sentMessage());

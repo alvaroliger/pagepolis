@@ -21,18 +21,19 @@ no abras PR.
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
-- 🟢 **Prueba social** real en landing/pricing (sin inventar testimonios).
+- ✅ **Prueba social real** — el hero muestra el nº real de webs publicadas (LandingController +
+  caché 1h) en vez de una cifra inventada.
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
-- 🟢 Secuencia de email post-registro empujando a publicar/mejorar.
+- ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
-- 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
+- ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
   (`resources/js/Pages/Editor/Index.tsx`).
-- 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
-- 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
+- ✅ Checklist de onboarding en el dashboard.
+- ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -73,13 +74,22 @@ no abras PR.
 
 ## Calidad
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
-- 🟢 Más tests de los flujos nuevos (leads ya cubierto: 6 tests).
+- ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
+  leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+
+## Hecho recientemente (2026-07-03, integración a master)
+- Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
+  + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
+  misma mejora descartados con criterio (se quedó la mejor versión de cada familia).
+  Arreglados en la integración: webhook WhatsApp fail-closed (tests ahora firman con HMAC),
+  test de suspensión adaptado a la semántica segura (admin_suspended_at), y un error de
+  sintaxis que venía en una rama. Suite final: 244/244 verde, build OK.
 
 ## Hecho recientemente (2026-07-03)
 - Motor 3D propio (`hero3d.js`) + `tilt-3d` para un nivel visual de agencia premium
