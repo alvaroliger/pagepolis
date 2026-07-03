@@ -6,10 +6,10 @@ import LanguageSelector from '@/Components/LanguageSelector';
 import PagepolisLogo from '@/Components/PagepolisLogo';
 import Hero3D from '@/Components/Hero3D';
 import { Reveal, FadeIn, TiltCard } from '@/Components/Motion';
-import { LayoutTemplate, PencilLine, Rocket, Zap, Code2, Globe, ShieldCheck, Smartphone, Sparkles, Check } from 'lucide-react';
+import { LayoutTemplate, PencilLine, Rocket, Zap, Code2, Globe, ShieldCheck, Smartphone, Sparkles, Check, Mail } from 'lucide-react';
 
 const STEP_ICONS = [LayoutTemplate, PencilLine, Rocket];
-const FEATURE_ICONS = [Zap, Code2, Globe, ShieldCheck, Smartphone, Sparkles];
+const FEATURE_ICONS = [Zap, Code2, Globe, ShieldCheck, Smartphone, Sparkles, Mail];
 
 const DEMO_PROMPTS: Record<string, string[]> = {
     es: ['restaurante italiano moderno en Madrid, colores cálidos, carta, reservas', 'portfolio de diseñadora UX minimalista, proyectos, sobre mí, contacto', 'tienda online de ropa vintage, productos destacados, newsletter', 'landing de app de productividad, hero, features, pricing, testimonios', 'clínica dental profesional, servicios, equipo médico, cita previa'],
