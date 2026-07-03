@@ -17,7 +17,9 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## Producto
 - 🟢 Wizard de creación: pulir validación/UX (`resources/js/Pages/Create/Index.tsx`).
-- 🟢 Autosave en el editor con debounce.
+- ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
+  (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
+  (`resources/js/Pages/Editor/Index.tsx`).
 - 🟢 Checklist de onboarding en el dashboard (publica → conecta dominio → comparte).
 - 🟢 Code-splitting del editor (bundle ~531 kB) para Core Web Vitals.
 
@@ -27,17 +29,22 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
   lo usa) y en los prompts de `AnthropicService` (la IA añade el `<canvas>`; el motor se
   inyecta desde el backend tras generar el JS — fiable y sin coste extra de tokens).
-- 🟢 Extender el hero 3D / `tilt-3d` a más plantillas base donde encaje (servicios,
-  abogados, coach, inmobiliaria, fotógrafo) siguiendo el mismo patrón que `saas.html`.
+- ✅ **Extender el hero 3D / `tilt-3d` a más plantillas base** — canvas 3D en servicios,
+  abogados, coach, inmobiliaria y fotógrafo (su hero es solo texto, sin foto protagonista)
+  + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
+  tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
+  foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
-- 🟢 Aplicar el mismo criterio de "agencia premium" (tipografía grande seguro, aire,
-  micro-interacciones) a la propia landing/dashboard de Pagepolis (`resources/js/Pages`),
-  no solo a las webs generadas.
+- ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
+  (`Components/Hero3D.tsx`, mismo motor que `hero3d.js`, sin three.js), primitivas de
+  motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
+  todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
+  AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -63,6 +70,11 @@ Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 ## Hecho recientemente (2026-07-03)
 - Motor 3D propio (`hero3d.js`) + `tilt-3d` para un nivel visual de agencia premium
   (referencia motionsites.ai), integrado en plantillas y en la generación por IA.
+- Ese mismo lenguaje visual llevado a la propia app: `Hero3D.tsx` (port React del motor,
+  cero dependencias 3D) + `Motion.tsx` (framer-motion) en landing, layouts, dashboard y
+  wizard; hero 3D extendido a 5 plantillas más (servicios, abogados, coach, inmobiliaria,
+  fotógrafo) con `tilt-3d` en tarjetas clave; autosave con debounce en el editor.
+  Suite 96/96 verde, `npm run build` OK (framer-motion en chunk propio lazy de ~37 kB gzip).
 
 ## Hecho recientemente (2026-06-29)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.

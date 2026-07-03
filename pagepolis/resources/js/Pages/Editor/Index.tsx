@@ -326,6 +326,16 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         }
     };
 
+    // Autosave con debounce: guarda solo 2,5 s después del último cambio.
+    // Se pospone si ya hay un guardado en curso o la IA está generando;
+    // al terminar cualquiera de los dos, el efecto se reevalúa y guarda.
+    useEffect(() => {
+        if (!dirty || saving || aiLoading) return;
+        const timer = window.setTimeout(save, 2500);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [html, css, js, name, dirty, saving, aiLoading]);
+
     const requestModeSwitch = (newMode: AiMode) => {
         if (newMode === aiMode) return;
         if (newMode === 'generate') {
@@ -425,7 +435,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     </a>
                     <input
                         value={name}
-                        onChange={e => setName(e.target.value)}
+                        onChange={e => { setName(e.target.value); markDirty(); }}
                         className="bg-transparent text-white font-semibold text-base focus:outline-none border-b border-transparent focus:border-gray-600 px-1 min-w-0"
                     />
                     {dirty && <span className="text-xs text-yellow-500 flex-shrink-0">Sin guardar</span>}
