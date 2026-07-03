@@ -18,9 +18,10 @@
     "cta_primary": "Criar meu site grátis →",
     "cta_secondary": "Ver modelos",
     "disclaimer": "7 dias grátis · Sem cartão de crédito · Cancele quando quiser",
-    "stat_sites": "sites criados",
+    "stat_sites": "sites publicados",
+    "stat_sites_soon": "em breve!",
     "stat_time": "tempo de geração",
-    "stat_rating": "avaliação média"
+    "stat_languages": "idiomas disponíveis"
   },
   "how": {
     "title": "Seu site em 3 passos",

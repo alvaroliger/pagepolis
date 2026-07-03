@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BillingController;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Landing pública
-Route::get('/', fn() => Inertia::render('Landing'))->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);

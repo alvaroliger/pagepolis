@@ -18,9 +18,10 @@
     "cta_primary": "Meine Website kostenlos erstellen →",
     "cta_secondary": "Vorlagen ansehen",
     "disclaimer": "7 Tage kostenlos · Keine Kreditkarte · Jederzeit kündbar",
-    "stat_sites": "erstellte Websites",
+    "stat_sites": "veröffentlichte Websites",
+    "stat_sites_soon": "bald verfügbar!",
     "stat_time": "Generierungszeit",
-    "stat_rating": "Durchschnittsbewertung"
+    "stat_languages": "verfügbare Sprachen"
   },
   "how": {
     "title": "Ihre Website in 3 Schritten",

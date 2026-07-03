@@ -59,6 +59,8 @@ export default function Landing() {
     const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
     const pricingRef = useRef<HTMLElement>(null);
     const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+    // Prueba social real: nº de webs publicadas (lo inyecta LandingController; 0 = aún sin dato).
+    const sitesPublished: number = (usePage().props as any).stats?.sites_published ?? 0;
 
     const asArray = <T,>(val: unknown): T[] => Array.isArray(val) ? val as T[] : [];
     const asObj   = (val: unknown): Record<string, string> => (val && typeof val === 'object' && !Array.isArray(val)) ? val as Record<string, string> : {};
@@ -171,7 +173,7 @@ export default function Landing() {
                         <FadeIn delay={0.42}>
                             <div className="mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto">
                                 {[
-                                    { n: '+2.000', l: t('hero.stat_sites') },
+                                    { n: sitesPublished > 0 ? `+${sitesPublished.toLocaleString()}` : t('hero.stat_sites_soon'), l: t('hero.stat_sites') },
                                     { n: '<10s',   l: t('hero.stat_time') },
                                     { n: '4.9★',   l: t('hero.stat_rating') },
                                 ].map(s => (

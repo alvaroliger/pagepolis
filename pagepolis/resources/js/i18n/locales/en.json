@@ -18,9 +18,10 @@
     "cta_primary": "Build my website free →",
     "cta_secondary": "View templates",
     "disclaimer": "7 days free · No credit card · Cancel anytime",
-    "stat_sites": "websites created",
+    "stat_sites": "sites published",
+    "stat_sites_soon": "launching soon!",
     "stat_time": "generation time",
-    "stat_rating": "average rating"
+    "stat_languages": "languages supported"
   },
   "how": {
     "title": "Your website in 3 steps",
