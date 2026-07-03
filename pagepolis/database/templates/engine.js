@@ -12,6 +12,8 @@
    - TIENDA: .product[data-id|name|price|img], #cart-toggle/#cart-count,
      #cart-drawer/#cart-items/#cart-total/#cart-close/#cart-overlay,
      #checkout-whatsapp / #checkout-email
+   - Inclinación 3D: .tilt-3d en cualquier tarjeta reacciona al ratón
+   - Hero 3D: <canvas class="hero3d-canvas" data-hero3d> lo inicializa hero3d.js
    Edita estas dos líneas para recibir pedidos:                                 */
 const WHATSAPP_NUMERO = '34600000000'; // tu WhatsApp: dígitos con prefijo país, sin '+'
 const EMAIL_PEDIDOS  = 'pedidos@tunegocio.com';
@@ -117,6 +119,23 @@ const EMAIL_PEDIDOS  = 'pedidos@tunegocio.com';
       var success = document.getElementById('form-success');
       if (success) success.hidden = false;
       form.reset();
+    });
+  }
+
+  /* Inclinación 3D al pasar el ratón sobre tarjetas .tilt-3d */
+  if (window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(hover:hover)').matches) {
+    document.querySelectorAll('.tilt-3d').forEach(function (card) {
+      card.addEventListener('mousemove', function (e) {
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--tilt-y', (px * 10).toFixed(2) + 'deg');
+        card.style.setProperty('--tilt-x', (py * -10).toFixed(2) + 'deg');
+      });
+      card.addEventListener('mouseleave', function () {
+        card.style.setProperty('--tilt-x', '0deg');
+        card.style.setProperty('--tilt-y', '0deg');
+      });
     });
   }
 

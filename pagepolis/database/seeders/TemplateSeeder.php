@@ -8,8 +8,9 @@ use Illuminate\Database\Seeder;
 /**
  * Plantillas de inicio: webs COMPLETAS y vendibles (multi-sección, varias con
  * tienda), montadas desde archivos en database/templates/. Comparten un motor
- * (engine.js) y un CSS base (base.css) que las hace interactivas y amoldables por
- * la IA (misma convención de ids/clases que el generador).
+ * (engine.js + hero3d.js) y un CSS base (base.css) que las hace interactivas,
+ * con motion design 3D, y amoldables por la IA (misma convención de ids/clases
+ * que el generador).
  *
  * Idempotente (updateOrCreate por nombre): se puede ejecutar en cada deploy.
  */
@@ -41,6 +42,7 @@ class TemplateSeeder extends Seeder
         $dir    = database_path('templates');
         $base   = @file_get_contents("{$dir}/base.css") ?: '';
         $engine = @file_get_contents("{$dir}/engine.js") ?: '';
+        $hero3d = @file_get_contents("{$dir}/hero3d.js") ?: '';
 
         $names = [];
         foreach ($this->manifest() as $t) {
@@ -59,7 +61,7 @@ class TemplateSeeder extends Seeder
                     'tags'       => $t['tags'],
                     'html'       => $html,
                     'css'        => $base . "\n\n" . $css,
-                    'js'         => $engine,
+                    'js'         => $engine . "\n\n" . $hero3d,
                     'is_premium' => $t['premium'] ?? false,
                     'is_active'  => true,
                 ]

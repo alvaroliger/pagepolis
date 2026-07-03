@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Reveal, FadeIn } from '@/Components/Motion';
+import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 interface Project {
     id: number;
@@ -44,8 +45,8 @@ const statusLabels: Record<string, string> = {
 
 function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onConfirm: () => void; onCancel: () => void }) {
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+            <FadeIn y={12} className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
                 <h3 className="text-white font-semibold mb-2">Mover a la papelera</h3>
                 <p className="text-gray-400 text-sm mb-5">
                     ¿Seguro que quieres eliminar <strong className="text-white">"{project.name}"</strong>?
@@ -62,14 +63,14 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
                         Eliminar
                     </button>
                 </div>
-            </div>
+            </FadeIn>
         </div>
     );
 }
 
 function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-colors group flex flex-col">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
             {/* Thumbnail */}
             <div className="h-36 bg-gradient-to-br from-violet-950/40 via-gray-900 to-gray-800 flex items-center justify-center border-b border-gray-800 relative overflow-hidden">
                 <span className="text-5xl font-black text-gray-800 select-none">{project.name.charAt(0).toUpperCase()}</span>
@@ -217,21 +218,22 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                 )}
 
                 {projects.length === 0 ? (
-                    <div className="text-center py-24">
-                        <div className="w-16 h-16 bg-gray-800 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                            </svg>
+                    <FadeIn className="text-center py-24 relative">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[420px] h-[260px] bg-violet-700/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+                        <div className="relative">
+                            <div className="w-16 h-16 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 border border-violet-700/30 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+                                <Sparkles className="w-8 h-8 text-violet-400" strokeWidth={1.5} />
+                            </div>
+                            <h2 className="text-2xl font-black text-white mb-2 tracking-tight">Crea tu primera web</h2>
+                            <p className="text-gray-500 text-sm mb-8">Elige una plantilla y la IA generará tu web en menos de 30 segundos.</p>
+                            <Link
+                                href="/plantillas"
+                                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-3 rounded-xl font-semibold transition-all text-sm shadow-lg shadow-violet-900/40 hover:-translate-y-0.5"
+                            >
+                                Explorar plantillas
+                            </Link>
                         </div>
-                        <h2 className="text-xl font-bold text-white mb-2">Crea tu primera web</h2>
-                        <p className="text-gray-500 text-sm mb-8">Elige una plantilla y la IA generará tu web en menos de 30 segundos.</p>
-                        <Link
-                            href="/plantillas"
-                            className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-3 rounded-xl font-semibold transition-colors text-sm"
-                        >
-                            Explorar plantillas
-                        </Link>
-                    </div>
+                    </FadeIn>
                 ) : (
                     <>
                         {/* Resumen de visitas */}
@@ -246,8 +248,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                            {projects.map(project => (
-                                <ProjectCard key={project.id} project={project} onDelete={setDeleteTarget} />
+                            {projects.map((project, i) => (
+                                <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
+                                    <ProjectCard project={project} onDelete={setDeleteTarget} />
+                                </Reveal>
                             ))}
                         </div>
                     </>

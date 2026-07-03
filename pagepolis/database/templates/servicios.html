@@ -13,6 +13,7 @@
 
 <main id="inicio">
   <section class="hero">
+    <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"></canvas>
     <div class="container hero-grid">
       <div class="hero-text">
         <span class="kicker">Agencia de marketing y desarrollo</span>
@@ -40,12 +41,12 @@
     <div class="container">
       <div class="eyebrow center reveal"><span class="kicker">Qué hacemos</span><h2 class="sec-title">Soluciones a medida</h2></div>
       <div class="feature-grid">
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><h3>Posicionamiento SEO</h3><p>Aparece primero en Google con una estrategia que atrae tráfico cualificado.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Diseño y desarrollo web</h3><p>Webs rápidas, bonitas y pensadas para convertir visitas en clientes.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div><h3>Publicidad online</h3><p>Campañas en Google y redes con seguimiento de cada euro invertido.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Redes sociales</h3><p>Contenido que conecta con tu audiencia y construye comunidad.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>Branding</h3><p>Una identidad de marca coherente que te hace memorable.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Analítica</h3><p>Datos claros para tomar decisiones y mejorar cada mes.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div><h3>Posicionamiento SEO</h3><p>Aparece primero en Google con una estrategia que atrae tráfico cualificado.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Diseño y desarrollo web</h3><p>Webs rápidas, bonitas y pensadas para convertir visitas en clientes.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div><h3>Publicidad online</h3><p>Campañas en Google y redes con seguimiento de cada euro invertido.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3>Redes sociales</h3><p>Contenido que conecta con tu audiencia y construye comunidad.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>Branding</h3><p>Una identidad de marca coherente que te hace memorable.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Analítica</h3><p>Datos claros para tomar decisiones y mejorar cada mes.</p></div>
       </div>
     </div>
   </section>
@@ -67,7 +68,7 @@
       <div class="eyebrow center reveal"><span class="kicker">Planes</span><h2 class="sec-title">Precios transparentes</h2></div>
       <div class="price-grid">
         <div class="price-card reveal"><span class="kicker">Inicio</span><div class="amount">390€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Web profesional</li><li>✓ SEO básico</li><li>✓ Informe mensual</li><li>✓ Soporte por email</li></ul><a href="#contacto" class="btn btn-outline">Empezar</a></div>
-        <div class="price-card featured reveal"><span class="kicker" style="color:var(--brand)">Más popular</span><div class="amount">690€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Todo lo de Inicio</li><li>✓ SEO avanzado</li><li>✓ Campañas de publicidad</li><li>✓ Redes sociales</li><li>✓ Soporte prioritario</li></ul><a href="#contacto" class="btn btn-primary">Empezar</a></div>
+        <div class="price-card featured tilt-3d reveal"><span class="kicker" style="color:var(--brand)">Más popular</span><div class="amount">690€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Todo lo de Inicio</li><li>✓ SEO avanzado</li><li>✓ Campañas de publicidad</li><li>✓ Redes sociales</li><li>✓ Soporte prioritario</li></ul><a href="#contacto" class="btn btn-primary">Empezar</a></div>
         <div class="price-card reveal"><span class="kicker">A medida</span><div class="amount">Hablemos</div><ul><li>✓ Estrategia integral</li><li>✓ Equipo dedicado</li><li>✓ Consultoría continua</li><li>✓ Atención 24/7</li></ul><a href="#contacto" class="btn btn-outline">Contactar</a></div>
       </div>
     </div>

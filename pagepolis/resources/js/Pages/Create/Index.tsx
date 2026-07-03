@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { FadeIn } from '@/Components/Motion';
 
 const STYLES = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
 
@@ -49,7 +51,7 @@ export default function CreateWizard() {
             <Head title="Crear web con IA" />
 
             <div className="max-w-2xl mx-auto px-4 py-8">
-                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 space-y-7">
+                <FadeIn className="bg-gray-900 border border-gray-800 rounded-2xl p-6 sm:p-8 space-y-7 shadow-xl shadow-violet-950/10">
 
                     {/* 1. Nombre */}
                     <div>
@@ -137,23 +139,33 @@ export default function CreateWizard() {
                         </div>
                     </div>
 
-                    {error && (
-                        <div className="p-3 bg-red-900/20 border border-red-800/50 rounded-xl">
-                            <p className="text-sm text-red-400">{error}</p>
-                        </div>
-                    )}
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
+                                className="overflow-hidden"
+                            >
+                                <div className="p-3 bg-red-900/20 border border-red-800/50 rounded-xl">
+                                    <p className="text-sm text-red-400">{error}</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <button
                         onClick={submit}
                         disabled={!canSubmit}
-                        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition disabled:opacity-40"
+                        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40"
                     >
                         {loading ? 'Creando tu web…' : '✨ Crear mi web con IA'}
                     </button>
                     <p className="text-center text-xs text-gray-600">
                         Tardará 1-3 minutos. Verás cómo se construye en pantalla.
                     </p>
-                </div>
+                </FadeIn>
             </div>
         </AuthenticatedLayout>
     );

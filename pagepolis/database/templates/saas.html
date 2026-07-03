@@ -13,6 +13,7 @@
 
 <main id="inicio">
   <section class="hero hero-center">
+    <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"></canvas>
     <div class="container reveal">
       <span class="badge-pill">Nuevo · Integración con IA</span>
       <h1>El sistema operativo de tu equipo</h1>
@@ -38,12 +39,12 @@
     <div class="container">
       <div class="eyebrow center reveal"><span class="kicker">Producto</span><h2 class="sec-title">Diseñado para ir rápido</h2></div>
       <div class="feature-grid">
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m13 2-3 7h6l-3 13-3-9H4z"/></svg></div><h3>Automatizaciones</h3><p>Conecta tus apps y deja que el flujo se ejecute solo, sin escribir código.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="14" y="6" width="3" height="12"/></svg></div><h3>Paneles en vivo</h3><p>Métricas que importan, actualizadas al segundo y compartibles con un clic.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3>Permisos finos</h3><p>Controla quién ve qué con roles claros y auditoría completa.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><h3>API abierta</h3><p>Construye sobre Nimbus con una API documentada y webhooks en tiempo real.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3>Tiempo real</h3><p>Colabora con tu equipo viendo los cambios al instante, sin recargar.</p></div>
-        <div class="feature-card reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5z"/><path d="m2 17 10 5 10-5"/></svg></div><h3>Integraciones</h3><p>Más de 100 conectores con las herramientas que ya usas a diario.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m13 2-3 7h6l-3 13-3-9H4z"/></svg></div><h3>Automatizaciones</h3><p>Conecta tus apps y deja que el flujo se ejecute solo, sin escribir código.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="14" y="6" width="3" height="12"/></svg></div><h3>Paneles en vivo</h3><p>Métricas que importan, actualizadas al segundo y compartibles con un clic.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3>Permisos finos</h3><p>Controla quién ve qué con roles claros y auditoría completa.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><h3>API abierta</h3><p>Construye sobre Nimbus con una API documentada y webhooks en tiempo real.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><h3>Tiempo real</h3><p>Colabora con tu equipo viendo los cambios al instante, sin recargar.</p></div>
+        <div class="feature-card tilt-3d reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5z"/><path d="m2 17 10 5 10-5"/></svg></div><h3>Integraciones</h3><p>Más de 100 conectores con las herramientas que ya usas a diario.</p></div>
       </div>
     </div>
   </section>
@@ -53,7 +54,7 @@
       <div class="eyebrow center reveal"><span class="kicker">Precios</span><h2 class="sec-title">Sin sorpresas</h2></div>
       <div class="price-grid">
         <div class="price-card reveal"><span class="kicker">Starter</span><div class="amount">9€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Hasta 5 usuarios</li><li>✓ Tareas y documentos</li><li>✓ Paneles básicos</li></ul><a href="#" class="btn btn-outline">Empezar</a></div>
-        <div class="price-card featured reveal"><span class="kicker" style="color:var(--brand)">Recomendado</span><div class="amount">29€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Usuarios ilimitados</li><li>✓ Automatizaciones</li><li>✓ Paneles avanzados</li><li>✓ Integraciones</li></ul><a href="#" class="btn btn-primary">Probar gratis</a></div>
+        <div class="price-card featured tilt-3d reveal"><span class="kicker" style="color:var(--brand)">Recomendado</span><div class="amount">29€<span style="font-size:1rem;color:var(--muted)">/mes</span></div><ul><li>✓ Usuarios ilimitados</li><li>✓ Automatizaciones</li><li>✓ Paneles avanzados</li><li>✓ Integraciones</li></ul><a href="#" class="btn btn-primary">Probar gratis</a></div>
         <div class="price-card reveal"><span class="kicker">Empresa</span><div class="amount">A medida</div><ul><li>✓ Todo lo de Pro</li><li>✓ SSO y seguridad avanzada</li><li>✓ Soporte dedicado</li><li>✓ SLA garantizado</li></ul><a href="#" class="btn btn-outline">Contactar</a></div>
       </div>
     </div>

@@ -13,6 +13,7 @@ class AnthropicService
     private string $freeModel;
     private int $maxTokens;
     private ?string $activeModel = null;
+    private ?string $hero3dEngineCache = null;
 
     public function __construct(private AiBudgetGuard $budget)
     {
@@ -122,7 +123,7 @@ class AnthropicService
         ]];
 
         $blocksB = $this->parseBlocks($this->requestText($this->jsSystemPrompt(), $messagesB, $this->maxTokens));
-        $js      = $blocksB['js'] ?? '';
+        $js      = $this->withHero3dEngine($blocksB['js'] ?? '', $html);
 
         return [
             'html'        => $html,
@@ -130,6 +131,33 @@ class AnthropicService
             'js'          => $js,
             'description' => $desc,
         ];
+    }
+
+    /**
+     * Si el HTML incluye el canvas del hero 3D, adjunta el motor WebGL propio
+     * (hero3d.js, sin dependencias) tal cual está en disco: es más fiable que
+     * pedirle a la IA que reescriba WebGL en cada generación, y no añade coste
+     * de tokens al prompt. Idempotente: no lo duplica si ya está presente.
+     */
+    private function withHero3dEngine(string $js, string $html): string
+    {
+        if (!str_contains($html, 'hero3d-canvas') && !str_contains($html, 'data-hero3d')) {
+            return $js;
+        }
+        if (str_contains($js, 'PAGEPOLIS-HERO3D-ENGINE')) {
+            return $js;
+        }
+
+        return rtrim($js) . "\n\n" . $this->hero3dEngine();
+    }
+
+    private function hero3dEngine(): string
+    {
+        if ($this->hero3dEngineCache === null) {
+            $this->hero3dEngineCache = @file_get_contents(database_path('templates/hero3d.js')) ?: '';
+        }
+
+        return $this->hero3dEngineCache;
     }
 
     /**
@@ -157,6 +185,7 @@ REGLAS CRÍTICAS:
    - Ajusta SIEMPRE el color del texto y de los elementos para que haya buen contraste y todo se lea perfectamente sobre el nuevo fondo (texto claro sobre fondo oscuro y viceversa).
    - Cambia el valor en las VARIABLES CSS de :root que correspondan (sea cual sea su nombre) para que el cambio se propague; si hay colores fijos en las secciones, cámbialos también.
    - Mantén los botones y acentos con buen contraste y un diseño armónico. El resultado debe verse profesional, nunca a medias.
+6. HERO 3D: si el usuario pide un fondo 3D / animado / "como una agencia premium" en el hero, añade <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"> dentro del hero (con position:relative;overflow:hidden en el hero; el canvas en position:absolute;inset:0;z-index:0;pointer-events:none; el contenido de texto/CTAs en position:relative;z-index:1). NO escribas JS para ese canvas: se inicializa solo con un motor que se añade aparte tras tu respuesta. Si el HTML ya tenía ese canvas, consérvalo intacto salvo que pidan quitarlo. Para inclinación 3D en tarjetas, la clase es "tilt-3d" (el JS ya la gestiona si ya estaba implementada; si la añades nueva, implementa el listener de mousemove/mouseleave que fija --tilt-x/--tilt-y como el resto del motor).
 
 FORMATO DE SALIDA (OBLIGATORIO): devuelve el resultado EXACTAMENTE en este formato de bloques, sin texto adicional fuera de ellos. Devuelve SIEMPRE el HTML, CSS y JS COMPLETOS y actualizados (no fragmentos):
 [[[HTML]]]
@@ -198,10 +227,12 @@ SYSTEM;
             $changed = array_values(array_filter(array_map('trim', explode(',', strtolower($blocks['changed'])))));
         }
 
+        $finalHtml = $blocks['html'] ?? $currentHtml;
+
         return [
-            'html'        => $blocks['html'] ?? $currentHtml,
+            'html'        => $finalHtml,
             'css'         => $blocks['css'] ?? $currentCss,
-            'js'          => $blocks['js'] ?? $currentJs,
+            'js'          => $this->withHero3dEngine($blocks['js'] ?? $currentJs, $finalHtml),
             'description' => $blocks['desc'] ?? 'He aplicado el cambio.',
             'changed'     => $changed ?: ['html', 'css', 'js'],
         ];
@@ -222,6 +253,8 @@ CONVENCIÓN OBLIGATORIA de ids/clases (el JS depende de ella; respétala al pie 
 - Testimonios en carrusel (si hay): contenedor <div class="testi-slider"> con pista <div class="testi-track"> y <div class="testi-slide">, y botones <button class="testi-prev"> / <button class="testi-next">.
 - Formulario de contacto: <form id="contact-form"> con campos name="nombre", name="email", name="mensaje", y un <div id="form-success" hidden> para el mensaje de éxito.
 - Botón "volver arriba": <button id="to-top">.
+- Hero 3D (opcional; ver más abajo cuándo usarlo): <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"> dentro del hero. Se inicializa solo (motor WebGL propio añadido automáticamente tras generar el JS); en el HTML/CSS solo colocas el canvas, NO escribas JS para él.
+- Inclinación 3D: añade la clase "tilt-3d" a una tarjeta (feature-card, price-card, product...) para que se incline suavemente hacia el cursor.
 - TIENDA (si el negocio vende productos):
   · Cada producto: <article class="product" data-id="..." data-name="..." data-price="29.90" data-img="URL"> con un <button class="add-to-cart">Añadir</button>. (data-price en número con punto decimal).
   · Botón flotante del carrito: <button id="cart-toggle"> con un <span id="cart-count">0</span>.
@@ -272,6 +305,13 @@ Sitio COMPLETO de 7 a 9 secciones reales, con contenido específico y creíble (
 ═══ TIENDA / VENTA DE PRODUCTOS ═══
 Si el negocio vende productos o el usuario lo pide, incluye un catálogo de 6+ productos y TODA la interfaz de la tienda siguiendo la convención (tarjetas .product con data-*, botón #cart-toggle con #cart-count, panel #cart-drawer, checkout #checkout-whatsapp y #checkout-email). El comportamiento lo añadirá el JS; tú deja el HTML y el CSS (incluido el estilo del panel del carrito, oculto por defecto y visible con la clase "open").
 
+═══ NIVEL VISUAL: AGENCIA PREMIUM CON PROFUNDIDAD 3D ═══
+El listón es una agencia de diseño de primer nivel (referencia: motionsites.ai, Linear, Vercel, Stripe): tipografía grande y segura, mucho aire, capas con profundidad y movimiento con propósito, nunca plano ni genérico.
+- Hero 3D: para negocios donde encaja una estética tech/premium (SaaS, startups, agencias, consultoras, estudios, inmobiliarias de alto standing, abogados, coaches/formación) añade en el hero un <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"> (ver convención). Dale al hero: position:relative;overflow:hidden. Al canvas: position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none. Y al contenido de texto/CTAs del hero: position:relative;z-index:1 (para que quede por encima). Para negocios donde no encaja (restaurantes, tiendas físicas, belleza, gimnasios...) NO lo incluyas: usa en su lugar una imagen/foto potente como siempre.
+- Fondo del hero con profundidad incluso sin 3D: aplica al .hero un degradado radial sutil con el color de marca (2-3 radial-gradient() en capas usando color-mix(in srgb, var(--brand) X%, transparent) sobre --bg), para que tenga presencia aunque el canvas tarde en cargar.
+- Tarjetas con inclinación 3D: añade la clase "tilt-3d" a 3-6 tarjetas clave (features, precios, o productos destacados) para profundidad interactiva al pasar el ratón (el JS ya lo gestiona; tú solo pones la clase).
+- Micro-interacciones: sombras suaves en capas, transiciones con curvas cubic-bezier (nunca linear), hover states con elevación (translateY + shadow), nunca animaciones bruscas.
+
 __CONV__
 
 ═══ SISTEMA DE DISEÑO ═══
@@ -319,6 +359,8 @@ Devuelve EXACTAMENTE este único bloque, sin texto fuera de él:
 - Lightbox: al pulsar una .gallery-img, ábrela en un overlay a pantalla completa creado por JS (cierra al hacer clic o con Escape).
 - Formulario #contact-form: valida nombre/email/mensaje, evita el envío real (preventDefault), muestra #form-success y resetea.
 - Botón #to-top: aparece al bajar y hace scroll suave arriba.
+- Inclinación 3D (solo si hay elementos .tilt-3d): en mousemove sobre cada tarjeta, calcula la posición del cursor relativa al centro (-0.5 a 0.5 en ambos ejes) y fija las variables CSS --tilt-x/--tilt-y (grados, rango ±8-10deg, eje invertido según corresponda para que se incline "hacia" el cursor); en mouseleave, resetea ambas a 0deg. Solo si matchMedia('(hover:hover)') y no hay prefers-reduced-motion.
+- Si ves un <canvas class="hero3d-canvas"> o con data-hero3d: IGNÓRALO POR COMPLETO, no escribas nada de JS para él (ni 2D ni WebGL). Se inicializa solo con un motor aparte que se añade automáticamente después de tu código.
 
 ═══ TIENDA (solo si en el HTML hay elementos .product) ═══
 - Al PRINCIPIO define, fáciles de editar:
@@ -401,7 +443,16 @@ SYSTEM;
               ->post('https://api.anthropic.com/v1/messages', [
                   'model'      => $this->model(),
                   'max_tokens' => $maxTokens,
-                  'system'     => $system,
+                  // El prompt de sistema es largo y estático (no cambia entre
+                  // llamadas): marcarlo con cache_control lo cachea 5 min en la
+                  // API (lecturas a ~10% del precio). Ahorra en reintentos, en
+                  // ráfagas de ediciones de un mismo usuario y entre usuarios
+                  // concurrentes, sin cambiar en nada la respuesta.
+                  'system'     => [[
+                      'type'          => 'text',
+                      'text'          => $system,
+                      'cache_control' => ['type' => 'ephemeral'],
+                  ]],
                   'messages'   => $messages,
                   'stream'     => true,
               ]);
@@ -478,7 +529,15 @@ SYSTEM;
 
                 switch ($evt['type'] ?? '') {
                     case 'message_start':
-                        $inputTokens = (int) ($evt['message']['usage']['input_tokens'] ?? 0);
+                        // Con prompt caching, la entrada se reparte en tres cifras
+                        // con precios distintos: normal (×1), escritura de caché
+                        // (×1,25) y lectura de caché (×0,10). Se convierten aquí a
+                        // "tokens equivalentes" a tarifa normal para que el guardián
+                        // de presupuesto (que tarifica plano) siga contando bien.
+                        $usage       = $evt['message']['usage'] ?? [];
+                        $inputTokens = (int) ($usage['input_tokens'] ?? 0)
+                            + (int) ceil((int) ($usage['cache_creation_input_tokens'] ?? 0) * 1.25)
+                            + (int) ceil((int) ($usage['cache_read_input_tokens'] ?? 0) * 0.10);
                         break;
                     case 'content_block_delta':
                         $text .= $evt['delta']['text'] ?? '';
