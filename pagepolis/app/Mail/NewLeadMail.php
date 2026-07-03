@@ -6,6 +6,7 @@ use App\Models\Lead;
 use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -23,11 +24,13 @@ class NewLeadMail extends Mailable
     {
         $replyTo = [];
         if ($this->lead->email) {
-            $replyTo[] = $this->lead->email; // responder va directo al cliente
+            $replyTo[] = new Address($this->lead->email, $this->lead->name);
         }
 
+        $from = $this->lead->name ? "de {$this->lead->name} " : '';
+
         return new Envelope(
-            subject: "Nuevo mensaje desde tu web «{$this->project->name}» 📩",
+            subject: "Nuevo mensaje {$from}desde «{$this->project->name}» 📩",
             replyTo: $replyTo,
         );
     }
