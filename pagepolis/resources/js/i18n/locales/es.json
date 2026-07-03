@@ -18,9 +18,10 @@
     "cta_primary": "Crear mi web gratis →",
     "cta_secondary": "Ver plantillas",
     "disclaimer": "7 días gratis · Sin tarjeta de crédito · Cancela cuando quieras",
-    "stat_sites": "webs creadas",
+    "stat_sites": "webs publicadas",
+    "stat_sites_soon": "¡llegando pronto!",
     "stat_time": "tiempo de generación",
-    "stat_rating": "valoración media"
+    "stat_languages": "idiomas disponibles"
   },
   "how": {
     "title": "Tu web en 3 pasos",

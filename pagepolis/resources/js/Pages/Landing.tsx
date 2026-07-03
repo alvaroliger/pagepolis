@@ -56,7 +56,9 @@ export default function Landing() {
     const { t, i18n } = useTranslation();
     const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
     const pricingRef = useRef<HTMLElement>(null);
-    const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+    const pageProps   = usePage().props as any;
+    const supportEmail = pageProps.support?.email ?? 'soporte@pagepolis.com';
+    const sitesPublished: number = pageProps.stats?.sites_published ?? 0;
 
     const asArray = <T,>(val: unknown): T[] => Array.isArray(val) ? val as T[] : [];
     const asObj   = (val: unknown): Record<string, string> => (val && typeof val === 'object' && !Array.isArray(val)) ? val as Record<string, string> : {};
@@ -157,9 +159,9 @@ export default function Landing() {
 
                         <div className="mt-14 grid grid-cols-3 gap-6 max-w-md mx-auto">
                             {[
-                                { n: '+2.000', l: t('hero.stat_sites') },
+                                { n: sitesPublished > 0 ? `+${sitesPublished.toLocaleString()}` : t('hero.stat_sites_soon'), l: t('hero.stat_sites') },
                                 { n: '<10s',   l: t('hero.stat_time') },
-                                { n: '4.9★',   l: t('hero.stat_rating') },
+                                { n: '6',      l: t('hero.stat_languages') },
                             ].map(s => (
                                 <div key={s.l} className="text-center">
                                     <div className="text-2xl font-black text-white">{s.n}</div>
