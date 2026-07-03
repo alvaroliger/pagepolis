@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Pubblicazione automatica", "desc": "Scegli il tuo dominio o usa il tuo sottodominio pagepolis.com. Il sito va online in pochi secondi dopo il pagamento." },
       { "icon": "🔒", "title": "Sicuro e affidabile", "desc": "SSL incluso, infrastruttura ad alte prestazioni, backup automatici e supporto in italiano." },
       { "icon": "📱", "title": "Sempre responsivo", "desc": "Ogni sito generato è mobile-first. Anteprima su desktop, tablet e mobile prima di pubblicare." },
-      { "icon": "🤖", "title": "Un'IA che ti capisce", "desc": "Richiedi modifiche in italiano: metti lo sfondo blu, aggiungi una sezione prezzi, rendilo più moderno." }
+      { "icon": "🤖", "title": "Un'IA che ti capisce", "desc": "Richiedi modifiche in italiano: metti lo sfondo blu, aggiungi una sezione prezzi, rendilo più moderno." },
+      { "icon": "📩", "title": "Modulo contatti incluso", "desc": "Ogni sito pubblicato ha un modulo di contatto integrato. I messaggi dei visitatori arrivano nella tua casella e ricevi una notifica email istantanea per non perdere nessun cliente." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Hai bisogno di più?",
     "custom_link": "Contattaci",
     "custom_suffix": "per un piano su misura.",
-    "basic_features": ["3 progetti attivi", "IA illimitata", "Sottodominio su pagepolis.com", "Editor di codice", "SSL incluso", "Supporto via email"],
-    "pro_features": ["Progetti illimitati", "IA illimitata", "Dominio personalizzato incluso (.com)", "Editor avanzato", "SSL incluso", "Supporto prioritario", "Analytics base", "Senza pubblicità Pagepolis"]
+    "basic_features": ["3 progetti attivi", "IA illimitata", "Sottodominio su pagepolis.com", "Editor di codice", "SSL incluso", "Modulo contatti + casella messaggi", "Supporto via email"],
+    "pro_features": ["Progetti illimitati", "IA illimitata", "Dominio personalizzato incluso (.com)", "Editor avanzato", "SSL incluso", "Supporto prioritario", "Modulo contatti + casella messaggi", "Analytics base", "Senza pubblicità Pagepolis"]
   },
   "faq": {
     "title": "Domande frequenti",
@@ -80,7 +81,8 @@
       { "q": "Cosa succede al mio dominio se annullo?", "a": "Hai 30 giorni di periodo di prova dopo la cancellazione. Il tuo sito rimane attivo. Se non riattivi, il dominio viene rilasciato e i dati vengono eliminati automaticamente." },
       { "q": "Posso usare il mio dominio?", "a": "Sì. Il piano Pro include l'acquisto e la configurazione automatica di un dominio .com. Puoi anche usare un sottodominio gratuito su pagepolis.com." },
       { "q": "Posso esportare il mio sito?", "a": "Sì. Il codice HTML/CSS/JS generato è tuo. Puoi copiarlo e ospitarlo dove vuoi." },
-      { "q": "Come funziona il periodo di prova?", "a": "7 giorni completamente gratis. Senza carta di credito. Accesso completo a tutte le funzionalità." }
+      { "q": "Come funziona il periodo di prova?", "a": "7 giorni completamente gratis. Senza carta di credito. Accesso completo a tutte le funzionalità." },
+      { "q": "I visitatori del mio sito possono contattarmi?", "a": "Sì. Ogni sito pubblicato include un modulo di contatto integrato. Quando un visitatore lo compila, ricevi un'email istantanea e il messaggio appare nella tua casella Messaggi per rispondere direttamente." }
     ]
   },
   "cta": {

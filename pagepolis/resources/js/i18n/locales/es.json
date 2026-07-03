@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Publicación automática", "desc": "Elige un dominio propio o usa tu subdominio en pagepolis.com. El sitio queda online en segundos tras el pago." },
       { "icon": "🔒", "title": "Seguro y fiable", "desc": "SSL incluido, infraestructura de alto rendimiento, backups automáticos y soporte en español." },
       { "icon": "📱", "title": "Siempre responsivo", "desc": "Cada web generada es mobile-first. Vista previa en desktop, tablet y móvil antes de publicar." },
-      { "icon": "🤖", "title": "IA que te entiende", "desc": "Pide cambios en español: pon el fondo azul, añade sección de precios, hazlo más moderno." }
+      { "icon": "🤖", "title": "IA que te entiende", "desc": "Pide cambios en español: pon el fondo azul, añade sección de precios, hazlo más moderno." },
+      { "icon": "📩", "title": "Formulario de contacto incluido", "desc": "Cada web publicada lleva un formulario de contacto integrado. Los mensajes de tus visitantes llegan a tu bandeja y te avisamos por email al instante para que no pierdas ningún cliente." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "¿Necesitas más?",
     "custom_link": "Escríbenos",
     "custom_suffix": "para un plan a medida.",
-    "basic_features": ["3 proyectos activos", "IA ilimitada", "Subdominio en pagepolis.com", "Editor de código", "SSL incluido", "Soporte por email"],
-    "pro_features": ["Proyectos ilimitados", "IA ilimitada", "Dominio propio incluido (.com)", "Editor avanzado", "SSL incluido", "Soporte prioritario", "Analytics básico", "Sin publicidad de Pagepolis"]
+    "basic_features": ["3 proyectos activos", "IA ilimitada", "Subdominio en pagepolis.com", "Editor de código", "SSL incluido", "Formulario de contacto + bandeja de mensajes", "Soporte por email"],
+    "pro_features": ["Proyectos ilimitados", "IA ilimitada", "Dominio propio incluido (.com)", "Editor avanzado", "SSL incluido", "Soporte prioritario", "Formulario de contacto + bandeja de mensajes", "Analytics básico", "Sin publicidad de Pagepolis"]
   },
   "faq": {
     "title": "Preguntas frecuentes",
@@ -80,7 +81,8 @@
       { "q": "¿Qué pasa con mi dominio si cancelo?", "a": "Tienes 30 días de periodo de prueba tras cancelar. Tu web sigue activa. Si no reactivas, el dominio se libera y los datos se eliminan automáticamente." },
       { "q": "¿Puedo usar mi propio dominio?", "a": "Sí. En el plan Pro incluimos la compra y configuración automática de un dominio .com. También puedes usar un subdominio gratuito en pagepolis.com." },
       { "q": "¿Puedo exportar mi web?", "a": "Sí. El código HTML/CSS/JS generado es tuyo. Puedes copiarlo y alojarlo donde quieras." },
-      { "q": "¿Cómo funciona el periodo de prueba?", "a": "7 días completamente gratis. Sin tarjeta de crédito. Acceso completo a todas las funciones." }
+      { "q": "¿Cómo funciona el periodo de prueba?", "a": "7 días completamente gratis. Sin tarjeta de crédito. Acceso completo a todas las funciones." },
+      { "q": "¿Pueden contactarme los visitantes de mi web?", "a": "Sí. Cada web publicada incluye un formulario de contacto integrado. Cuando alguien lo rellena, recibes un email al instante y el mensaje aparece en tu bandeja de Mensajes para que puedas responder directamente." }
     ]
   },
   "cta": {

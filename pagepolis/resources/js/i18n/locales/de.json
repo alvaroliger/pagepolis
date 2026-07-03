@@ -40,7 +40,8 @@
       { "icon": "🌐", "title": "Automatische Veröffentlichung", "desc": "Wählen Sie Ihre eigene Domain oder nutzen Sie Ihre pagepolis.com-Subdomain. Die Website geht in Sekunden nach der Zahlung online." },
       { "icon": "🔒", "title": "Sicher und zuverlässig", "desc": "SSL inklusive, leistungsstarke Infrastruktur, automatische Backups und Support auf Deutsch." },
       { "icon": "📱", "title": "Immer responsiv", "desc": "Jede generierte Website ist mobile-first. Vorschau auf Desktop, Tablet und Mobilgerät vor der Veröffentlichung." },
-      { "icon": "🤖", "title": "KI, die Sie versteht", "desc": "Änderungen auf Deutsch anfordern: Hintergrund blau machen, Preisbereich hinzufügen, moderner gestalten." }
+      { "icon": "🤖", "title": "KI, die Sie versteht", "desc": "Änderungen auf Deutsch anfordern: Hintergrund blau machen, Preisbereich hinzufügen, moderner gestalten." },
+      { "icon": "📩", "title": "Kontaktformular inklusive", "desc": "Jede veröffentlichte Website hat ein integriertes Kontaktformular. Nachrichten Ihrer Besucher landen in Ihrem Posteingang mit sofortiger E-Mail-Benachrichtigung, damit Sie keinen Lead verpassen." }
     ]
   },
   "testimonials": {
@@ -69,8 +70,8 @@
     "custom": "Brauchen Sie mehr?",
     "custom_link": "Kontaktieren Sie uns",
     "custom_suffix": "für einen maßgeschneiderten Plan.",
-    "basic_features": ["3 aktive Projekte", "Unbegrenzte KI", "Subdomain auf pagepolis.com", "Code-Editor", "SSL inklusive", "E-Mail-Support"],
-    "pro_features": ["Unbegrenzte Projekte", "Unbegrenzte KI", "Eigene Domain inklusive (.com)", "Erweiterter Editor", "SSL inklusive", "Prioritäts-Support", "Basis-Analytics", "Kein Pagepolis-Branding"]
+    "basic_features": ["3 aktive Projekte", "Unbegrenzte KI", "Subdomain auf pagepolis.com", "Code-Editor", "SSL inklusive", "Kontaktformular + Nachrichten-Posteingang", "E-Mail-Support"],
+    "pro_features": ["Unbegrenzte Projekte", "Unbegrenzte KI", "Eigene Domain inklusive (.com)", "Erweiterter Editor", "SSL inklusive", "Prioritäts-Support", "Kontaktformular + Nachrichten-Posteingang", "Basis-Analytics", "Kein Pagepolis-Branding"]
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -80,7 +81,8 @@
       { "q": "Was passiert mit meiner Domain, wenn ich kündige?", "a": "Sie haben 30 Tage Testzeitraum nach der Kündigung. Ihre Website bleibt aktiv. Wenn Sie nicht reaktivieren, wird die Domain freigegeben und die Daten werden automatisch gelöscht." },
       { "q": "Kann ich meine eigene Domain verwenden?", "a": "Ja. Der Pro-Plan beinhaltet den automatischen Kauf und die Einrichtung einer .com-Domain. Sie können auch eine kostenlose Subdomain auf pagepolis.com nutzen." },
       { "q": "Kann ich meine Website exportieren?", "a": "Ja. Der generierte HTML/CSS/JS-Code gehört Ihnen. Sie können ihn kopieren und überall hosten." },
-      { "q": "Wie funktioniert der Testzeitraum?", "a": "7 Tage völlig kostenlos. Keine Kreditkarte. Vollständiger Zugang zu allen Funktionen." }
+      { "q": "Wie funktioniert der Testzeitraum?", "a": "7 Tage völlig kostenlos. Keine Kreditkarte. Vollständiger Zugang zu allen Funktionen." },
+      { "q": "Können mich Website-Besucher kontaktieren?", "a": "Ja. Jede veröffentlichte Website enthält ein integriertes Kontaktformular. Wenn jemand es ausfüllt, erhalten Sie sofort eine E-Mail und die Nachricht erscheint in Ihrem Nachrichten-Posteingang." }
     ]
   },
   "cta": {
