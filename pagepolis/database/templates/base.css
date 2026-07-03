@@ -40,6 +40,13 @@ body.js-ready .reveal{opacity:0;transform:translateY(26px)}
 body.js-ready .reveal.visible{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease}
 @media (prefers-reduced-motion:reduce){body.js-ready .reveal{opacity:1;transform:none}}
 
+/* Inclinación 3D al pasar el ratón (tarjetas, productos...). El JS del motor
+   fija --tilt-x/--tilt-y en cada frame; aquí solo se define la transición. */
+.tilt-3d{--tilt-x:0deg;--tilt-y:0deg;transform-style:preserve-3d;perspective:900px;transform:perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform}
+.tilt-3d:hover{box-shadow:0 26px 60px rgba(0,0,0,.16)}
+@media (prefers-reduced-motion:reduce){.tilt-3d{transition:none}}
+@media (hover:none){.tilt-3d{transform:none}}
+
 /* FAQ */
 .faq-item{border:1px solid var(--border,#e6e6ee);border-radius:var(--radius,12px);margin-bottom:12px;overflow:hidden;background:var(--surface,#fff)}
 .faq-q{width:100%;text-align:left;background:none;border:0;padding:20px 22px;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;align-items:center;color:inherit;font-family:inherit}
@@ -112,7 +119,19 @@ body.js-ready .reveal.visible{opacity:1;transform:none;transition:opacity .7s ea
 
 /* ── Layouts de sección comunes (color/fuente vía variables; tematizables) ── */
 .sec-title{font-size:clamp(1.8rem,4vw,2.7rem);margin:.4rem 0}
-.hero{padding:150px 0 80px;background:var(--hero-bg,transparent)}
+.hero{position:relative;overflow:hidden;padding:150px 0 80px;background:var(--hero-bg,transparent)}
+/* Fondo degradado "mesh" con el color de marca: da profundidad incluso sin JS.
+   Segunda regla (misma especificidad): si color-mix() no está soportado, el
+   navegador la descarta entera y se queda con el fondo sólido de la primera. */
+.hero{background:var(--hero-bg,var(--bg,transparent))}
+.hero{background:
+  radial-gradient(ellipse 60% 55% at 15% 15%, color-mix(in srgb, var(--brand,#7c3aed) 30%, transparent), transparent 65%),
+  radial-gradient(ellipse 55% 50% at 88% 10%, color-mix(in srgb, var(--brand-2,var(--brand,#7c3aed)) 26%, transparent), transparent 65%),
+  radial-gradient(ellipse 70% 60% at 50% 105%, color-mix(in srgb, var(--brand,#7c3aed) 16%, transparent), transparent 70%),
+  var(--hero-bg,var(--bg,transparent))}
+.hero>.container{position:relative;z-index:1}
+/* Fondo 3D opcional: <canvas class="hero3d-canvas" data-hero3d> dentro de .hero */
+.hero3d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
 .hero-text h1{font-size:clamp(2.2rem,5.2vw,3.7rem);letter-spacing:-.02em;margin:1.1rem 0}
 .hero-text p{font-size:1.18rem;color:var(--muted,#6b7280);max-width:520px;margin-bottom:2rem}
