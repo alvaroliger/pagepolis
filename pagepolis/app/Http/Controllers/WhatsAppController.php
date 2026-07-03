@@ -192,6 +192,8 @@ class WhatsAppController extends Controller
                 'js'   => $result['js']   ?? $project->js,
             ]);
 
+            $project->deployToLiveDomain();
+
             $user->increment('ai_calls_today');
 
             $description = $result['description'] ?? 'Cambio aplicado correctamente.';
