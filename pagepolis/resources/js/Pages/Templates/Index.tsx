@@ -156,7 +156,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     onClick={() => setPreviewId(null)}
                 >
                     <div
-                        className="bg-white rounded-xl overflow-hidden w-full max-w-4xl max-h-[85vh] flex flex-col"
+                        className="bg-white rounded-xl overflow-hidden w-full max-w-4xl h-[85vh] flex flex-col"
                         onClick={e => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-200 flex-shrink-0">
@@ -182,7 +182,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         <iframe
                             srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
                             sandbox="allow-scripts"
-                            className="flex-1 w-full border-0"
+                            className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}
                         />
                     </div>
