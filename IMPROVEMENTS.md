@@ -46,6 +46,11 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **Elección "Simple | 3D" en la galería de plantillas** — `TemplateController` marca cada
+  plantilla con `has_3d` (detecta `data-hero3d` en el HTML) y `Templates/Index.tsx` añade un
+  filtro "Tipo de página" (Todos / ✨ 3D interactivas / Clásicas) más una insignia "✨ 3D" en
+  la miniatura y en el modal de vista previa, para que el cliente elija conscientemente antes
+  de crear el proyecto (no solo lo descubra al abrir la vista previa).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -107,3 +112,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Llevar el filtro "Simple | 3D" (ver `has_3d` en `TemplateController`) también al paso de
+  plantillas dentro del wizard de creación si existe uno distinto de `/plantillas` — hoy solo
+  vive en la galería.
+- 🟢 En el editor (`Editor/Index.tsx`), mostrar de forma visible cuando el proyecto activo usa
+  el motor 3D (`data-hero3d` en su HTML) y ofrecer un toggle rápido para añadir/quitar el hero
+  3D a una plantilla clásica sin tener que pedírselo a la IA por texto.
+- 🟢 Miniaturas de la galería: hoy el `<canvas>` 3D se renderiza en vivo dentro del iframe a
+  escala 0.4 (coste de WebGL en cada tarjeta al cargar la página); evaluar capturar un
+  thumbnail estático (poster) para las plantillas 3D y animarlo solo on-hover, mejor
+  rendimiento en el grid con muchas plantillas.
+- 🟢 Auditar accesibilidad (contraste, foco visible, `aria-label`) del modal de vista previa y
+  de los nuevos filtros de la galería de plantillas.
