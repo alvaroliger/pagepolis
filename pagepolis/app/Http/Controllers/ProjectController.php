@@ -26,6 +26,7 @@ class ProjectController extends Controller
             'whatsapp'      => 'nullable|string|max:30',
             'style'         => 'nullable|string|max:40',
             'location'      => 'nullable|string|max:80',
+            'page_type'     => 'nullable|in:classic,3d',
         ]);
 
         $user = auth()->user();
@@ -77,6 +78,11 @@ class ProjectController extends Controller
         }
         if (!empty($d['style'])) {
             $p .= "Estilo visual preferido: {$d['style']}.\n";
+        }
+        if (($d['page_type'] ?? null) === '3d') {
+            $p .= "IMPORTANTE: el usuario ha elegido explícitamente una página \"3D interactiva\": añade SIEMPRE el hero 3D (canvas con data-hero3d, ver convención) en el hero, sea cual sea el sector del negocio, y refuerza la profundidad con tilt-3d en varias tarjetas clave.\n";
+        } elseif (($d['page_type'] ?? null) === 'classic') {
+            $p .= "IMPORTANTE: el usuario ha elegido explícitamente una página \"clásica\": NO añadas el hero 3D (canvas WebGL) aunque el sector encajase; usa en su lugar una imagen/foto potente como elemento visual del hero.\n";
         }
 
         return trim($p);

@@ -106,6 +106,65 @@ class SmokeTest extends TestCase
         Queue::assertPushed(GenerateWebsiteJob::class);
     }
 
+    public function test_wizard_page_type_3d_forces_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Estudio Creativo',
+            'description'   => 'Diseño gráfico y branding.',
+            'page_type'     => '3d',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, fn ($job) =>
+            str_contains($job->input, 'página "3D interactiva"') && str_contains($job->input, 'data-hero3d')
+        );
+    }
+
+    public function test_wizard_page_type_classic_forbids_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Estudio Creativo',
+            'description'   => 'Diseño gráfico y branding.',
+            'page_type'     => 'classic',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, fn ($job) =>
+            str_contains($job->input, 'página "clásica"') && str_contains($job->input, 'NO añadas el hero 3D')
+        );
+    }
+
+    public function test_wizard_page_type_defaults_to_no_forced_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Estudio Creativo',
+            'description'   => 'Diseño gráfico y branding.',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, fn ($job) =>
+            !str_contains($job->input, 'hero 3D')
+        );
+    }
+
+    public function test_wizard_rejects_invalid_page_type(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Estudio Creativo',
+            'description'   => 'Diseño gráfico y branding.',
+            'page_type'     => 'bogus',
+        ])->assertStatus(422);
+    }
+
     public function test_generate_endpoint_queues_job(): void
     {
         Queue::fake();

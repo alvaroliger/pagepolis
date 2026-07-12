@@ -57,6 +57,14 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Elección explícita "Clásica | 3D interactiva" en el wizard de creación con IA**
+  (`Create/Index.tsx`, `/crear-con-ia`) — nuevo paso opcional junto al resto de
+  preguntas; por defecto queda en "automático" (la IA decide por sector, como antes),
+  pero si el cliente elige una opción, `ProjectController::buildPrompt()` inyecta una
+  instrucción que fuerza o prohíbe explícitamente el hero 3D en el prompt que recibe
+  `AnthropicService`. Antes esta elección solo existía al filtrar la galería de
+  plantillas (`Templates/Index.tsx`, PR #44 en curso); ahora también está en el flujo
+  de creación "a prueba de abuelos" con IA, que es la vía de entrada por defecto.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -107,3 +115,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Persistir `page_type` en el proyecto (columna en `projects`) para poder mostrar/filtrar
+  en el dashboard qué webs son 3D y cuáles clásicas, y para que el editor sepa si debe
+  ofrecer un toggle de hero 3D sin tener que inspeccionar el HTML.
+- 🟢 Toggle "activar hero 3D" en el editor para proyectos ya creados en clásico — hoy solo
+  se puede pedir escribiéndolo en el chat de IA; un botón directo en el panel de ajustes
+  del sitio sería más descubrible.
+- 🟢 Reflejar la elección "Clásica | 3D" del wizard también como paso visual (con un
+  pequeño preview estático de cada opción) en vez de solo texto — ayuda a que el cliente
+  entienda la diferencia antes de decidir.
