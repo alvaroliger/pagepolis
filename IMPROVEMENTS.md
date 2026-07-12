@@ -76,7 +76,17 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Navegación móvil restaurada en `AuthenticatedLayout`** — los enlaces `Analítica`,
+  `Mensajes` y `Plantillas` estaban en `hidden md:flex` sin ninguna alternativa por debajo
+  de 768px: en el móvil solo se podía llegar al Dashboard (logo) y al menú de avatar. Botón
+  hamburguesa (`aria-label`/`aria-expanded`/`aria-controls`) + panel colapsable con los
+  mismos enlaces (incluido el badge de mensajes sin leer), se cierra al navegar o con Escape,
+  respeta `prefers-reduced-motion`. Verificado con Playwright a 390px y 1280px (enlaces
+  ocultos/visibles correctamente en cada breakpoint, navegación real y cierre del panel).
+- 🟢 Revisar accesibilidad/responsive de las páginas nuevas (quedan más gaps concretos,
+  ver "Ideas nuevas": modales sin `role="dialog"`/foco, `div` de preview de plantilla sin
+  soporte de teclado, botones de viewport del editor sin `aria-pressed`, emoji decorativo
+  sin `aria-hidden` en el estado vacío de Mensajes).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +117,23 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Modal de vista previa de plantillas sin accesibilidad de diálogo** (`Pages/Templates/Index.tsx`,
+  el modal que se abre al pulsar una miniatura): sin `role="dialog"`/`aria-modal`, sin trampa de
+  foco, sin cierre con Escape, sin devolver el foco a la miniatura al cerrar, y el botón "×" sin
+  `aria-label`. Mismo patrón en `DeleteModal` (`Dashboard/Index.tsx`) y `ConfirmModal`
+  (`Editor/Index.tsx`) — este último grave porque `DeleteModal` confirma una acción destructiva
+  ("mover a la papelera") y un usuario de lector de pantalla puede no darse cuenta de que hay un
+  diálogo de confirmación antes de decidir.
+- 🟢 La miniatura de plantilla en la galería (`Pages/Templates/Index.tsx`, el `div onClick` que
+  abre el modal de vista previa) no es accesible por teclado: sin `role="button"`, `tabIndex` ni
+  `onKeyDown` — con el ratón es la única forma de abrir la vista previa.
+- 🟢 Los botones de viewport del editor (PC/Tablet/Móvil en `Editor/Index.tsx`) marcan el activo
+  solo por color de fondo, sin `aria-pressed` — un usuario de lector de pantalla no sabe cuál
+  está seleccionado.
+- 🟢 Emoji decorativo (`📭`) en el estado vacío de `Pages/Leads/Index.tsx` sin `aria-hidden="true"`
+  (patrón ya usado correctamente en otros sitios del código, p. ej. `AuthenticatedLayout.tsx` y
+  `Dashboard/Index.tsx` para sus elementos decorativos).
+- 🟢 Llevar el filtro "Tipo de página" (Simple/3D) de la galería de plantillas también al primer
+  paso del wizard de creación, para que la elección "Simple | 3D" sea explícita desde el minuto uno.
+- 🟢 Toggle para activar/desactivar el hero 3D de una plantilla ya elegida directamente desde el
+  editor (sin tener que volver a la galería y regenerar desde cero).
