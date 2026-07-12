@@ -6,7 +6,11 @@
    contenedor con position:relative (p.ej. .hero). Se colorea solo con
    --brand (o --brand-2) del sistema de diseño, así que encaja con cualquier
    plantilla. Si WebGL no está disponible, o el usuario prefiere menos
-   movimiento, se degrada solo sin romper nada. */
+   movimiento, se degrada solo sin romper nada.
+   Variantes: hay 3 combinaciones de figura/paleta (icosaedro+brand,
+   octaedro+brand-2, esquirla+mezcla brand/brand-2) elegidas de forma
+   determinista por dominio, para que no todas las webs generadas con hero 3D
+   se vean idénticas. Se puede forzar una con data-hero3d-variant="1|2|3". */
 (function () {
   'use strict';
 
@@ -29,6 +33,25 @@
   function brandColor() {
     var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
     return colorToRgb(raw || '#7c3aed');
+  }
+
+  function brand2Color() {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand-2').trim();
+    return raw ? colorToRgb(raw) : brandColor();
+  }
+
+  function lerpColor(a, b, t) {
+    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  }
+
+  /* Selección de variante determinista por sitio (mismo dominio = misma
+     figura/paleta siempre, sitios distintos = variedad) para que no todas
+     las webs "tech" generadas se vean idénticas. Se puede forzar con
+     data-hero3d-variant="1|2|3" en el <canvas>. */
+  function hashString(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+    return Math.abs(h);
   }
 
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
@@ -79,15 +102,46 @@
       var len = Math.hypot(v[0], v[1], v[2]);
       return [v[0] / len, v[1] / len, v[2] / len];
     });
-    var faces = [
+    var faceIdx = [
       [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
       [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
       [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
       [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
     ];
+    var faces = faceIdx.map(function (f) { return [raw[f[0]], raw[f[1]], raw[f[2]]]; });
+    return facesToGeometry(faces);
+  }
+
+  /* ── Octaedro: facetas compactas tipo diamante ── */
+  function buildOctahedron() {
+    var raw = { X: [1, 0, 0], x: [-1, 0, 0], Y: [0, 1, 0], y: [0, -1, 0], Z: [0, 0, 1], z: [0, 0, -1] };
+    var faces = [
+      [raw.X, raw.Y, raw.Z], [raw.x, raw.Y, raw.Z], [raw.X, raw.y, raw.Z], [raw.x, raw.y, raw.Z],
+      [raw.X, raw.Y, raw.z], [raw.x, raw.Y, raw.z], [raw.X, raw.y, raw.z], [raw.x, raw.y, raw.z]
+    ];
+    return facesToGeometry(faces);
+  }
+
+  /* ── Bipirámide triangular: esquirla alargada, distinta al resto ── */
+  function buildBipyramid() {
+    var top = [0, 1.35, 0], bottom = [0, -1.35, 0];
+    var eq = [0, 1, 2].map(function (i) {
+      var a = (i / 3) * Math.PI * 2;
+      return [Math.cos(a), 0, Math.sin(a)];
+    });
+    var faces = [];
+    for (var i = 0; i < 3; i++) {
+      var a = eq[i], b = eq[(i + 1) % 3];
+      faces.push([top, a, b]);
+      faces.push([bottom, b, a]);
+    }
+    return facesToGeometry(faces);
+  }
+
+  function facesToGeometry(faces) {
     var positions = [], normals = [];
     faces.forEach(function (f) {
-      var a = raw[f[0]], b = raw[f[1]], c = raw[f[2]];
+      var a = f[0], b = f[1], c = f[2];
       var ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
       var vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
       var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
@@ -101,6 +155,19 @@
       });
     });
     return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
+  }
+
+  var VARIANTS = [
+    { build: buildIcosahedron, palette: 'brand' },
+    { build: buildOctahedron, palette: 'brand2' },
+    { build: buildBipyramid, palette: 'mixed' }
+  ];
+
+  function pickVariant(canvas) {
+    var forced = parseInt(canvas.getAttribute('data-hero3d-variant'), 10);
+    if (forced >= 1 && forced <= VARIANTS.length) return VARIANTS[forced - 1];
+    var seed = (location.hostname || '') + (document.title || '');
+    return VARIANTS[hashString(seed) % VARIANTS.length];
   }
 
   var VERT_SRC = [
@@ -153,7 +220,8 @@
     }
     gl.useProgram(program);
 
-    var geo = buildIcosahedron();
+    var variant = pickVariant(canvas);
+    var geo = variant.build();
     var posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferData(gl.ARRAY_BUFFER, geo.positions, gl.STATIC_DRAW);
@@ -178,10 +246,14 @@
     var uProj = gl.getUniformLocation(program, 'uProj');
     var uColor = gl.getUniformLocation(program, 'uColor');
 
-    var color = brandColor();
+    var colorA = brandColor();
+    var colorB = variant.palette === 'brand2' ? brand2Color() : colorA;
     var count = 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
+      var shapeColor = variant.palette === 'mixed'
+        ? lerpColor(colorA, brand2Color(), Math.random())
+        : colorB;
       shapes.push({
         x: (Math.random() * 2 - 1) * 3.6,
         y: (Math.random() * 2 - 1) * 2.2,
@@ -191,11 +263,12 @@
         ry: Math.random() * Math.PI,
         speedX: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
         speedY: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
-        bobPhase: Math.random() * Math.PI * 2
+        bobPhase: Math.random() * Math.PI * 2,
+        color: shapeColor
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, shapes: shapes, vertexCount: geo.count };
   }
 
   function initCanvas(canvas) {
@@ -250,7 +323,6 @@
       var view = Mat4.translate(0, 0, 0);
       gl.uniformMatrix4fv(scene.uProj, false, proj);
       gl.uniformMatrix4fv(scene.uView, false, view);
-      gl.uniform3fv(scene.uColor, scene.color);
 
       scene.shapes.forEach(function (s) {
         var bob = Math.sin(elapsed * 0.6 + s.bobPhase) * 0.25;
@@ -259,6 +331,7 @@
         model = Mat4.multiply(model, Mat4.rotateX(s.rx + elapsed * s.speedX));
         model = Mat4.multiply(model, Mat4.scale(s.scale));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
 
@@ -283,10 +356,10 @@
       var aspect0 = canvas.width / canvas.height || 1;
       gl.uniformMatrix4fv(scene.uProj, false, Mat4.perspective(Math.PI / 4, aspect0, 0.1, 100));
       gl.uniformMatrix4fv(scene.uView, false, Mat4.translate(0, 0, 0));
-      gl.uniform3fv(scene.uColor, scene.color);
       scene.shapes.forEach(function (s) {
         var model = Mat4.multiply(Mat4.translate(s.x, s.y, s.z), Mat4.multiply(Mat4.rotateY(s.ry), Mat4.multiply(Mat4.rotateX(s.rx), Mat4.scale(s.scale))));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
       return;

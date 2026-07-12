@@ -46,8 +46,12 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Variantes del hero 3D** — 3 combinaciones de figura/paleta (icosaedro+`--brand`,
+  octaedro+`--brand-2`, esquirla/bipirámide con mezcla de ambas) elegidas de forma
+  determinista por dominio (mismo sitio = misma figura siempre; sitios distintos = variedad
+  real), para que no todas las webs "tech" generadas se vean idénticas. Override manual con
+  `data-hero3d-variant="1|2|3"` en el `<canvas>`. Sin coste de rendimiento extra (misma
+  cantidad de figuras/triángulos, solo cambia la geometría base).
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -100,6 +104,13 @@ no abras PR.
   fotógrafo) con `tilt-3d` en tarjetas clave; autosave con debounce en el editor.
   Suite 96/96 verde, `npm run build` OK (framer-motion en chunk propio lazy de ~37 kB gzip).
 
+## Hecho recientemente (2026-07-12)
+- Variantes de figura/paleta para el hero 3D (`hero3d.js`): icosaedro+brand, octaedro+brand-2
+  y esquirla/bipirámide con mezcla de ambos colores, elegidas de forma determinista por
+  dominio. Antes todas las webs con hero 3D usaban siempre el mismo icosaedro monocromo;
+  ahora hay variedad real sin coste de rendimiento ni de tokens de IA (el motor decide solo,
+  nada que generar de más). Suite 244/244 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
@@ -107,3 +118,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector "Simple | 3D" explícito en el wizard de creación de sitio — hoy el hero 3D
+  depende de que la IA decida incluirlo según el rubro; darle al cliente un control visible
+  (con preview en miniatura de cada opción) es el paso que falta para que trackA ("elegir
+  entre plantilla clásica y 3D") esté completo de extremo a extremo.
+- 🟢 Aplicar el mismo criterio de variantes de `hero3d.js` (esta mejora) a `Hero3D.tsx`
+  (el port React usado en la propia app: landing, dashboard, wizard) para que la propia
+  interfaz de PagePolis también varíe de figura entre secciones en vez de repetir siempre
+  el icosaedro.
+- 🟢 Skeleton/loading state para la vista previa del editor mientras carga el iframe (hoy
+  puede verse en blanco unos instantes tras cambiar de plantilla o publicar).
+- 🟢 Revisar contraste de texto sobre el hero 3D en modo claro — la superposición del
+  `<canvas>` con brillos claros puede bajar el contraste de los CTAs en paletas de marca
+  muy claras; auditar con las paletas reales más usadas.
