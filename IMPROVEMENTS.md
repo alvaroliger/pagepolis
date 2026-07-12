@@ -46,6 +46,17 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **Vista previa de plantillas ciega al 3D, arreglada** — `TemplateController::index`
+  excluía la columna `js` del `select()`, así que el modal de vista previa de la galería
+  (`Templates/Index.tsx`) nunca inyectaba el motor hero3D/tilt-3d de las 6 plantillas que
+  lo tienen: el cliente veía una versión "plana" justo en el paso pensado para vender el
+  nivel 3D. Ahora el `js` viaja en las props y se ejecuta dentro del iframe sandboxed junto
+  al guard de clicks/submits existente (mismo modelo de seguridad que ya se usaba para
+  html/css). Cubierto por `TemplateControllerTest` (2 tests nuevos, con `TemplateFactory`).
+- 🟢 Aplicar el mismo criterio a las miniaturas de la grilla (`TemplatePreview`) — de momento
+  se han dejado sin JS a propósito (hasta 12 contextos WebGL simultáneos en una grilla es
+  arriesgado para rendimiento/límite de contextos del navegador); si se hace, limitar a las
+  plantillas 3D visibles en el filtro activo o cargarlas de forma perezosa.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
