@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditar rendimiento del hero 3D en móviles de gama baja** — `isLowEndDevice()` en
+  `hero3d.js` y `Hero3D.tsx` detecta pocos núcleos (`hardwareConcurrency`), poca memoria
+  (`deviceMemory`) o modo ahorro de datos (`navigator.connection.saveData`/2G) y en ese
+  caso reduce figuras (6-8 → 3-4), desactiva antialiasing y baja el cap de DPR (1.75 → 1)
+  en vez de apagar el 3D entero — menos carga de GPU y batería en gama baja sin perder el
+  efecto visual.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +111,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector explícito "Simple | 3D" en el wizard de creación de sitio — hoy el hero 3D
+  viene ya decidido por plantilla (`TemplateSeeder`); dar al cliente el control explícito
+  (con preview en vivo de cada opción) es el siguiente paso para el track A de la misión.
+- 🟢 Extender `isLowEndDevice()` (recién añadido en `hero3d.js`/`Hero3D.tsx`) con un
+  guardia de FPS real en tiempo de ejecución: medir el delta de los primeros ~30 frames y
+  si cae por debajo de ~24fps, pausar el canvas y hacer fallback a un fondo estático —
+  cubre gama baja que no se detecta bien solo con `hardwareConcurrency`/`deviceMemory`.
+- 🟢 Estado vacío del panel de leads (`/mensajes`) cuando el cliente aún no tiene ningún
+  mensaje — hoy probablemente solo muestra tabla vacía; un empty-state con CTA ("comparte
+  el enlace de tu web") ayuda a la activación temprana.
+- 🟢 Loading skeletons consistentes en el dashboard y el editor mientras cargan las
+  plantillas/proyectos, en vez de spinners genéricos o parpadeo de contenido.

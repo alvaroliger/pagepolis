@@ -128,6 +128,22 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
     return sh;
 }
 
+type NavigatorConnection = { saveData?: boolean; effectiveType?: string };
+type NavigatorWithHints = Navigator & { deviceMemory?: number; connection?: NavigatorConnection };
+
+/* Gama baja: pocos núcleos/memoria, o el usuario pide ahorrar datos.
+   En estos casos se reduce nº de figuras, resolución y antialiasing en vez
+   de desactivar el 3D entero, para mantener FPS y batería razonables. */
+function isLowEndDevice(): boolean {
+    try {
+        const nav = navigator as NavigatorWithHints;
+        if (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4) return true;
+        if (nav.deviceMemory && nav.deviceMemory <= 4) return true;
+        if (nav.connection && (nav.connection.saveData || /2g/.test(nav.connection.effectiveType || ''))) return true;
+    } catch { /* noop */ }
+    return false;
+}
+
 export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], count = 7 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -135,10 +151,12 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const canvas = canvasRef.current;
         if (!canvas) return;
 
+        const lowEnd = isLowEndDevice();
         let gl: WebGLRenderingContext | null = null;
         try {
-            gl = (canvas.getContext('webgl', { alpha: true, antialias: true })
-                || canvas.getContext('experimental-webgl', { alpha: true, antialias: true })) as WebGLRenderingContext | null;
+            const ctxOpts = { alpha: true, antialias: !lowEnd };
+            gl = (canvas.getContext('webgl', ctxOpts)
+                || canvas.getContext('experimental-webgl', ctxOpts)) as WebGLRenderingContext | null;
         } catch { /* sin WebGL */ }
         if (!gl) { canvas.style.display = 'none'; return; }
 
@@ -182,7 +200,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapeCount = lowEnd ? Math.min(count, 3) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +222,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
