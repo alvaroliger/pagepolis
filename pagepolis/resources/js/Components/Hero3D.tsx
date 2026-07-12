@@ -118,6 +118,22 @@ void main(){
   gl_FragColor = vec4(col, 0.85);
 }`;
 
+/* Gama baja: pocos núcleos, poca RAM o modo "ahorro de datos" activado.
+   En esos casos se reduce el nº de figuras y la resolución en vez de
+   desactivar el hero (así se conserva el efecto "premium" sin freír la
+   batería/FPS en móviles modestos). */
+function isLowEndDevice(): boolean {
+    try {
+        const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+        const cores = nav.hardwareConcurrency;
+        if (typeof cores === 'number' && cores > 0 && cores <= 4) return true;
+        const mem = nav.deviceMemory;
+        if (typeof mem === 'number' && mem > 0 && mem <= 4) return true;
+        if (nav.connection?.saveData) return true;
+    } catch { /* noop */ }
+    return false;
+}
+
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
     const sh = gl.createShader(type)!;
     gl.shaderSource(sh, src);
@@ -135,10 +151,12 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const canvas = canvasRef.current;
         if (!canvas) return;
 
+        const lowEnd = isLowEndDevice();
+
         let gl: WebGLRenderingContext | null = null;
         try {
-            gl = (canvas.getContext('webgl', { alpha: true, antialias: true })
-                || canvas.getContext('experimental-webgl', { alpha: true, antialias: true })) as WebGLRenderingContext | null;
+            gl = (canvas.getContext('webgl', { alpha: true, antialias: !lowEnd })
+                || canvas.getContext('experimental-webgl', { alpha: true, antialias: !lowEnd })) as WebGLRenderingContext | null;
         } catch { /* sin WebGL */ }
         if (!gl) { canvas.style.display = 'none'; return; }
 
@@ -182,7 +200,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapeCount = lowEnd ? Math.min(count, 4) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +222,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
