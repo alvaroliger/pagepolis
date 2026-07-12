@@ -46,6 +46,12 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **La galería de plantillas ahora muestra el hero 3D en vivo** — `TemplateController::index`
+  solo seleccionaba `html`/`css` (nunca `js`), así que el motor 3D nunca se ejecutaba ni en las
+  miniaturas ni en el modal de vista previa: las 6 plantillas con hero 3D se veían idénticas a
+  las demás en el paso donde el cliente decide. Añadido `js` al select y al `<script>` inyectado
+  en `TemplatePreview` y en el modal (`resources/js/Pages/Templates/Index.tsx`) — ahora el
+  efecto 3D es visible y demostrable antes de elegir plantilla. 244/244 tests verdes, build OK.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -106,4 +112,18 @@ no abras PR.
 
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
+- 🟢 Añadir columna `type`/`is_3d` a `templates` (migración + seeder) y una insignia "3D" +
+  filtro en la galería (`Templates/Index.tsx`) — ahora que el hero 3D ya es visible en la
+  vista previa (ver "Hecho" 2026-07-12), falta modelar la distinción explícitamente en vez
+  de depender de que el HTML contenga el `<canvas>` por convención. Es la base real para el
+  selector "Simple | 3D" del wizard de creación (`/crear`, que hoy no toca la tabla de
+  plantillas en absoluto).
+- 🟢 Vincular el wizard de IA (`/crear`) con las plantillas: hoy son dos flujos totalmente
+  separados (IA genera desde cero vs. plantilla estática). Un paso "Simple | 3D" antes de
+  generar, que pase el tipo elegido a `GenerateWebsiteJob`/`AnthropicService`, sería el
+  primer end-to-end real del track de plantillas 3D.
+- 🟢 Con hasta 6 plantillas renderizando WebGL a la vez en la galería (`/plantillas`), vigilar
+  el nº de contextos WebGL simultáneos si se añaden más plantillas 3D — el `IntersectionObserver`
+  de `hero3d.js` ya pausa las que no son visibles, pero conviene revisar en un móvil de gama
+  baja real.
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
