@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en gama baja** — `isLowEndDevice()` (≤4 núcleos, ≤4GB RAM o
+  `connection.saveData`) en `hero3d.js` y `Hero3D.tsx`: menos figuras (3-4 en vez de 6-8),
+  `devicePixelRatio` tope en 1x y sin antialiasing. Se conserva el efecto, no se desactiva.
+- 🟢 Además de la resolución/nº de figuras, considerar limitar el frame rate a ~30fps en
+  gama baja (`requestAnimationFrame` con throttle por tiempo transcurrido) para ahorrar
+  aún más batería sin perder el efecto visual.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -83,6 +87,11 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-12)
+- Throttle del hero 3D en dispositivos de gama baja (`isLowEndDevice()` en `hero3d.js` y
+  `Hero3D.tsx`): menos figuras, `devicePixelRatio` tope en 1x, sin antialiasing. Suite
+  244/244 verde, build OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +116,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Thumbnails estáticos (PNG) para las plantillas 3D en la galería en vez de re-renderizar
+  WebGL en cada tarjeta pequeña — mejor rendimiento de scroll en la galería con muchas
+  plantillas y menos coste de batería en el listado.
+- 🟢 Toggle "activar/desactivar hero 3D" en el editor para plantillas que ya lo traen,
+  por si el cliente prefiere una versión estática de su propia web (no todos los negocios
+  quieren movimiento constante en el hero).
+- 🟢 Estado de carga esquelético (skeleton) en la vista previa en vivo del editor mientras
+  la IA genera/edita, en vez de dejar el iframe en blanco hasta que termina.
