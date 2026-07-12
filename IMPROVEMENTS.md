@@ -46,8 +46,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Variantes del hero 3D** — nueva geometría `buildOctahedron()` en `hero3d.js` +
+  selector `resolveVariant()` que lee `data-hero3d="crystal|diamond|duo"` (icosaedro
+  mono, octaedro mono, o icosaedro alternando `--brand`/`--brand-2` por figura).
+  Repartido en las 6 plantillas con hero 3D para que no todas se vean con la misma
+  figura/color (saas y fotógrafo en crystal, servicios y abogados en diamond, coach
+  e inmobiliaria en duo). Sin cambios para el motor usado por la IA (sigue en crystal
+  por defecto, mismo comportamiento de antes).
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +112,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Dejar que la IA elija la variante del hero 3D (`data-hero3d="crystal|diamond|duo"`,
+  ver `hero3d.js`) según el sector del negocio en vez de que siempre salga "crystal"
+  por defecto — una línea más en el prompt de `AnthropicService` bastaría.
+- 🟢 Selector visual de "Simple | 3D" en el wizard de creación de sitio: hoy la
+  plantilla decide si lleva hero 3D; falta que el cliente lo vea como una elección
+  explícita de página al crear el sitio (paso del wizard con preview en vivo de
+  ambas versiones).
+- 🟢 Extender el patrón de variantes de `resolveVariant()` a `tilt-3d` (2-3 curvas de
+  inclinación distintas, no solo intensidad fija) para reforzar la sensación de que
+  cada plantilla tiene personalidad propia.
+- 🔵 Plantilla 3D "showcase" completa (no solo hero): scroll-driven con capas de
+  profundidad en varias secciones (features, precios), usando el mismo motor WebGL
+  sin dependencias — el salto grande hacia páginas realmente "3D" end-to-end.
