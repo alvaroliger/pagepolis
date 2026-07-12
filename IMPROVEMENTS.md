@@ -76,7 +76,18 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Modales accesibles por teclado** (Templates/Index.tsx, Dashboard/Index.tsx,
+  Editor/Index.tsx): `role="dialog"`/`alertdialog` + `aria-modal` + `aria-labelledby`/
+  `aria-describedby`, foco inicial dentro del modal, Tab/Shift+Tab contenidos (focus trap),
+  Escape cierra, y el foco vuelve al elemento que abrió el modal al cerrarlo. Nuevo hook
+  reutilizable `resources/js/hooks/useModalA11y.ts`. También se corrigió que la miniatura
+  de "vista previa" de la galería de plantillas no era alcanzable con teclado (era un
+  `<div onClick>` sin `tabIndex`; ahora `role="button"` + `tabIndex` + Enter/Espacio).
+  Antes, un usuario de teclado o lector de pantalla no podía abrir/cerrar estos diálogos
+  de forma fiable ni sabía que se había abierto un modal.
+- 🟢 Seguir la auditoría de accesibilidad al resto de páginas nuevas (formularios del
+  wizard, badges/filtros de la galería, tarjetas de plan en pricing): contraste, roles
+  ARIA en controles no nativos, navegación por teclado end-to-end.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -100,6 +111,14 @@ no abras PR.
   fotógrafo) con `tilt-3d` en tarjetas clave; autosave con debounce en el editor.
   Suite 96/96 verde, `npm run build` OK (framer-motion en chunk propio lazy de ~37 kB gzip).
 
+## Hecho recientemente (2026-07-12)
+- Modales accesibles por teclado en Templates, Dashboard y Editor (`role="dialog"`, foco
+  atrapado, Escape para cerrar, foco devuelto al cerrar) + hook reutilizable
+  `useModalA11y`. Arreglada también la miniatura de vista previa de plantillas, que no
+  era operable con teclado. Verificado con Playwright contra una sesión real logueada
+  (apertura por Enter, `aria-modal`/`aria-labelledby` presentes, foco entra y queda
+  contenido, Escape cierra y devuelve el foco). Suite 244/244 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
@@ -107,3 +126,13 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector "Simple | 3D" explícito en el wizard de creación de sitio — hoy el hero 3D
+  depende de que la IA decida incluirlo según el rubro; darle al cliente un control visible
+  (con preview en miniatura de cada opción) es el paso que falta para que el cliente elija
+  entre plantilla clásica y 3D de extremo a extremo.
+- 🟢 Aplicar `useModalA11y` (esta mejora) a cualquier modal nuevo que se añada más adelante
+  — es el patrón a seguir en vez de reinventar el manejo de foco cada vez.
+- 🟢 Skeleton/loading state para la vista previa del editor mientras carga el iframe (hoy
+  puede verse en blanco unos instantes tras cambiar de plantilla o publicar).
+- 🟢 Revisar si los filtros de categoría de la galería de plantillas (botones tipo "chip")
+  necesitan `aria-pressed` para comunicar el filtro activo a lectores de pantalla.

@@ -1,4 +1,4 @@
-import { PropsWithChildren, useRef, MouseEvent } from 'react';
+import { PropsWithChildren, useRef, MouseEvent, forwardRef } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 /*
@@ -15,6 +15,12 @@ interface RevealProps extends PropsWithChildren {
     delay?: number;
     /** Desplazamiento vertical inicial en px. */
     y?: number;
+    id?: string;
+    role?: string;
+    tabIndex?: number;
+    'aria-modal'?: boolean;
+    'aria-labelledby'?: string;
+    'aria-describedby'?: string;
 }
 
 /** Aparece con fade + subida al entrar en el viewport (una sola vez). */
@@ -34,19 +40,24 @@ export function Reveal({ children, className, delay = 0, y = 26 }: RevealProps) 
 }
 
 /** Igual que Reveal pero anima al montar (para contenido above-the-fold). */
-export function FadeIn({ children, className, delay = 0, y = 22 }: RevealProps) {
+export const FadeIn = forwardRef<HTMLDivElement, RevealProps>(function FadeIn(
+    { children, className, delay = 0, y = 22, ...a11y },
+    ref
+) {
     const reduce = useReducedMotion();
     return (
         <motion.div
+            ref={ref}
             className={className}
             initial={reduce ? false : { opacity: 0, y }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay, ease: EASE }}
+            {...a11y}
         >
             {children}
         </motion.div>
     );
-}
+});
 
 interface TiltCardProps extends PropsWithChildren {
     className?: string;

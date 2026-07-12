@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 // Evita que al pulsar enlaces en la vista previa el iframe navegue a la app
 // (lo que en local saturaba el servidor → "localhost rechaza la conexión").
@@ -37,6 +38,57 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
     );
 }
 
+function TemplatePreviewModal({ template, creating, onClose, onUse }: {
+    template: Template;
+    creating: boolean;
+    onClose: () => void;
+    onUse: () => void;
+}) {
+    const titleId = useId();
+    const modalRef = useModalA11y(onClose);
+
+    return (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                className="bg-white rounded-xl overflow-hidden w-full max-w-4xl h-[85vh] flex flex-col outline-none"
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-200 flex-shrink-0">
+                    <div className="flex gap-1.5">
+                        <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                        <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
+                        <span className="w-3 h-3 rounded-full bg-green-400"></span>
+                    </div>
+                    <span id={titleId} className="text-sm font-semibold text-gray-600">{template.name}</span>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={onUse}
+                            disabled={creating}
+                            className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                            Usar esta plantilla →
+                        </button>
+                        <button onClick={onClose} aria-label="Cerrar vista previa" className="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                            ×
+                        </button>
+                    </div>
+                </div>
+                <iframe
+                    srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${template.css}</style></head><body>${template.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                    sandbox="allow-scripts"
+                    className="flex-1 w-full border-0 min-h-0"
+                    title={template.name}
+                />
+            </div>
+        </div>
+    );
+}
+
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
     const [creating, setCreating] = useState<number | null>(null);
@@ -45,6 +97,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
     const previewTemplate = templates.find(t => t.id === previewId);
+    const closePreview = () => setPreviewId(null);
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -105,8 +158,17 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         >
                             {/* Preview thumbnail */}
                             <div
-                                className="h-44 overflow-hidden relative cursor-pointer bg-white"
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Vista previa de ${template.name}`}
+                                className="h-44 overflow-hidden relative cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                                 onClick={() => setPreviewId(template.id)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setPreviewId(template.id);
+                                    }
+                                }}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
                                 {template.is_premium && (
@@ -151,42 +213,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
 
             {/* Modal de preview */}
             {previewTemplate && (
-                <div
-                    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-                    onClick={() => setPreviewId(null)}
-                >
-                    <div
-                        className="bg-white rounded-xl overflow-hidden w-full max-w-4xl h-[85vh] flex flex-col"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between px-4 py-3 bg-gray-100 border-b border-gray-200 flex-shrink-0">
-                            <div className="flex gap-1.5">
-                                <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                                <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
-                                <span className="w-3 h-3 rounded-full bg-green-400"></span>
-                            </div>
-                            <span className="text-sm font-semibold text-gray-600">{previewTemplate.name}</span>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => { setPreviewId(null); useTemplate(previewTemplate.id); }}
-                                    disabled={creating !== null}
-                                    className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-                                >
-                                    Usar esta plantilla →
-                                </button>
-                                <button onClick={() => setPreviewId(null)} className="text-gray-500 hover:text-gray-700 text-xl font-bold">
-                                    ×
-                                </button>
-                            </div>
-                        </div>
-                        <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
-                            sandbox="allow-scripts"
-                            className="flex-1 w-full border-0 min-h-0"
-                            title={previewTemplate.name}
-                        />
-                    </div>
-                </div>
+                <TemplatePreviewModal
+                    template={previewTemplate}
+                    creating={creating !== null}
+                    onClose={closePreview}
+                    onUse={() => { setPreviewId(null); useTemplate(previewTemplate.id); }}
+                />
             )}
         </AuthenticatedLayout>
     );
