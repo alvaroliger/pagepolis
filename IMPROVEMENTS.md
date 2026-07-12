@@ -34,6 +34,15 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Fallo silencioso al cambiar contraseña o eliminar la cuenta con la contraseña
+  incorrecta** — `Profile/Edit.tsx` no mostraba ningún error: `ProfileController::destroy`
+  y `PasswordController::update` validan con error bags con nombre (`userDeletion`,
+  `updatePassword`), así que Inertia los devuelve anidados (`errors.userDeletion.password`)
+  en vez de en el `errors` plano de cada formulario, y el componente nunca los leía (el
+  formulario de borrado ni siquiera capturaba `errors`). El cliente escribía mal su
+  contraseña y la página se quedaba igual, sin pista de qué había pasado — en la acción
+  más delicada de la cuenta (borrado irreversible). Corregido leyendo los errores desde
+  `usePage().props.errors` con el bag correspondiente.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +116,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Toast/confirmación reutilizable para acciones destructivas: `Dashboard/Index.tsx` usa el
+  `confirm()` nativo del navegador para el borrado definitivo de un proyecto en vez del modal
+  ya existente en la propia página (`DeleteModal`), y `Publish/Index.tsx` no ofrece copiar la
+  URL publicada al portapapeles tras el éxito.
+- 🟢 En `Publish/Index.tsx`, cambiar de tier de dominio (subdominio/personalizado) después de
+  reservar uno no resetea el paso del wizard: si el cliente reserva un dominio personalizado,
+  avanza al paso de pago y luego cambia a "subdominio", se queda en el paso de pago del nuevo
+  tier sin haber introducido el subdominio. Revisar los `onClick` de los botones de tier.

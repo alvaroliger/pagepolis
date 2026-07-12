@@ -11,7 +11,7 @@ interface User {
 }
 
 export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
-    const { auth } = usePage<{ auth: { user: User } }>().props;
+    const { auth, errors: pageErrors } = usePage<{ auth: { user: User } }>().props;
 
     const { data, setData, patch, errors, processing } = useForm({
         name:            auth.user.name,
@@ -19,7 +19,10 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
         whatsapp_phone:  auth.user.whatsapp_phone ?? '',
     });
 
-    const { data: pwData, setData: setPwData, put: putPw, errors: pwErrors, processing: pwProcessing, reset } = useForm({
+    // /password y /perfil (borrado) validan con error bags con nombre
+    // ("updatePassword" y "userDeletion"), así que sus errores llegan
+    // anidados en pageErrors en vez de en el `errors` plano de cada useForm.
+    const { data: pwData, setData: setPwData, put: putPw, processing: pwProcessing, reset } = useForm({
         current_password: '',
         password: '',
         password_confirmation: '',
@@ -112,7 +115,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                                     onChange={e => setPwData(field, e.target.value)}
                                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                                 />
-                                {pwErrors[field] && <p className="mt-1 text-sm text-red-400">{pwErrors[field]}</p>}
+                                {pageErrors.updatePassword?.[field] && <p className="mt-1 text-sm text-red-400">{pageErrors.updatePassword[field]}</p>}
                             </div>
                         ))}
                         <button type="submit" disabled={pwProcessing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
@@ -148,6 +151,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             placeholder="Confirma tu contraseña"
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
                         />
+                        {pageErrors.userDeletion?.password && <p className="text-sm text-red-400">{pageErrors.userDeletion.password}</p>}
                         <button type="submit" disabled={delProcessing} className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
                             {delProcessing ? 'Eliminando...' : 'Eliminar mi cuenta'}
                         </button>
