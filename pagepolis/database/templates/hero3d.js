@@ -31,6 +31,19 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Móvil de gama baja: pocos núcleos/RAM en un dispositivo táctil. Ahí
+     recortamos figuras, resolución y FPS para cuidar batería y evitar tirones. */
+  function isLowEndDevice() {
+    try {
+      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      var lowCores = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
+      var lowMemory = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory > 0 && navigator.deviceMemory <= 4;
+      return !!(coarse && (lowCores || lowMemory));
+    } catch (e) {
+      return false;
+    }
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -179,7 +192,8 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var lowEnd = isLowEndDevice();
+    var count = (lowEnd ? 3 : 6) + Math.round(Math.random() * (lowEnd ? 1 : 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -195,7 +209,7 @@
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count, lowEnd: lowEnd };
   }
 
   function initCanvas(canvas) {
@@ -212,9 +226,11 @@
     var gl = scene.gl;
     var pointer = { x: 0, y: 0 }, pointerTarget = { x: 0, y: 0 };
     var running = false, rafId = null, t0 = null;
+    var frameInterval = scene.lowEnd ? 1000 / 30 : 0;
+    var lastFrameTime = 0;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, scene.lowEnd ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
@@ -237,6 +253,11 @@
     function render(time) {
       if (!running) return;
       if (t0 === null) t0 = time;
+      if (frameInterval && time - lastFrameTime < frameInterval) {
+        rafId = requestAnimationFrame(render);
+        return;
+      }
+      lastFrameTime = time;
       var elapsed = (time - t0) / 1000;
 
       pointer.x += (pointerTarget.x - pointer.x) * 0.04;

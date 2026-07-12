@@ -118,6 +118,20 @@ void main(){
   gl_FragColor = vec4(col, 0.85);
 }`;
 
+/* Móvil de gama baja: pocos núcleos/RAM en un dispositivo táctil. Ahí
+   recortamos figuras, resolución y FPS para cuidar batería y evitar tirones. */
+function isLowEndDevice(): boolean {
+    try {
+        const nav = navigator as Navigator & { deviceMemory?: number };
+        const coarse = window.matchMedia('(pointer: coarse)').matches;
+        const lowCores = typeof nav.hardwareConcurrency === 'number' && nav.hardwareConcurrency > 0 && nav.hardwareConcurrency <= 4;
+        const lowMemory = typeof nav.deviceMemory === 'number' && nav.deviceMemory > 0 && nav.deviceMemory <= 4;
+        return coarse && (lowCores || lowMemory);
+    } catch {
+        return false;
+    }
+}
+
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
     const sh = gl.createShader(type)!;
     gl.shaderSource(sh, src);
@@ -182,7 +196,9 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const lowEnd = isLowEndDevice();
+        const shapeCount = lowEnd ? Math.min(count, 4) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -200,10 +216,12 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         let running = false;
         let rafId: number | null = null;
         let t0: number | null = null;
+        const frameInterval = lowEnd ? 1000 / 30 : 0;
+        let lastFrameTime = 0;
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
@@ -235,6 +253,11 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         function render(time: number) {
             if (!running) return;
             if (t0 === null) t0 = time;
+            if (frameInterval && time - lastFrameTime < frameInterval) {
+                rafId = requestAnimationFrame(render);
+                return;
+            }
+            lastFrameTime = time;
             pointer.x += (pointerTarget.x - pointer.x) * 0.04;
             pointer.y += (pointerTarget.y - pointer.y) * 0.04;
             drawFrame((time - t0) / 1000);

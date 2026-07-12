@@ -48,8 +48,10 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en móviles de gama baja** — detección de dispositivo táctil
+  con pocos núcleos/RAM (`isLowEndDevice()` en `hero3d.js` y `Hero3D.tsx`): menos figuras
+  (3-4 en vez de 6-8), DPR tope 1x (en vez de 1.75x) y bucle de render capado a ~30 FPS.
+  Mismo criterio en las plantillas generadas y en la propia app (landing/dashboard/wizard).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +109,14 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector "Simple | 3D" explícito en el paso de plantilla del wizard (hoy la plantilla decide
+  sola si lleva hero 3D) — dejar que el cliente elija el nivel visual de su web es el primer
+  paso real hacia el track A (plantillas 3D como producto, no solo como estilo de la IA).
+- 🟢 `tilt-3d` con el mismo criterio de gama baja que el hero 3D — hoy `isLowEndDevice()` solo
+  vive en `hero3d.js`/`Hero3D.tsx`; las tarjetas con `.tilt-3d` (listen/mousemove por tarjeta)
+  no se desactivan en móviles de gama baja y pueden sumar coste de CPU si hay varias en pantalla.
+- 🟢 Estado vacío ilustrado (no solo texto) para "aún no tienes ninguna web" en el dashboard y
+  para la bandeja de leads sin mensajes — coherente con el nivel visual ya alcanzado en el resto
+  de la app (Motion.tsx, Hero3D.tsx).
+- 🟢 Skeleton/loading state en la vista previa del editor mientras la IA genera o regenera una
+  sección, en vez de dejar el iframe en blanco — reduce la sensación de "se ha colgado".
