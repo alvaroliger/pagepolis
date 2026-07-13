@@ -31,6 +31,16 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Gama baja: pocos núcleos de CPU o poca RAM (Android Go, gama de entrada).
+     En estos casos reducimos figuras, resolución y fps para cuidar batería. */
+  function isLowEndDevice() {
+    try {
+      var cores = navigator.hardwareConcurrency || 0;
+      var mem = navigator.deviceMemory || 0;
+      return (cores > 0 && cores <= 4) || (mem > 0 && mem <= 2);
+    } catch (e) { return false; }
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -139,6 +149,8 @@
     return sh;
   }
 
+  var lowEnd = isLowEndDevice();
+
   function setupScene(canvas) {
     var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
       || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
@@ -179,7 +191,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = lowEnd ? 3 + Math.round(Math.random()) : 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -211,10 +223,11 @@
 
     var gl = scene.gl;
     var pointer = { x: 0, y: 0 }, pointerTarget = { x: 0, y: 0 };
-    var running = false, rafId = null, t0 = null;
+    var running = false, rafId = null, t0 = null, lastFrame = 0;
+    var frameInterval = lowEnd ? 1000 / 30 : 0;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
@@ -237,6 +250,11 @@
     function render(time) {
       if (!running) return;
       if (t0 === null) t0 = time;
+      if (frameInterval && time - lastFrame < frameInterval) {
+        rafId = requestAnimationFrame(render);
+        return;
+      }
+      lastFrame = time;
       var elapsed = (time - t0) / 1000;
 
       pointer.x += (pointerTarget.x - pointer.x) * 0.04;

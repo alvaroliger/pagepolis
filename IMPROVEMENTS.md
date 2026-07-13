@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en gama baja** — detección `isLowEndDevice()` (≤4 núcleos
+  de CPU o ≤2 GB de RAM vía `navigator.hardwareConcurrency` / `deviceMemory`) en
+  `hero3d.js` (webs de clientes) y `Hero3D.tsx` (la propia app): menos figuras (3-4 en
+  vez de 6-8), resolución de canvas más baja (DPR×1 en vez de ×1.75) y animación
+  limitada a ~30 fps en vez de 60 — cuida batería/FPS en Android de gama de entrada sin
+  tocar la experiencia en gama media/alta.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +111,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Variantes de geometría para `tilt-3d` / tarjetas con profundidad, a juego con las
+  variantes del hero 3D (ítem ya hecho) — evita que todas las tarjetas "premium" usen el
+  mismo tilt.
+- 🟢 Estado de carga/skeleton dedicado en la vista previa del wizard mientras la IA genera
+  la web (hoy es un spinner genérico) — reduce la sensación de espera en el paso más
+  largo del flujo de creación.
+- 🟢 En el selector "Simple | 3D" del wizard, mostrar una miniatura animada (loop corto)
+  de una plantilla 3D real en vez de solo texto/icono — ayuda a que el cliente entienda
+  qué está eligiendo antes de generar.
