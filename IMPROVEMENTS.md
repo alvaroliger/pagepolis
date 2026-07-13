@@ -48,8 +48,11 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditado rendimiento del hero 3D en móviles de gama baja** — `perfTier()` en
+  `hero3d.js` y `Hero3D.tsx` mira `navigator.hardwareConcurrency`: ≤2 núcleos desactiva
+  el WebGL entero (cae al fondo CSS existente), 3-4 núcleos reduce a la mitad el nº de
+  figuras y limita el pixel ratio a 1x, el resto mantiene la calidad actual.
+  `prefers-reduced-motion` y el fallback sin WebGL no cambian.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +110,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Elección "Simple | 3D" explícita en el wizard de creación de sitio: hoy el hero 3D lo
+  decide la IA por tipo de negocio (`AnthropicService`); un cliente que quiera una web
+  clásica sin animaciones (o al revés, quiera 3D en un rubro que hoy se deja sin él) no
+  tiene forma de pedirlo. Un toggle/paso en el wizard que pase la preferencia al prompt
+  sería el primer paso hacia una elección real de tipo de plantilla.
+- 🟢 Selector de geometría del hero 3D en el editor — una vez implementadas las variantes
+  de `buildIcosahedron()` (ítem de arriba), exponer un control simple en
+  `Editor/Index.tsx` para que el cliente elija la figura sin tocar código.
+- 🟢 Estado vacío del dashboard cuando un cliente aún no tiene ningún sitio: revisar si la
+  pantalla actual explica con claridad los pasos ("crea tu primer sitio") o solo muestra
+  una lista vacía.
+- 🟢 Revisar el foco de teclado / navegación con teclado en el editor de código
+  (CodeMirror + tabs html/css/js) y en el modal de vista previa de plantillas.
