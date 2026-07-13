@@ -77,6 +77,9 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ `/mensajes`: los emoji decorativos (bandeja vacía, sobre, teléfono) marcados
+  `aria-hidden="true"` — un lector de pantalla ya no anuncia el nombre del emoji antes
+  del texto que transmite la misma información (`Leads/Index.tsx`).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +110,8 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 `/mensajes` (`Leads/Index.tsx`) no tiene forma de marcar un lead como leído ni de
+  archivarlo desde la propia lista — un botón "Marcar como leído" por tarjeta evitaría
+  tener que responder solo para quitar el badge "Nuevo".
+- 🟢 Auditar si quedan emoji decorativos sin `aria-hidden` en otras páginas del panel
+  (Analytics, Publish, Auth) — mismo patrón aplicado ya en `Leads/Index.tsx`.
