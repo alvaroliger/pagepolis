@@ -139,7 +139,19 @@
     return sh;
   }
 
-  function setupScene(canvas) {
+  /* Gama baja: pocos núcleos o poca RAM → menos figuras y menor resolución;
+     gama muy baja (<=2 núcleos) → sin WebGL, se degrada como si no hubiera
+     soporte (ahorra batería/CPU en los móviles más modestos). */
+  function deviceTier() {
+    var cores = navigator.hardwareConcurrency;
+    var mem = navigator.deviceMemory;
+    if (typeof cores === 'number' && cores > 0 && cores <= 2) return 'off';
+    if ((typeof cores === 'number' && cores > 0 && cores <= 4) ||
+        (typeof mem === 'number' && mem > 0 && mem <= 4)) return 'low';
+    return 'high';
+  }
+
+  function setupScene(canvas, tier) {
     var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
       || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
     if (!gl) { canvas.style.display = 'none'; return null; }
@@ -179,7 +191,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = tier === 'low' ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -199,10 +211,13 @@
   }
 
   function initCanvas(canvas) {
+    var tier = deviceTier();
+    if (tier === 'off') { canvas.style.display = 'none'; return; }
+
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {
-      scene = setupScene(canvas);
+      scene = setupScene(canvas, tier);
     } catch (e) {
       canvas.style.display = 'none';
       return;
@@ -214,7 +229,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, tier === 'low' ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
