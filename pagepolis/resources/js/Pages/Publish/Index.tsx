@@ -98,6 +98,26 @@ export default function PublishIndex({ project, baseDomain }: Props) {
         );
     }
 
+    if (!project) {
+        return (
+            <AuthenticatedLayout header={<h1 className="text-2xl font-bold text-white">Publicar proyecto</h1>}>
+                <Head title="Publicar" />
+                <div className="max-w-xl mx-auto px-4 py-16 text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center">
+                        <Globe className="w-8 h-8 text-gray-500" strokeWidth={1.75} />
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-2">Elige qué web quieres publicar</h2>
+                    <p className="text-gray-400 text-sm mb-8 max-w-sm mx-auto">
+                        Entra en tu panel y pulsa “Publicar” sobre la web que quieras poner online.
+                    </p>
+                    <a href="/dashboard" className="inline-block bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm">
+                        Ir a mi panel
+                    </a>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
+
     if (published) {
         return (
             <AuthenticatedLayout header={<h1 className="text-2xl font-bold text-white">¡Publicado!</h1>}>

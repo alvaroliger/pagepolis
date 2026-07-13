@@ -44,13 +44,14 @@ const statusLabels: Record<string, string> = {
     deleted:   'Eliminado',
 };
 
-function OnboardingChecklist({ hasProject, hasPublished, hasDomain }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean }) {
+function OnboardingChecklist({ hasProject, hasPublished, hasDomain, firstProjectId }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean; firstProjectId?: number }) {
     if (hasProject && hasPublished && hasDomain) return null;
 
+    const publishHref = firstProjectId ? `/publicar?project_id=${firstProjectId}` : '/publicar';
     const steps = [
         { done: hasProject,   label: 'Crea tu primera web',       href: '/crear' },
-        { done: hasPublished, label: 'Publica tu web',             href: '/publicar' },
-        { done: hasDomain,    label: 'Conecta tu dominio propio',  href: '/publicar' },
+        { done: hasPublished, label: 'Publica tu web',             href: publishHref },
+        { done: hasDomain,    label: 'Conecta tu dominio propio',  href: publishHref },
     ];
     const doneCount = steps.filter(s => s.done).length;
 
@@ -244,6 +245,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     hasProject={projects.length > 0}
                     hasPublished={onboarding.published}
                     hasDomain={onboarding.domain}
+                    firstProjectId={projects[0]?.id}
                 />
 
                 {inGracePeriod && (
