@@ -23,27 +23,35 @@ export default function Login({ canResetPassword, status }: { canResetPassword: 
 
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <label className="block text-sm text-gray-400 mb-1">Email</label>
+                    <label htmlFor="email" className="block text-sm text-gray-400 mb-1">Email</label>
                     <input
+                        id="email"
                         type="email"
                         value={data.email}
                         onChange={e => setData('email', e.target.value)}
+                        autoComplete="email"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                         required
                     />
-                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
+                    {errors.email && <p id="email-error" className="mt-1 text-sm text-red-400">{errors.email}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm text-gray-400 mb-1">Contraseña</label>
+                    <label htmlFor="password" className="block text-sm text-gray-400 mb-1">Contraseña</label>
                     <input
+                        id="password"
                         type="password"
                         value={data.password}
                         onChange={e => setData('password', e.target.value)}
+                        autoComplete="current-password"
+                        aria-invalid={!!errors.password}
+                        aria-describedby={errors.password ? 'password-error' : undefined}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                         required
                     />
-                    {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
+                    {errors.password && <p id="password-error" className="mt-1 text-sm text-red-400">{errors.password}</p>}
                 </div>
 
                 <div className="flex items-center justify-between">

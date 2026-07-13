@@ -77,6 +77,16 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Formularios de acceso (login/registro/recuperar contraseña) accesibles** — las 5
+  pantallas de `Pages/Auth/*` tenían `<label>` visualmente pegado al campo pero sin
+  `htmlFor`/`id`, así que un lector de pantalla no anunciaba la relación y clicar la
+  etiqueta no enfocaba el campo (mordía sobre todo en móvil, donde la etiqueta es el área
+  de toque más grande). Añadido `id`/`htmlFor` en los 10 campos de Login, Register,
+  ForgotPassword, ResetPassword y ConfirmPassword, `aria-invalid`/`aria-describedby`
+  enlazando cada error de validación con su campo, y `autoComplete` (`email`,
+  `current-password`, `new-password`) donde faltaba para que el gestor de contraseñas del
+  navegador rellene bien. Verificado con Playwright: clicar la etiqueta enfoca el input
+  correcto en las 3 pantallas con más entradas (login, registro, recuperar contraseña).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +117,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Mismo patrón de `id`/`htmlFor`/`aria-invalid` de los formularios de `Pages/Auth/*` aplicado
+  también a `Profile/Edit.tsx` (nombre, email, contraseña actual/nueva) y al formulario de
+  dominio propio en `Publish/Index.tsx` — quedan con la misma desconexión label/input.
+- ⚠️ Aviso: el 13/07 había ~60 ramas remotas en curso, muchas duplicadas entre sí (varias
+  implementando por separado "variantes del hero 3D", "rendimiento en gama baja" o "filtro
+  Simple/3D en la galería"). Antes de empezar cualquier ítem de la sección "Diseño / nivel
+  visual" o "wizard/galería", revisar `git branch -r` Y los PRs abiertos (no solo el
+  backlog) — este documento no siempre refleja lo que ya hay en vuelo.
