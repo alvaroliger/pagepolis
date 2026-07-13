@@ -6,6 +6,19 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Antes de elegir ítem: revisa las PRs abiertas (2026-07-13)
+`git branch -r` recién clonado solo mostraba `origin/master` — hacía falta `git fetch origin`
+(sin argumentos) para ver el resto. Hay **~30 ramas abiertas sin mergear** de sesiones
+anteriores, muchas duplicando el mismo ítem 🟢 varias veces (variantes/perf del hero 3D
+con 8 ramas distintas, badge+filtro 3D en la galería con 3 ramas, preview en vivo del hero
+3D con 2, elección Simple/3D en el wizard, accesibilidad de modales/formularios/gráficos,
+confirmaciones destructivas, nav móvil…). Antes de implementar cualquier ítem 🟢 de este
+backlog, comprueba con `git fetch origin && git log origin/master..origin/<rama> --oneline`
+si ya hay una rama viva (no mergeada) que lo cubra — si la hay, **no la dupliques**, elige
+otra cosa. (Muchas ramas viejas —anteriores a la integración del 2026-07-03— están además
+completamente desfasadas: su diff contra master parece enorme y con borrados masivos; esas
+sí se pueden ignorar, no son trabajo en curso real.)
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -28,6 +41,13 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **Arreglado callejón sin salida en `/publicar` sin proyecto** — el checklist de
+  "Primeros pasos" enlazaba "Publica tu web" y "Conecta tu dominio propio" a `/publicar`
+  a secas (sin `project_id`), y esa página se mostraba totalmente interactiva pero con el
+  botón de publicar deshabilitado en silencio para siempre. Ahora el checklist enlaza al
+  proyecto concreto (`/publicar?project_id=X`) y la página de publicar muestra un estado
+  vacío claro ("Elige qué web quieres publicar" + botón a tu panel) si se abre sin
+  proyecto, en vez de un formulario que parece vivo pero no hace nada.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -107,3 +127,18 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Editor no es responsive** — `resources/js/Pages/Editor/Index.tsx` es un layout de 3
+  columnas de ancho fijo (`w-72` sidebar + centro + `w-96` chat), cero clases `sm:/md:/lg:`
+  en todo el archivo. En móvil/tablet es prácticamente inusable. Necesita un rediseño (pestañas
+  o paneles colapsables) más que un ajuste rápido — dejarlo para una sesión dedicada, no
+  duplicar con las ramas de nav móvil (esas solo tocan `AuthenticatedLayout`, no el editor).
+- 🟢 **Buscador de texto en la galería de plantillas** — `resources/js/Pages/Templates/Index.tsx`
+  solo tiene filtro por categoría; con el catálogo creciendo, un input de búsqueda (por
+  nombre/tag) ayudaría a encontrar la plantilla adecuada más rápido.
+- 🟢 **Miniatura en vivo en las tarjetas del dashboard** — `resources/js/Pages/Dashboard/Index.tsx`
+  muestra solo un avatar con la inicial del proyecto; un iframe en miniatura (como el que ya
+  existe en `Templates/Index.tsx`) daría un vistazo real de cada web, más "agencia premium".
+  (Ojo: no confundir con las ramas de preview 3D en la galería de plantillas, que son un
+  sitio distinto).
+- 🟢 **Filtro por proyecto en `/mensajes`** — si un cliente tiene varias webs publicadas, la
+  bandeja de leads (`Leads/Index.tsx`) los mezcla todos sin forma de filtrar por proyecto.
