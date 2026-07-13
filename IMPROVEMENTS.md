@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en móviles de gama baja** — `isLowPowerDevice()` (mira
+  `navigator.hardwareConcurrency` y `navigator.deviceMemory`) baja el nº de figuras (3-4
+  en vez de 6-8), desactiva antialiasing y limita el devicePixelRatio a 1 (en vez de
+  1.75) cuando el dispositivo es de gama baja, en `hero3d.js` (webs generadas) y en
+  `Hero3D.tsx` (la propia app) — mismo efecto visual, menos carga de GPU/batería en los
+  móviles que peor lo sufren.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +111,14 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Variantes de geometría del hero 3D (icosaedro ya existe; añadir 1-2 formas low-poly
+  más — p.ej. octaedro/toro facetado — y elegir una por plantilla/negocio en
+  `hero3d.js`+`Hero3D.tsx`) para que no todas las webs "tech" usen la misma figura.
+- 🟢 Wizard de creación: dar forma real a la elección "Simple | 3D" — hoy el hero 3D se
+  decide solo por el prompt/tipo de negocio que interpreta la IA; exponer un toggle
+  explícito en el paso de plantilla del wizard (con preview en vivo) para que el cliente
+  elija el nivel de interactividad de su web sin depender de que la IA lo adivine.
+- 🟢 Estado vacío del listado de leads (`/mensajes`) cuando aún no hay ningún mensaje:
+  ilustración/CTA explicando cómo aparecerán los leads, en vez de una tabla en blanco.
+- 🟢 Loading skeletons consistentes en dashboard/editor mientras cargan proyectos o el
+  preview (hoy varía entre spinner, nada y parpadeo del contenido).

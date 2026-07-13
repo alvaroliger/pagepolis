@@ -31,6 +31,19 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Móviles/portátiles de gama baja: menos núcleos y/o menos RAM. Bajamos
+     nº de figuras, resolución y desactivamos antialiasing para cuidar FPS
+     y batería sin desactivar el efecto por completo. */
+  function isLowPowerDevice() {
+    try {
+      var cores = navigator.hardwareConcurrency;
+      if (typeof cores === 'number' && cores > 0 && cores <= 4) return true;
+      var mem = navigator.deviceMemory;
+      if (typeof mem === 'number' && mem > 0 && mem <= 4) return true;
+    } catch (e) {}
+    return false;
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -140,8 +153,9 @@
   }
 
   function setupScene(canvas) {
-    var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
-      || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
+    var lowPower = isLowPowerDevice();
+    var gl = canvas.getContext('webgl', { alpha: true, antialias: !lowPower })
+      || canvas.getContext('experimental-webgl', { alpha: true, antialias: !lowPower });
     if (!gl) { canvas.style.display = 'none'; return null; }
 
     var program = gl.createProgram();
@@ -179,7 +193,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = lowPower ? 3 + Math.round(Math.random()) : 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -195,7 +209,7 @@
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count, lowPower: lowPower };
   }
 
   function initCanvas(canvas) {
@@ -214,7 +228,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, scene.lowPower ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
