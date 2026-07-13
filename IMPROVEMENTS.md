@@ -18,6 +18,14 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+⚠️ **Nota de coordinación (2026-07-13):** hay ~11 PRs abiertas sin revisar (#44-#54) que ya
+cubren varios ítems de este backlog (variantes hero 3D, rendimiento gama baja del hero 3D,
+nav móvil, modales accesibles, selector Simple/3D en el wizard de IA, fix de la vista previa
+de plantillas, filtro 3D en la galería, confirm() nativos, accesibilidad del gráfico de
+Analítica, emoji decorativo en Mensajes). Antes de elegir un ítem, revisa los PRs abiertos del
+repo (no solo `git branch -r`, que puede no traer todas las ramas remotas sin `--prune`) para
+no repetir trabajo ya hecho en una rama sin mergear.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -76,7 +84,13 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Selector de tamaño de vista previa del editor (PC/Tablet/Móvil) accesible** —
+  `aria-pressed` en cada botón y `role="group"`/`aria-label` en el contenedor
+  (`resources/js/Pages/Editor/Index.tsx`), para que un lector de pantalla anuncie qué
+  tamaño de vista está activo (antes era indistinguible salvo por color).
+- 🟢 Revisar accesibilidad/responsive de las páginas nuevas — `aria-pressed` en los chips
+  de filtro de categoría de la galería de plantillas (`Templates/Index.tsx`) sigue
+  pendiente (mismo patrón que el selector del editor, ya hecho arriba).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +121,8 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 `aria-pressed` en los chips de filtro de categoría de `Templates/Index.tsx` (ver nota
+  arriba en "Calidad").
+- 🟢 Auditar el resto de la app en busca de grupos de botones tipo toggle (activo/inactivo
+  por color únicamente) sin `aria-pressed`/`role="group"` — el selector de vista del editor
+  y los filtros de categoría son solo dos ejemplos encontrados hasta ahora.
