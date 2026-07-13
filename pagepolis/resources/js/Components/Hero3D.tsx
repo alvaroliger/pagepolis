@@ -128,12 +128,27 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
     return sh;
 }
 
+type PerfTier = 'low' | 'mid' | 'high';
+
+/* Gama baja: menos núcleos = menos figuras/resolución para cuidar FPS y batería.
+   'low' desactiva el WebGL por completo (el fondo se queda transparente/sólido). */
+function perfTier(): PerfTier {
+    const cores = navigator.hardwareConcurrency;
+    if (typeof cores !== 'number') return 'high';
+    if (cores <= 2) return 'low';
+    if (cores <= 4) return 'mid';
+    return 'high';
+}
+
 export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], count = 7 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
+        const tier = perfTier();
+        if (tier === 'low') { canvas.style.display = 'none'; return; }
 
         let gl: WebGLRenderingContext | null = null;
         try {
@@ -182,7 +197,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapeCount = tier === 'mid' ? Math.max(3, Math.round(count * 0.5)) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +219,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, tier === 'mid' ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
