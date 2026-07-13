@@ -118,6 +118,18 @@ void main(){
   gl_FragColor = vec4(col, 0.85);
 }`;
 
+/* Detección barata de gama de dispositivo (núcleos de CPU / RAM aproximada)
+ * para no reventar FPS ni batería en móviles de gama baja: 'very-low'
+ * desactiva la animación (un único frame estático, como prefers-reduced-motion),
+ * 'low' reduce nº de figuras y resolución, 'normal' es el comportamiento actual. */
+function devicePerfTier(): 'very-low' | 'low' | 'normal' {
+    const cores = (navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency;
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if ((typeof cores === 'number' && cores <= 2) || (typeof mem === 'number' && mem <= 2)) return 'very-low';
+    if ((typeof cores === 'number' && cores <= 4) || (typeof mem === 'number' && mem <= 4)) return 'low';
+    return 'normal';
+}
+
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
     const sh = gl.createShader(type)!;
     gl.shaderSource(sh, src);
@@ -182,7 +194,9 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const perfTier = devicePerfTier();
+        const effectiveCount = perfTier === 'normal' ? count : Math.max(3, Math.min(count, 4));
+        const shapes = Array.from({ length: effectiveCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -194,7 +208,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
             bobPhase: Math.random() * Math.PI * 2,
         }));
 
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || perfTier === 'very-low';
         const pointer = { x: 0, y: 0 };
         const pointerTarget = { x: 0, y: 0 };
         let running = false;
@@ -203,7 +217,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, perfTier === 'normal' ? 1.75 : 1);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
