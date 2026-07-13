@@ -57,6 +57,19 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Elección clara "Simple | 3D" en la galería de plantillas** — cada tarjeta en
+  `/plantillas` muestra un distintivo "✨ 3D" cuando la plantilla lleva el canvas del hero
+  3D (`data-hero3d`, calculado en `TemplateController` a partir del HTML real, sin
+  desincronizarse nunca), + selector "Todos | Simple | 3D interactivas" que filtra la
+  galería igual que las categorías, con estado vacío propio.
+- 🟢 Llevar el mismo distintivo/filtro "Simple | 3D" al wizard de creación con IA
+  (`Create/Index.tsx`) — hoy el wizard no deja elegir el tipo de página, la IA decide sola
+  según el `style`; añadir un paso 5 opcional "¿Página clásica o con hero 3D?" que se pase
+  al backend y determine si el prompt de `AnthropicService` pide el `<canvas data-hero3d>`.
+- 🟢 Miniaturas reales (capturas estáticas) para las tarjetas de la galería en vez de
+  renderizar un iframe en vivo escalado al 40% — más rápido de cargar (menos iframes
+  simultáneos con canvas WebGL corriendo a la vez) y más fiel a cómo se ve la plantilla ya
+  publicada. Se puede generar en el seeder/deploy con un screenshot headless.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
