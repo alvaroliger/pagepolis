@@ -62,8 +62,24 @@ no abras PR.
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
   como mínimo (mercados grandes de habla latina/europea) — revisar `LanguageSelector.tsx`
   y `i18n/index.ts` para que la detección/fallback funcione bien.
-- 🟢 Precios localizados por región (moneda mostrada según IP/locale, aunque el cobro siga
-  en Stripe con la moneda que corresponda) — mejora conversión fuera de España.
+- ✅ **`Publish/Index.tsx` (el paso de pago) traducido y con precios por idioma** — la
+  página donde el cliente realmente paga (`/publicar`, paso "Elige tu plan") estaba
+  100% en español fijo, sin ni una llamada a `useTranslation`, con `9,99€`/`14,99€`/
+  `119,88€` hardcodeados — un cliente que navegaba toda la web en inglés/francés/alemán/
+  portugués/italiano llegaba al momento de pagar y todo volvía de golpe al español, con
+  precios en euros aunque el resto de la web ya le mostraba su moneda (p. ej. `$10.99`
+  en la Landing en inglés). Ahora usa el mismo bloque `t('currency', {returnObjects:true})`
+  que ya usa `Landing.tsx` (mismos precios `pro_monthly`/`pro_yearly`/`pro_yearly_total`
+  por idioma, sin inventar tasas de cambio) y un namespace `publish.*` nuevo en los 6
+  locales. Cubierto por `tests/Unit/LocaleParityTest.php` (verifica que las claves de
+  `publish` coincidan exactamente entre los 6 idiomas — evita que una futura edición
+  añada una clave en un idioma y se olvide de los otros 5, cayendo en el fallback
+  español/en clave cruda).
+- 🟡 El precio mostrado en `pt` (moneda BRL) y `en` (USD) son cifras de mercado fijadas a
+  mano en los locales, no una conversión real de la tarifa de Stripe (que sigue siendo un
+  único `Price` en EUR vía `STRIPE_PRICE_MONTHLY`/`STRIPE_PRICE_YEARLY`). Cobrar de verdad
+  en la moneda local requeriría Stripe Prices multi-moneda — decisión de negocio de Álvaro,
+  no un cambio de interfaz.
 - 🟢 SEO técnico multi-idioma: hreflang, sitemap por idioma, metadatos traducidos (usa
   `generateSeoMeta` como referencia de calidad).
 - 🟢 Referido/afiliado simple ("invita y gana 1 mes gratis") para crecimiento viral —
@@ -104,6 +120,36 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Coordinación (2026-07-13): backlog de PRs sin revisar muy saturado
+A fecha de hoy hay **13 PRs abiertas sin revisar** (#44 a #56), varias de ellas
+implementando el MISMO ítem por triplicado porque distintas sesiones no vieron el trabajo
+de las demás (el clon de esta sesión solo tenía `origin/master` en `git branch -r` hasta
+hacer `git fetch origin` — sin ese fetch, las ramas de otras sesiones son invisibles).
+**Antes de picar un ítem del backlog, haced siempre `git fetch origin && git branch -r`**
+(no solo mirar el `git branch -r` del clon inicial) y revisad los PRs abiertos del repo,
+no solo `git log` de `master`. PRs actuales y qué cubren, para no repetir:
+- #44, #51: insignia + filtro "Simple | 3D" en la galería de plantillas (mismo ítem, 2 PRs).
+- #45: throttle del hero 3D en gama baja.
+- #46: variantes de geometría/color del hero 3D.
+- #47: navegación móvil del panel autenticado (hamburguesa).
+- #48: modales accesibles (focus trap, `role="dialog"`, Escape) en Plantillas/Dashboard/Editor.
+- #49: elección "Clásica | 3D" en el wizard de creación con IA.
+- #50: fix de que la vista previa de plantillas no ejecutaba el `js` (hero 3D en blanco).
+- #52: sustituye `confirm()` nativo por modales propios en borrado irreversible.
+- #53, #54, #55: `aria-*` sueltos (gráfico de Analítica, emoji de Mensajes, toggle de viewport del Editor).
+- (esta sesión, rama `feat/publish-checkout-i18n`): `Publish/Index.tsx` traducido a los 6
+  idiomas + precios por idioma — no toca `Templates/Index.tsx` ni `TemplateController`, sin
+  conflicto con las anteriores.
+Antes de que Álvaro las revise/mergee, tened en cuenta que hay conflictos de fondo (varias tocan `Templates/Index.tsx`
+a la vez: #44, #48, #50, #51 se van a pisar entre sí) antes de seguir apilando más PRs sobre
+la galería de plantillas — probablemente compensa que Álvaro elija una versión de cada
+familia y cierre el resto manualmente en vez de que una sesión intente fusionarlas sola.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Los mensajes de error que vienen directamente del backend en `Publish/Index.tsx`
+  (`e.response?.data?.message`) siguen sin traducir — son las respuestas de validación de
+  Laravel, en español siempre. Si se quiere un checkout 100% coherente por idioma, falta
+  i18n también en las respuestas de error del backend (`ProjectController`, `BillingController`),
+  no solo en el frontend.
