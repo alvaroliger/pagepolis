@@ -6,6 +6,16 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+⚠️ **Antes de elegir ítem, ejecuta `git fetch origin && git branch -r` (fetch completo, no
+solo el remoto por defecto)** — a fecha 2026-07-13 hay más de 40 ramas remotas y 9+ PRs
+abiertas sin revisar/mergear, varias veces duplicadas para la MISMA idea (p. ej. 3 ramas de
+rendimiento del hero 3D en gama baja, 3 de filtro Simple/3D en la galería, 2 de variantes de
+figura del hero 3D, 2 de nav móvil). Un `git branch -r` sin fetch previo solo enseña las
+ramas ya conocidas por esta sesión y no basta para detectar el trabajo en curso de otras
+sesiones — comprobado en primera persona esta misma ejecución (se implementó, y hubo que
+descartar, una variante del hero 3D que ya existía en `feature/hero3d-shape-variants`).
+Si el ítem que ibas a coger ya tiene una rama/PR abierta (aunque sin mergear), coge otro.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -77,6 +87,10 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Accesibilidad por teclado del gráfico de Analítica** — las 30 barras de "Visitas
+  diarias" (`Analytics/Index.tsx`) solo mostraban el detalle (día/nº visitas) con `:hover`,
+  invisible por teclado y poco fiable en móvil sin hover. Ahora son `<button>` con
+  `aria-label` completo, anillo de foco visible y tooltip también en `focus-visible` (PR #53).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +121,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Auditar el resto de la app por controles interactivos que solo respondan a `:hover`
+  (sin equivalente por teclado/foco/touch) — el gráfico de Analítica (PR #53) era uno; puede
+  haber más en Dashboard/Editor (tarjetas con acciones que solo aparecen al pasar el ratón).
+- 🟢 Estado de carga (skeleton) para la tabla "Por proyecto" y el gráfico de Analítica
+  mientras Inertia navega hacia `/analytics` — hoy no hay parpadeo ni salto, pero tampoco
+  ningún indicador si la carga tarda (usuarios con conexión lenta).
+- 🟢 `aria-pressed` en los chips de filtro por categoría de la galería de plantillas
+  (`Templates/Index.tsx`) — igual que se pide para el filtro Simple/3D en las PRs #44/#51,
+  aplícalo también a los chips de categoría existentes si esas PRs no lo cubren ya.
