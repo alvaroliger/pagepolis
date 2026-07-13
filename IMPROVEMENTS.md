@@ -6,6 +6,12 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+⚠️ **Antes de elegir ítem**: hay muchas ramas duplicadas de la misma mejora (varias
+sesiones cogieron el mismo ítem 🟢 el mismo día — p.ej. 4-5 ramas distintas para "bajar
+figuras del hero 3D en gama baja"). Haz `git fetch origin` (no solo `git branch -r`, que
+sin fetch previo no muestra ramas remotas nuevas) y revisa los PRs **abiertos** (no solo
+master) antes de implementar, para no volver a duplicar trabajo ya en curso.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -73,6 +79,12 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Diálogos de borrado destructivo consistentes con el resto de la app** — "Borrar
+  definitivo" (papelera del Dashboard) y "Eliminar mi cuenta" (Perfil) usaban `confirm()`
+  nativo del navegador (sin estilo, inconsistente con el resto de la UI y peor en móvil),
+  mientras que la acción reversible ("mover a la papelera") ya tenía un modal propio. Ahora
+  ambas acciones irreversibles usan el mismo patrón de modal (`Dashboard/Index.tsx`,
+  `Profile/Edit.tsx`), con aviso en rojo y cierre con Escape.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -107,3 +119,10 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Dar a los modales nuevos de borrado destructivo (`PurgeModal` en Dashboard,
+  `DeleteAccountModal` en Perfil) el mismo tratamiento de accesibilidad que ya tienen los
+  3 modales existentes (`role="dialog"`, `aria-modal`, foco atrapado con `useModalA11y`)
+  cuando ese hook esté integrado — hoy solo cierran con Escape.
+- 🟢 Auditoría rápida de otros `confirm()`/`alert()` nativos que puedan quedar sueltos en
+  el resto de la app (Admin, Publish) para mantener la consistencia visual del borrado
+  destructivo en toda la interfaz, no solo Dashboard/Perfil.

@@ -1,6 +1,39 @@
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { FadeIn } from '@/Components/Motion';
+
+// Cierra con Escape (mismo patrón que el menú de avatar de AuthenticatedLayout).
+function useEscapeToClose(onClose: () => void) {
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [onClose]);
+}
+
+function DeleteAccountModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+    useEscapeToClose(onCancel);
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+            <FadeIn y={12} className="bg-gray-900 border border-red-900/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                <h3 className="text-white font-semibold mb-2">Eliminar tu cuenta</h3>
+                <p className="text-gray-400 text-sm mb-5">
+                    ¿Seguro que quieres eliminar tu cuenta?
+                    <span className="block mt-2 text-red-400">Esta acción eliminará tu cuenta y todos tus proyectos y dominios de forma permanente.</span>
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={onCancel} className="flex-1 border border-gray-700 text-gray-300 hover:text-white py-2 rounded-lg text-sm transition-colors">
+                        Cancelar
+                    </button>
+                    <button onClick={onConfirm} className="flex-1 bg-red-700 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                        Eliminar mi cuenta
+                    </button>
+                </div>
+            </FadeIn>
+        </div>
+    );
+}
 
 interface User {
     id: number;
@@ -36,16 +69,28 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
     };
 
     const { delete: deleteAccount, data: delData, setData: setDelData, processing: delProcessing } = useForm({ password: '' });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const destroyAccount: FormEventHandler = (e) => {
         e.preventDefault();
-        if (!confirm('¿Estás seguro? Esta acción eliminará tu cuenta permanentemente.')) return;
+        setShowDeleteModal(true);
+    };
+
+    const confirmDestroyAccount = () => {
+        setShowDeleteModal(false);
         deleteAccount('/perfil');
     };
 
     return (
         <AuthenticatedLayout header={<h1 className="text-2xl font-bold text-white">Mi perfil</h1>}>
             <Head title="Mi perfil" />
+
+            {showDeleteModal && (
+                <DeleteAccountModal
+                    onConfirm={confirmDestroyAccount}
+                    onCancel={() => setShowDeleteModal(false)}
+                />
+            )}
 
             <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
                 {/* Datos personales */}
