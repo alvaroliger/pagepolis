@@ -48,8 +48,11 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en móviles de gama baja** — `devicePerfTier()` (nuevo, en
+  `hero3d.js` y `Hero3D.tsx`) mira `navigator.hardwareConcurrency`/`deviceMemory`: gama
+  modesta baja nº de figuras (3-4 en vez de 6-8) y cap de `devicePixelRatio` a 1; gama muy
+  baja desactiva la animación y pinta un único frame estático (mismo camino que
+  `prefers-reduced-motion`).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +110,8 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector explícito "Clásica | 3D" en el paso de plantillas del wizard (badge "3D" en las
+  plantillas que llevan `hero3d-canvas`), con preview en vivo antes de elegir — hoy el 3D
+  solo aparece si la IA decide meterlo según el rubro, el cliente no lo elige a propósito.
+- 🟢 Fade-in suave del `<canvas>` del hero 3D al montar (opacity 0→1 ~300ms cuando WebGL
+  arranca) para evitar el "pop" brusco de las figuras apareciendo de golpe tras la carga.
