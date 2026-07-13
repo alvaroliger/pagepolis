@@ -16,6 +16,7 @@ class Template extends Model
         'tags',
         'is_premium',
         'is_active',
+        'has_3d',
         'uses_count',
     ];
 
@@ -23,6 +24,7 @@ class Template extends Model
         'tags' => 'array',
         'is_premium' => 'boolean',
         'is_active' => 'boolean',
+        'has_3d' => 'boolean',
     ];
 
     public function projects()

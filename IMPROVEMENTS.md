@@ -36,6 +36,8 @@ no abras PR.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Elección "Simple | 3D" en la galería de plantillas** — badge + filtro
+  dedicado (ver "Hecho recientemente 2026-07-13").
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
@@ -83,6 +85,18 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-13)
+- ✅ **Elección visible "Simple | 3D" en la galería de plantillas** — nueva
+  columna `templates.has_3d` (migración + `TemplateSeeder`, marcada según
+  qué plantillas llevan de verdad el `<canvas class="hero3d-canvas">`:
+  saas, servicios, abogados, coach, inmobiliaria, fotógrafo), badge "✨ 3D"
+  en la tarjeta y en el modal de vista previa, y filtro dedicado "Todos los
+  tipos / Webs clásicas / Webs 3D" en `Templates/Index.tsx` (antes solo
+  había filtro por categoría de negocio, sin forma de saber ni elegir qué
+  plantillas eran interactivas). Estado vacío añadido si un cruce de
+  filtros no da resultados. 2 tests nuevos (`TemplateGalleryTest`), suite
+  246/246 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +121,18 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Llevar el flag `has_3d` (nuevo en `templates`) al flujo "Crear con IA"**
+  (`Create/Index.tsx` → `crear-con-ia`) — hoy ese wizard no pasa por la
+  galería de plantillas ni deja elegir 3D, la IA decide sola la categoría.
+  Añadir un paso "¿Simple o 3D?" (5º campo) que se envíe al backend y
+  condicione el prompt/plantilla base usada por `AnthropicService`.
+- 🟢 **Editor**: mostrar en `Editor/Index.tsx` un indicador (mismo badge "✨
+  3D") cuando el proyecto abierto usa una plantilla/página con hero 3D, y
+  un toggle para añadir/quitar el `<canvas class="hero3d-canvas">` a mano
+  en páginas que empezaron como "Simple" (usa `hero3d.js`/`engine.js` ya
+  existentes, sin motor nuevo).
+- 🟢 Extender el filtro "Simple | 3D" también a `tilt-3d` suelto (tarjetas
+  con profundidad sin hero canvas, ej. gimnasio) — hoy esas quedan como
+  "Simple" en el nuevo filtro aunque tengan algo de motion; valorar una
+  tercera categoría "Con detalles 3D" si el filtro binario resulta confuso
+  una vez haya más plantillas con `tilt-3d` parcial.
