@@ -83,6 +83,21 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-13)
+- ✅ **La vista previa de plantillas ahora se ve y se siente como la web real** — el
+  modal de `/plantillas` no cargaba nunca el `js` de la plantilla (menú móvil, FAQ,
+  reveal on scroll, tarjetas `tilt-3d` y sobre todo el **hero 3D**), así que la pieza
+  que más vende el nivel "agencia premium" era invisible justo en el momento en que
+  el cliente decide qué plantilla usar. El JS no viajaba en el `select()` de
+  `TemplateController@index` (para no meter ~24 KB × 12 plantillas en la carga inicial
+  de la galería) y el modal solo montaba `html`+`css`. Ahora se pide bajo demanda al
+  abrir la vista previa (`GET /plantillas/{template}/js`, nueva ruta pública) y se
+  inyecta en el `srcDoc` del iframe junto al `PREVIEW_GUARD` existente. Los thumbnails
+  pequeños de la rejilla (escala 0.4, `pointer-events-none`) se dejan tal cual —
+  cargar WebGL animado en varias tarjetas a la vez a la primera pintura sería peor
+  para el rendimiento que la ganancia visual. Tests: `TemplateJsTest` (plantilla
+  activa devuelve su JS; inactiva → 404). Suite 246/246 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +122,14 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Thumbnails de la rejilla de `/plantillas` (`TemplatePreview`, escala 0.4) siguen sin
+  `js`: estáticos a propósito por rendimiento (ver entrada 2026-07-13), pero se podría
+  mostrar el hero 3D como **un solo frame estático** (sin `requestAnimationFrame`, sin
+  listeners) en vez de nada — más fiel al resultado final sin el coste de varios
+  WebGL animados a la vez en la rejilla.
+- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas: icosaedro actual +
+  p.ej. octaedro anguloso + una silueta tipo "cristal" alargado) para que no todas las
+  webs "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+  Elegir variante de forma determinista (p.ej. hash de `location.pathname` +
+  `document.title`, estable por sitio publicado) con override manual vía
+  `data-hero3d-variant` en el `<canvas>` para fijarla a mano en las plantillas base.

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 // Evita que al pulsar enlaces en la vista previa el iframe navegue a la app
@@ -42,9 +43,22 @@ export default function TemplatesIndex({ templates, categories }: Props) {
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
+    const [previewJs, setPreviewJs] = useState<string>('');
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
     const previewTemplate = templates.find(t => t.id === previewId);
+
+    // El JS (interacciones + hero 3D) no viaja en la carga inicial de la
+    // galería (~24 KB por plantilla); se pide solo al abrir su vista previa,
+    // para que se vea y se sienta igual que la web publicada.
+    useEffect(() => {
+        if (previewId === null) { setPreviewJs(''); return; }
+        let cancelled = false;
+        axios.get(`/plantillas/${previewId}/js`)
+            .then(res => { if (!cancelled) setPreviewJs(res.data.js || ''); })
+            .catch(() => { if (!cancelled) setPreviewJs(''); });
+        return () => { cancelled = true; };
+    }, [previewId]);
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -180,7 +194,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${previewJs}<\/script><script>${PREVIEW_GUARD}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}

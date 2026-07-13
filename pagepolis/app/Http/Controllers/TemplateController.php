@@ -22,4 +22,11 @@ class TemplateController extends Controller
             'categories' => $categories,
         ]);
     }
+
+    public function js(Template $template): \Illuminate\Http\JsonResponse
+    {
+        abort_unless($template->is_active, 404);
+
+        return response()->json(['js' => $template->js]);
+    }
 }

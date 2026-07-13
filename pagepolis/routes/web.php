@@ -47,6 +47,9 @@ Route::get('/t/{projectId}', [TrackingController::class, 'track'])
 
 // Plantillas públicas
 Route::get('/plantillas', [TemplateController::class, 'index'])->name('templates.index');
+// JS de una plantilla, cargado bajo demanda solo al abrir su vista previa
+// (evita meter ~24 KB por plantilla en la carga inicial de la galería).
+Route::get('/plantillas/{template}/js', [TemplateController::class, 'js'])->name('templates.js');
 
 // Páginas legales
 Route::get('/terminos',   fn() => Inertia::render('Legal/Terms'))->name('legal.terms');
