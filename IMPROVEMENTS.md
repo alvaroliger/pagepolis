@@ -48,8 +48,11 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditar rendimiento del hero 3D en móviles de gama baja** — si
+  `navigator.hardwareConcurrency` indica pocos núcleos (≤4) se reducen las figuras (3-4
+  en vez de 6-8) y se limita el DPR a 1x; con muy pocos núcleos (≤2) se salta la
+  animación y se pinta un único frame estático (misma ruta que `prefers-reduced-motion`).
+  Aplicado en `database/templates/hero3d.js` y en `Components/Hero3D.tsx`.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -104,6 +107,24 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-13)
+- Guardia de rendimiento en gama baja para el hero 3D: menos figuras + DPR más bajo con
+  pocos núcleos de CPU, y frame estático (sin animar) con muy pocos núcleos — mismo
+  motor en plantillas generadas y en la app. Suite 244/244 verde, build OK.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas, ver backlog "Diseño / nivel
+  visual") — con la guardia de gama baja ya lista, es buen momento para diversificar
+  `buildIcosahedron()` (p.ej. octaedro/toroide low-poly) sin tocar el guard de rendimiento.
+- 🟢 El wizard de creación (`Pages/Create/Index.tsx`) no deja elegir "clásica vs 3D" — hoy
+  la IA decide sola el tipo de hero según el rubro. Añadir un paso visual (con mini
+  preview) donde el cliente vea y elija explícitamente entre plantilla clásica y 3D antes
+  de generar, en vez de que quede oculto en el prompt de `AnthropicService`.
+- 🟢 La galería de plantillas (`Pages/Templates/Index.tsx`) y el wizard de creación con IA
+  (`Pages/Create/Index.tsx`) son dos flujos desconectados — evaluar un enlace cruzado
+  ("¿prefieres partir de una plantilla ya hecha?") para que el cliente no tenga que
+  descubrir la galería por su cuenta.
+- 🟢 Auditar accesibilidad/responsive de `Create/Index.tsx` y `Templates/Index.tsx`
+  (contraste de los botones de estilo, foco visible, tamaño táctil en móvil).
