@@ -16,6 +16,7 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    has_3d: boolean;
 }
 
 interface Props {
@@ -37,13 +38,18 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
     );
 }
 
+type PageType = 'Todos' | 'Simple' | '3D';
+
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [pageType, setPageType] = useState<PageType>('Todos');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = templates
+        .filter(t => filter === 'Todos' || t.category === filter)
+        .filter(t => pageType === 'Todos' || (pageType === '3D' ? t.has_3d : !t.has_3d));
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -79,6 +85,30 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     <p className="text-xs text-gray-500">Opcional — puedes cambiarlo luego</p>
                 </div>
 
+                {/* Tipo de página: clásica o interactiva en 3D */}
+                <div className="mb-5">
+                    <div className="inline-flex bg-gray-900 border border-gray-800 rounded-xl p-1 gap-1">
+                        {(['Todos', 'Simple', '3D'] as PageType[]).map(type => (
+                            <button
+                                key={type}
+                                onClick={() => setPageType(type)}
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                                    pageType === type
+                                        ? 'bg-violet-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {type === '3D' ? '✨ 3D interactivas' : type}
+                            </button>
+                        ))}
+                    </div>
+                    {pageType === '3D' && (
+                        <p className="text-xs text-gray-500 mt-2">
+                            Héroes con profundidad, luz e inclinación al mover el ratón — el nivel visual de una agencia premium.
+                        </p>
+                    )}
+                </div>
+
                 {/* Filtros */}
                 <div className="flex gap-2 flex-wrap mb-8">
                     {['Todos', ...categories].map(cat => (
@@ -97,6 +127,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Grid de plantillas */}
+                {filtered.length === 0 ? (
+                    <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+                        <p className="text-gray-400 font-medium">Ninguna plantilla combina esos filtros todavía.</p>
+                        <p className="text-gray-600 text-sm mt-1">Prueba otra categoría o cambia el tipo de página.</p>
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(template => (
                         <div
@@ -109,11 +145,18 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
-                                {template.is_premium && (
-                                    <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
-                                        PRO
-                                    </span>
-                                )}
+                                <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+                                    {template.is_premium && (
+                                        <span className="bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            PRO
+                                        </span>
+                                    )}
+                                    {template.has_3d && (
+                                        <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ✨ 3D
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
@@ -147,6 +190,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         </div>
                     ))}
                 </div>
+                )}
             </div>
 
             {/* Modal de preview */}

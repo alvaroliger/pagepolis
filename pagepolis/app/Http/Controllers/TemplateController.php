@@ -13,7 +13,14 @@ class TemplateController extends Controller
         $templates = Template::where('is_active', true)
             ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count', 'html', 'css')
             ->orderByDesc('uses_count')
-            ->get();
+            ->get()
+            ->map(function (Template $template) {
+                // El hero 3D se marca en el HTML con data-hero3d (ver database/templates/*.html);
+                // así el cliente distingue de un vistazo qué plantillas son interactivas.
+                $template->has_3d = str_contains($template->html, 'data-hero3d');
+
+                return $template;
+            });
 
         $categories = $templates->pluck('category')->unique()->values();
 
