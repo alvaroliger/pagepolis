@@ -46,8 +46,11 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Variantes del hero 3D** — 3 geometrías (icosaedro/octaedro/cubo) seleccionables por
+  plantilla vía `data-hero3d-variant` en `hero3d.js`; abogados/fotógrafo usan octaedro
+  (cristal), servicios/inmobiliaria usan cubo (arquitectónico), SaaS/coach mantienen el
+  icosaedro original. El prompt de `AnthropicService` también elige geometría según el
+  sector para las webs generadas por IA.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +110,9 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Selector de geometría del hero 3D en el propio wizard/editor (dropdown "icosaedro /
+  octaedro / cubo" sobre `data-hero3d-variant`) para que el cliente pueda cambiar la figura
+  sin pedir una edición por IA — encaja con el trabajo de variantes ya hecho en `hero3d.js`.
+- 🟢 Miniaturas de la galería de plantillas con la figura 3D real de cada una (hoy son solo
+  capturas estáticas) para que el cliente vea de un vistazo qué geometría/paleta trae cada
+  plantilla antes de elegirla.
