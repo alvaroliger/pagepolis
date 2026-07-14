@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditar rendimiento del hero 3D en móviles de gama baja** — `perfTier()` en
+  `hero3d.js` y `Hero3D.tsx` mide `navigator.hardwareConcurrency`/`deviceMemory`: gama muy
+  baja (≤2 núcleos o ≤2GB) ni siquiera inicia WebGL (se queda con el degradado de
+  `base.css`, ahorra CPU/GPU/batería); gama media (≤4 núcleos o ≤4GB) reduce nº de figuras
+  a la mitad y baja el cap de `devicePixelRatio` de 1.75 a 1.25. Mismo criterio en el motor
+  de las plantillas generadas y en el port React de la propia app.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +111,13 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Selector explícito "Simple | 3D" en `Pages/Create/Index.tsx`** — hoy el hero 3D se
+  aplica por plantilla (fijo en el seeder), no por elección del cliente. Añadir un toggle
+  visible en el wizard (con preview en vivo de cada modo) es el siguiente paso real hacia
+  el objetivo de la semana ("que el cliente elija entre página clásica y 3D end-to-end").
+  Requiere: flag en el modelo de plantilla/proyecto, UI del wizard y que el editor respete
+  la elección al regenerar con IA.
+- 🟢 `resources/js/Pages/Templates/Index.tsx` — la galería no distingue visualmente qué
+  plantillas llevan hero 3D/`tilt-3d` de las que no; un badge "3D" en la tarjeta (coherente
+  con el trabajo de rendimiento de este run) ayuda al cliente a decidir antes de entrar al
+  modal de preview.
