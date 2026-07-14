@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
+import Modal from '@/Components/Modal';
 import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 interface Project {
@@ -87,9 +88,13 @@ function OnboardingChecklist({ hasProject, hasPublished, hasDomain }: { hasProje
 
 function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onConfirm: () => void; onCancel: () => void }) {
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+        <Modal
+            onClose={onCancel}
+            labelledBy="delete-modal-title"
+            backdropClassName="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+        >
             <FadeIn y={12} className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-                <h3 className="text-white font-semibold mb-2">Mover a la papelera</h3>
+                <h3 id="delete-modal-title" className="text-white font-semibold mb-2">Mover a la papelera</h3>
                 <p className="text-gray-400 text-sm mb-5">
                     ¿Seguro que quieres eliminar <strong className="text-white">"{project.name}"</strong>?
                     {project.status === 'published' && (
@@ -106,7 +111,7 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
                     </button>
                 </div>
             </FadeIn>
-        </div>
+        </Modal>
     );
 }
 

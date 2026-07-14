@@ -76,7 +76,16 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Accesibilidad de los modales** — los 3 modales a medida de la app (preview de
+  plantillas, confirmación del editor, borrar proyecto) eran `<div>` sueltos: sin
+  `role="dialog"`/`aria-modal`, sin cierre con Escape, sin foco inicial ni devuelto al
+  cerrar, con scroll de fondo activo. Nuevo `Components/Modal.tsx` reutilizable lo
+  resuelve una vez y los 3 usos ya lo usan. Verificado con Playwright contra la app real
+  (login, abrir cada modal, comprobar `aria-*`, foco y Escape).
+- 🟢 Seguir revisando accesibilidad/responsive del resto de páginas nuevas — p.ej.
+  `Components/LanguageSelector.tsx` cierra con click fuera pero no con Escape y no tiene
+  `role="menu"` (a diferencia del menú de usuario en `AuthenticatedLayout`, que ya lo
+  hace bien y puede servir de referencia).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
