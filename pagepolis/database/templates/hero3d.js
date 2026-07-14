@@ -6,7 +6,10 @@
    contenedor con position:relative (p.ej. .hero). Se colorea solo con
    --brand (o --brand-2) del sistema de diseño, así que encaja con cualquier
    plantilla. Si WebGL no está disponible, o el usuario prefiere menos
-   movimiento, se degrada solo sin romper nada. */
+   movimiento, se degrada solo sin romper nada.
+   Geometría: data-hero3d-variant="icosahedron|octahedron|cube" (opcional,
+   por defecto icosahedron) para que no todas las webs "tech" usen la misma
+   figura — ver GEOMETRY_BUILDERS más abajo. */
 (function () {
   'use strict';
 
@@ -68,23 +71,9 @@
     }
   };
 
-  /* ── Icosaedro low-poly con shading plano (normales por cara) ── */
-  function buildIcosahedron() {
-    var t = (1 + Math.sqrt(5)) / 2;
-    var raw = [
-      [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
-      [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
-      [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]
-    ].map(function (v) {
-      var len = Math.hypot(v[0], v[1], v[2]);
-      return [v[0] / len, v[1] / len, v[2] / len];
-    });
-    var faces = [
-      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
-      [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
-      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
-      [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
-    ];
+  /* ── Construye positions/normals con shading plano (normales por cara)
+     a partir de una lista de vértices y de caras (índices, orden CCW) ── */
+  function facesToGeometry(raw, faces) {
     var positions = [], normals = [];
     faces.forEach(function (f) {
       var a = raw[f[0]], b = raw[f[1]], c = raw[f[2]];
@@ -102,6 +91,60 @@
     });
     return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
   }
+
+  /* ── Icosaedro low-poly (20 caras, look "gema" redondeada) ── */
+  function buildIcosahedron() {
+    var t = (1 + Math.sqrt(5)) / 2;
+    var raw = [
+      [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
+      [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
+      [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1]
+    ].map(function (v) {
+      var len = Math.hypot(v[0], v[1], v[2]);
+      return [v[0] / len, v[1] / len, v[2] / len];
+    });
+    var faces = [
+      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+      [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+      [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+    ];
+    return facesToGeometry(raw, faces);
+  }
+
+  /* ── Octaedro (8 caras, look "cristal/diamante" afilado) ── */
+  function buildOctahedron() {
+    var raw = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+    var faces = [
+      [4,0,2],[4,2,1],[4,1,3],[4,3,0],
+      [5,2,0],[5,1,2],[5,3,1],[5,0,3]
+    ];
+    return facesToGeometry(raw, faces);
+  }
+
+  /* ── Cubo (12 caras, look "arquitectónico/bloques") ── */
+  function buildCube() {
+    var s = 1 / Math.sqrt(3);
+    var raw = [
+      [-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],
+      [-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s]
+    ];
+    var faces = [
+      [0,1,2],[0,2,3],
+      [5,4,7],[5,7,6],
+      [4,0,3],[4,3,7],
+      [1,5,6],[1,6,2],
+      [3,2,6],[3,6,7],
+      [4,5,1],[4,1,0]
+    ];
+    return facesToGeometry(raw, faces);
+  }
+
+  var GEOMETRY_BUILDERS = {
+    icosahedron: buildIcosahedron,
+    octahedron: buildOctahedron,
+    cube: buildCube
+  };
 
   var VERT_SRC = [
     'attribute vec3 aPosition;',
@@ -153,7 +196,8 @@
     }
     gl.useProgram(program);
 
-    var geo = buildIcosahedron();
+    var buildGeometry = GEOMETRY_BUILDERS[canvas.dataset.hero3dVariant] || buildIcosahedron;
+    var geo = buildGeometry();
     var posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferData(gl.ARRAY_BUFFER, geo.positions, gl.STATIC_DRAW);
