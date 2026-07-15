@@ -645,13 +645,25 @@ export default function EditorIndex({ project, aiUsage }: Props) {
 
                 {/* Preview */}
                 <div className="flex-1 bg-gray-800 flex items-start justify-center overflow-auto p-4">
-                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full min-h-0">
+                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full min-h-0 relative">
                         <iframe
                             ref={iframeRef}
                             sandbox="allow-scripts allow-same-origin"
                             className="w-full h-full bg-white rounded-lg shadow-2xl"
                             title="Vista previa"
                         />
+                        {aiLoading && (
+                            <div className="absolute inset-0 rounded-lg bg-gray-900/70 backdrop-blur-sm flex flex-col items-center justify-center gap-3 pointer-events-none">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </div>
+                                <p className="text-sm text-gray-300 font-medium px-4 text-center">
+                                    {progress || 'Generando tu web…'}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

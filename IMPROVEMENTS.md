@@ -6,6 +6,33 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Antes de elegir tarea: hay ~16 PRs abiertas sin revisar (#44-#59, 2026-07-15)
+`git branch -r` **no** basta — usa `git fetch origin --prune` primero (los remote-tracking refs
+locales pueden estar desactualizados) y revisa los PRs abiertos por API/`gh` antes de tocar nada.
+A fecha de hoy hay varias familias de PRs distintas implementando **lo mismo** en paralelo, ninguna
+fusionada todavía por Álvaro:
+- Rendimiento del hero 3D en gama baja: #45 (`perf/hero3d-low-end-throttle`) y al menos 5 ramas más
+  con el mismo enfoque (`hardwareConcurrency`/`deviceMemory`, menos figuras + DPR 1x). **No tocar
+  `hero3d.js`/`Hero3D.tsx` para esto — ya cubierto.**
+- Variantes de geometría/paleta del hero 3D: #46 (`feature/hero3d-variants`) y #57
+  (`feature/hero3d-geometry-variants`), ambas implementan variantes distintas — **cubierto,
+  conflictivo entre sí, revisar cuál se queda al fusionar.**
+- Filtro "Simple | 3D" en la galería de plantillas: #44 y #51 (mismo enfoque, `has_3d` +
+  insignia + filtro) — **cubierto**.
+- Elección "Clásica | 3D interactiva" en el wizard de IA: #49 (`feature/wizard-page-type-choice`)
+  — **cubierto**.
+- Accesibilidad: #48 (modales con foco/`role=dialog`), #52 (`confirm()` nativos → modal propio),
+  #53 (gráfico de Analítica navegable por teclado), #54 (emoji decorativo `aria-hidden` en
+  Mensajes), #55 (`aria-pressed` en el selector de viewport del editor), #58 (formularios de
+  login/registro accesibles + autofill), #59 (`aria-pressed` en chips de categoría de la
+  galería) — **todo cubierto, no repetir barridos de accesibilidad en estas pantallas concretas**.
+- Otros: #47 (nav móvil del panel autenticado), #50 (la vista previa de plantillas no cargaba el
+  JS del hero 3D), #56 (checkout `/publicar` traducido a los 6 idiomas).
+
+Antes de fusionar nada, alguien tendrá que resolver los duplicados de hero3d (#45 vs otras ramas de
+gama baja; #46 vs #57 de variantes; #44 vs #51 del filtro) y quedarse con la mejor versión de cada
+familia — no lo resuelvas tú solo cerrando PRs ajenos sin que te lo pidan explícitamente.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -34,6 +61,12 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Overlay de carga en la vista previa del editor** — mientras la IA genera o aplica un
+  cambio (`aiLoading`), el panel de vista previa (`resources/js/Pages/Editor/Index.tsx`) se
+  quedaba en blanco o con el contenido antiguo sin ningún indicio visual (el chat ya avisaba
+  con los puntos de "escribiendo", pero el panel grande de la derecha no daba ninguna pista).
+  Ahora un overlay con blur + los mismos puntos animados + el texto de progreso se superpone
+  al iframe mientras dura la generación.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +140,18 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+
+### Recogidas de los PRs abiertos #44-#59 (para no perderlas si esos PRs se cierran sin fusionar)
+- 🟢 Persistir `page_type` (clásica/3D) en el proyecto una vez elegido en el wizard, y añadir un
+  toggle de hero 3D en el editor para proyectos ya creados en modo clásico (idea repetida en
+  varios PRs de la familia 3D — hacerla una sola vez, no una por PR).
+- 🟢 Selector de geometría del hero 3D en el wizard/editor (una vez se decida qué PR de variantes
+  de geometría se queda) + miniaturas de la galería con la figura 3D real de cada plantilla en
+  vez de un icono genérico.
+- 🟢 `PurgeModal`/`DeleteAccountModal` (borrado irreversible en Dashboard/Perfil) con el mismo
+  `role="dialog"` + foco atrapado que ya tienen los otros 3 modales de la app vía `useModalA11y`
+  — quedaron fuera porque son PRs distintos e independientes (#48 vs #52).
+- 🟢 Auditar el resto de la app en busca de `confirm()`/`alert()` nativos sueltos y de grupos de
+  botones tipo toggle sin `aria-pressed`.
+- 🟢 i18n de los mensajes de error que vienen directamente del backend en el checkout de `/publicar`.
+- 🟢 Revisar el resto de gráficos/controles de Analítica sin equivalente por teclado.
