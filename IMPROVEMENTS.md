@@ -77,6 +77,15 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Formularios de acceso (login/registro/recuperar contraseña) accesibles y con autofill
+  correcto** — las 5 pantallas de `Pages/Auth/*` (Login, Register, ForgotPassword,
+  ResetPassword, ConfirmPassword) tenían `<label>` visualmente pegado al campo pero sin
+  `htmlFor`/`id`: un lector de pantalla no anunciaba la relación, y clicar la etiqueta no
+  enfocaba el input (duele sobre todo en móvil, donde la etiqueta es el área de toque más
+  grande). Añadido `id`/`htmlFor` en los 10 campos, `aria-invalid`/`aria-describedby`
+  enlazando cada error de validación con su campo, y `autoComplete`
+  (`email`/`current-password`/`new-password`) donde faltaba para que el gestor de
+  contraseñas del navegador rellene bien.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -104,6 +113,26 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Aviso importante (2026-07-14/15): revisar PRs abiertas antes de empezar
+`git branch -r` sin `git fetch origin` previo solo mostraba `origin/master` en esta sesión —
+señal falsa de "no hay nada en vuelo". Tras hacer `git fetch origin` aparecieron **~85 ramas
+remotas** y **14 PRs abiertas sin revisar (#44-#57)**, varias duplicando la misma mejora entre
+sí (p. ej. 8 ramas distintas implementando "rendimiento del hero 3D en gama baja"; #44 y #51
+son casi el mismo cambio de filtro Simple/3D en la galería; #46 y #57 ambos añaden variantes
+de geometría al hero 3D). **Antes de tocar nada de la sección "Diseño / nivel visual" o del
+wizard/galería de plantillas, haz `git fetch origin` y revisa los PRs abiertos con el MCP de
+GitHub (`list_pull_requests`), no solo este documento** — varias mejoras ya están
+implementadas y esperando review en ramas que este backlog no refleja todavía (se actualiza
+solo cuando el PR se abre y se fusiona). Además hay ramas ya terminadas y verificadas que
+nunca llegaron a abrir PR (p. ej. `fix/auth-forms-label-association`, rescatada en este run) —
+si una rama huérfana tiene commits reales y tests verdes, merece la pena revisarla y
+reaplicarla como PR en vez de reimplementar el mismo ítem desde cero.
+
 ## Ideas nuevas
+- 🟢 Mismo patrón `id`/`htmlFor`/`aria-invalid`/`autoComplete` de `Pages/Auth/*` aplicado
+  también a `Profile/Edit.tsx` (nombre, email, contraseña actual/nueva) y al formulario de
+  dominio propio en `Publish/Index.tsx` — quedan con la misma desconexión label/input.
+  (Cuidado: `Profile/Edit.tsx` y `Publish/Index.tsx` ya tienen PRs abiertas en otras cosas —
+  revisar #52 y #56 antes de tocarlos para evitar conflicto.)
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).

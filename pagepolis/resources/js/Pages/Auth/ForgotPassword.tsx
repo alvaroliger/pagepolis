@@ -22,15 +22,19 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
             <form onSubmit={submit} className="space-y-4">
                 <div>
-                    <label className="block text-sm text-gray-400 mb-1">Email</label>
+                    <label htmlFor="email" className="block text-sm text-gray-400 mb-1">Email</label>
                     <input
+                        id="email"
                         type="email"
                         value={data.email}
                         onChange={e => setData('email', e.target.value)}
+                        autoComplete="email"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                         required
                     />
-                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
+                    {errors.email && <p id="email-error" className="mt-1 text-sm text-red-400">{errors.email}</p>}
                 </div>
 
                 <button
