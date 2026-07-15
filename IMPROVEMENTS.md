@@ -6,9 +6,8 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
-## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
-Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
-general a ingresos:
+## 🎯 FOCO ESTÁNDAR (encargo de Álvaro, vigente desde 2026-07-03)
+Prioriza en este orden, por encima del sesgo general a ingresos:
 1. **Interfaz de PagePolis y plantillas con 3D** — ítems de la sección "Diseño / nivel
    visual" (variantes del hero 3D, rendimiento en móviles de gama baja, extenderlo donde
    aporte). El listón sigue siendo motionsites.ai / agencia premium.
@@ -46,8 +45,11 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Variantes del hero 3D** — `hero3d.js` elige ahora, por un hash estable del dominio,
+  entre 3 geometrías (icosaedro, cristal/gema, cubo facetado) y entre paleta sólida o a dos
+  tonos (`--brand`/`--brand-2`), para que dos clientes con marca similar no acaben con el
+  mismo hero clonado. Misma web = misma variante siempre; override manual con
+  `data-hero3d-shape` / `data-hero3d-palette` en el `<canvas>`.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -104,6 +106,25 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-15)
+- **Variantes de geometría/paleta en el hero 3D** (`database/templates/hero3d.js`): antes
+  toda web publicada usaba el mismo icosaedro morado; ahora se elige por sitio (hash estable
+  del dominio) entre 3 figuras y paleta sólida/dos-tonos con `--brand`/`--brand-2`, así dos
+  clientes con marca parecida ya no tienen el hero clonado. Verificado con 244/244 tests,
+  `npm run build` y smoke test visual (Playwright) de las 3 figuras × 2 paletas.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Elección explícita "Simple | 3D" en el wizard de creación** (`resources/js/Pages/Create/Index.tsx`
+  + `Pages/Templates/Index.tsx`): hoy el hero 3D depende de la categoría de la plantilla, sin que
+  el cliente lo elija ni lo vea marcado en la galería. Primer paso más pequeño: badge "3D" en las
+  tarjetas de `Templates/Index.tsx` para las plantillas que sí incluyen `hero3d-canvas` (servicios,
+  saas, abogados, coach, inmobiliaria, fotógrafo), reutilizando el patrón del badge `is_premium`
+  que ya existe ahí mismo.
+- 🟢 Llevar las mismas 3 geometrías/paleta a dos tonos del motor React (`Components/Hero3D.tsx`,
+  usado en landing/dashboard de la propia app) para que también varíe entre secciones en vez de
+  usar siempre la misma figura — mismo enfoque que `hero3d.js`, sin three.js.
+- 🟢 En el editor (`Pages/Editor/Index.tsx`), si la web tiene `data-hero3d`, exponer un selector
+  simple (figura/paleta) que escriba los atributos `data-hero3d-shape`/`data-hero3d-palette` en
+  el canvas — control manual para el cliente sin tocar código, ahora que el motor los soporta.
