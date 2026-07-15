@@ -4,9 +4,13 @@
    al ratón y al scroll. Cero dependencias (sin Three.js ni CDNs).
    Uso: añade <canvas class="hero3d-canvas" data-hero3d></canvas> dentro de un
    contenedor con position:relative (p.ej. .hero). Se colorea solo con
-   --brand (o --brand-2) del sistema de diseño, así que encaja con cualquier
-   plantilla. Si WebGL no está disponible, o el usuario prefiere menos
-   movimiento, se degrada solo sin romper nada. */
+   --brand / --brand-2 del sistema de diseño, así que encaja con cualquier
+   plantilla. Cada web elige automáticamente (hash estable del dominio) una
+   de 3 geometrías (icosaedro, cristal, cubo facetado) y paleta sólida o a
+   dos tonos, para que no todas las webs "tech" se vean idénticas; se puede
+   forzar con data-hero3d-shape="icosahedron|crystal|cube" y
+   data-hero3d-palette="solid|duo" en el canvas. Si WebGL no está disponible,
+   o el usuario prefiere menos movimiento, se degrada solo sin romper nada. */
 (function () {
   'use strict';
 
@@ -29,6 +33,20 @@
   function brandColor() {
     var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
     return colorToRgb(raw || '#7c3aed');
+  }
+
+  function brandColor2() {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand-2').trim();
+    return raw ? colorToRgb(raw) : null;
+  }
+
+  /* Hash corto y estable (site → variante) para que cada web tenga una
+     geometría/paleta consistente entre recargas sin coordinarlo a mano por
+     plantilla. */
+  function hashStr(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) | 0; }
+    return Math.abs(h);
   }
 
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
@@ -68,7 +86,28 @@
     }
   };
 
-  /* ── Icosaedro low-poly con shading plano (normales por cara) ── */
+  /* ── Geometría low-poly genérica: triángulos planos → shading plano
+     (normal por cara, orientada hacia fuera del origen). ── */
+  function facesToGeometry(triangles) {
+    var positions = [], normals = [];
+    triangles.forEach(function (f) {
+      var a = f[0], b = f[1], c = f[2];
+      var ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+      var vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+      var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      var nl = Math.hypot(nx, ny, nz) || 1;
+      nx /= nl; ny /= nl; nz /= nl;
+      var cx = (a[0] + b[0] + c[0]) / 3, cy = (a[1] + b[1] + c[1]) / 3, cz = (a[2] + b[2] + c[2]) / 3;
+      if (nx * cx + ny * cy + nz * cz < 0) { nx = -nx; ny = -ny; nz = -nz; }
+      [a, b, c].forEach(function (p) {
+        positions.push(p[0], p[1], p[2]);
+        normals.push(nx, ny, nz);
+      });
+    });
+    return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
+  }
+
+  /* Icosaedro: figura redondeada/orgánica (la geometría original). */
   function buildIcosahedron() {
     var t = (1 + Math.sqrt(5)) / 2;
     var raw = [
@@ -85,23 +124,45 @@
       [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
       [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
     ];
-    var positions = [], normals = [];
-    faces.forEach(function (f) {
-      var a = raw[f[0]], b = raw[f[1]], c = raw[f[2]];
-      var ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
-      var vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
-      var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-      var nl = Math.hypot(nx, ny, nz) || 1;
-      nx /= nl; ny /= nl; nz /= nl;
-      var cx = (a[0] + b[0] + c[0]) / 3, cy = (a[1] + b[1] + c[1]) / 3, cz = (a[2] + b[2] + c[2]) / 3;
-      if (nx * cx + ny * cy + nz * cz < 0) { nx = -nx; ny = -ny; nz = -nz; }
-      [a, b, c].forEach(function (p) {
-        positions.push(p[0], p[1], p[2]);
-        normals.push(nx, ny, nz);
-      });
-    });
-    return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
+    return facesToGeometry(faces.map(function (f) { return [raw[f[0]], raw[f[1]], raw[f[2]]]; }));
   }
+
+  /* Gema/cristal: bipirámide hexagonal alargada, facetas afiladas. */
+  function buildCrystal() {
+    var sides = 6, topY = 1.45, ringR = 0.92;
+    var top = [0, topY, 0], bottom = [0, -topY, 0], ring = [];
+    for (var i = 0; i < sides; i++) {
+      var a = (i / sides) * Math.PI * 2;
+      ring.push([Math.cos(a) * ringR, 0, Math.sin(a) * ringR]);
+    }
+    var triangles = [];
+    for (i = 0; i < sides; i++) {
+      var next = (i + 1) % sides;
+      triangles.push([top, ring[i], ring[next]]);
+      triangles.push([bottom, ring[next], ring[i]]);
+    }
+    return facesToGeometry(triangles);
+  }
+
+  /* Cubo facetado: figura angular/blocky, contraste con las orgánicas. */
+  function buildFacetedCube() {
+    var s = 0.82;
+    var v = {
+      a: [-s,-s,-s], b: [s,-s,-s], c: [s,s,-s], d: [-s,s,-s],
+      e: [-s,-s,s],  f: [s,-s,s],  g: [s,s,s],  h: [-s,s,s]
+    };
+    return facesToGeometry([
+      [v.a,v.b,v.c],[v.a,v.c,v.d],
+      [v.f,v.e,v.h],[v.f,v.h,v.g],
+      [v.e,v.a,v.d],[v.e,v.d,v.h],
+      [v.b,v.f,v.g],[v.b,v.g,v.c],
+      [v.d,v.c,v.g],[v.d,v.g,v.h],
+      [v.e,v.f,v.b],[v.e,v.b,v.a]
+    ]);
+  }
+
+  var GEOMETRIES = { icosahedron: buildIcosahedron, crystal: buildCrystal, cube: buildFacetedCube };
+  var GEOMETRY_KEYS = ['icosahedron', 'crystal', 'cube'];
 
   var VERT_SRC = [
     'attribute vec3 aPosition;',
@@ -153,7 +214,23 @@
     }
     gl.useProgram(program);
 
-    var geo = buildIcosahedron();
+    /* Variante estable por sitio (misma web = misma figura/paleta siempre;
+       webs distintas no se ven todas idénticas). Un data-hero3d-shape /
+       data-hero3d-palette en el canvas fuerza la variante si se necesita. */
+    var siteHash = hashStr((location.hostname || '') + (document.title || '') || 'pagepolis');
+    var shapeKey = canvas.dataset.hero3dShape;
+    if (GEOMETRY_KEYS.indexOf(shapeKey) === -1) {
+      shapeKey = GEOMETRY_KEYS[siteHash % GEOMETRY_KEYS.length];
+    }
+    var color1 = brandColor();
+    var color2 = brandColor2();
+    var paletteKey = canvas.dataset.hero3dPalette;
+    var duo = color2 && (color2[0] !== color1[0] || color2[1] !== color1[1] || color2[2] !== color1[2]);
+    if (paletteKey === 'solid') duo = false;
+    else if (paletteKey === 'duo') duo = !!color2;
+    else duo = duo && Math.floor(siteHash / GEOMETRY_KEYS.length) % 2 === 0;
+
+    var geo = (GEOMETRIES[shapeKey] || buildIcosahedron)();
     var posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferData(gl.ARRAY_BUFFER, geo.positions, gl.STATIC_DRAW);
@@ -178,7 +255,6 @@
     var uProj = gl.getUniformLocation(program, 'uProj');
     var uColor = gl.getUniformLocation(program, 'uColor');
 
-    var color = brandColor();
     var count = 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
@@ -191,11 +267,12 @@
         ry: Math.random() * Math.PI,
         speedX: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
         speedY: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
-        bobPhase: Math.random() * Math.PI * 2
+        bobPhase: Math.random() * Math.PI * 2,
+        color: duo && i % 2 === 1 ? color2 : color1
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, shapes: shapes, vertexCount: geo.count };
   }
 
   function initCanvas(canvas) {
@@ -250,7 +327,6 @@
       var view = Mat4.translate(0, 0, 0);
       gl.uniformMatrix4fv(scene.uProj, false, proj);
       gl.uniformMatrix4fv(scene.uView, false, view);
-      gl.uniform3fv(scene.uColor, scene.color);
 
       scene.shapes.forEach(function (s) {
         var bob = Math.sin(elapsed * 0.6 + s.bobPhase) * 0.25;
@@ -259,6 +335,7 @@
         model = Mat4.multiply(model, Mat4.rotateX(s.rx + elapsed * s.speedX));
         model = Mat4.multiply(model, Mat4.scale(s.scale));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
 
@@ -283,10 +360,10 @@
       var aspect0 = canvas.width / canvas.height || 1;
       gl.uniformMatrix4fv(scene.uProj, false, Mat4.perspective(Math.PI / 4, aspect0, 0.1, 100));
       gl.uniformMatrix4fv(scene.uView, false, Mat4.translate(0, 0, 0));
-      gl.uniform3fv(scene.uColor, scene.color);
       scene.shapes.forEach(function (s) {
         var model = Mat4.multiply(Mat4.translate(s.x, s.y, s.z), Mat4.multiply(Mat4.rotateY(s.ry), Mat4.multiply(Mat4.rotateX(s.rx), Mat4.scale(s.scale))));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
       return;
