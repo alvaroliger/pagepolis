@@ -16,6 +16,7 @@ class EditorController extends Controller
         $this->authorize('view', $project);
 
         $user = auth()->user();
+        $project->loadMissing('domain');
 
         return Inertia::render('Editor/Index', [
             'project' => [
@@ -29,6 +30,12 @@ class EditorController extends Controller
                 'status'     => $project->status,
                 'ai_status'  => $project->ai_status,
                 'ai_progress'=> $project->ai_progress,
+                'live_url'   => match ($project->domain?->type) {
+                    'custom'    => 'https://' . $project->domain->domain,
+                    'subdomain' => 'https://' . $project->domain->domain,
+                    'path'      => config('app.url') . '/s/' . $project->slug,
+                    default     => null,
+                },
             ],
             'aiUsage' => [
                 'used'        => AiRateLimit::used($user),

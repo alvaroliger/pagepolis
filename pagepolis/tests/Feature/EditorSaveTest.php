@@ -175,6 +175,39 @@ class EditorSaveTest extends TestCase
         $this->assertSame('', $project->fresh()->js);
     }
 
+    public function test_editor_page_exposes_live_url_for_published_project_with_path_domain(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['status' => 'published']);
+
+        \App\Models\Domain::create([
+            'user_id'    => $user->id,
+            'project_id' => $project->id,
+            'domain'     => $project->slug,
+            'type'       => 'path',
+            'status'     => 'active',
+        ]);
+
+        $this->actingAs($user)
+            ->get("/editor/{$project->id}")
+            ->assertInertia(fn ($page) => $page
+                ->where('project.status', 'published')
+                ->where('project.live_url', config('app.url') . '/s/' . $project->slug)
+            );
+    }
+
+    public function test_editor_page_has_no_live_url_when_project_has_no_domain(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->get("/editor/{$project->id}")
+            ->assertInertia(fn ($page) => $page
+                ->where('project.live_url', null)
+            );
+    }
+
     public function test_editor_page_forbidden_for_other_user(): void
     {
         $owner   = $this->user();

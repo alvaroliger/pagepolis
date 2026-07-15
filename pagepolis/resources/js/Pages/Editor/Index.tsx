@@ -45,6 +45,7 @@ interface Project {
     status: string;
     ai_status?: string | null;
     ai_progress?: string | null;
+    live_url?: string | null;
 }
 
 interface AiUsage {
@@ -429,6 +430,16 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     >
                         {saving ? 'Guardando…' : saved ? 'Guardado' : 'Guardar'}
                     </button>
+                    {project.status === 'published' && project.live_url && (
+                        <a
+                            href={project.live_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-semibold px-4 py-1.5 rounded-lg border border-gray-700 text-gray-300 hover:text-white hover:border-gray-600 transition-colors"
+                        >
+                            Ver web ↗
+                        </a>
+                    )}
                     <a
                         href={`/publicar?project_id=${project.id}`}
                         className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"

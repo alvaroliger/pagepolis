@@ -18,6 +18,12 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+**Aviso de coordinación (2026-07-15):** hay ~17 PRs abiertas sin fusionar (#44-#60), varias
+duplicando el mismo ítem (rendimiento del hero 3D en gama baja, variantes de geometría, filtro
+Simple/3D de la galería, accesibilidad de varios toggles). Este documento en `master` **no**
+refleja ese trabajo todavía porque sigue en ramas sin fusionar. Antes de elegir tarea, además de
+leer este archivo, revisa las PRs abiertas del repo para no repetir trabajo ya hecho en otra rama.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +40,12 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Enlace "Ver web" en el editor cuando el proyecto ya está publicado** — antes, un cliente
+  que volvía a editar una web ya publicada solo veía el botón genérico "Publicar" y no tenía
+  forma de abrir su web en vivo desde el propio editor (tenía que volver al Dashboard a buscar
+  la URL). `EditorController::index` ahora calcula `live_url` (mismo cálculo que ya usaba
+  `DashboardController`) y `Editor/Index.tsx` muestra un enlace "Ver web ↗" junto a "Publicar"
+  cuando el proyecto está publicado y tiene dominio.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +119,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Deshacer el último cambio de la IA en el editor** — "Regenerar" avisa de que reescribe
+  toda la web, pero el autosave (2,5 s de debounce) sobreescribe la última versión buena sin
+  posibilidad de volver atrás. Bastaría con guardar `html/css/js` anteriores en una ref antes de
+  aplicar el resultado de la IA y un botón "Deshacer último cambio" en el panel de chat — sin
+  cambios de backend.
+- 🟢 **Buscador/orden en la cuadrícula de proyectos del Dashboard** — con más de ~10 proyectos
+  (límite del plan gratis) no hay forma de buscar por nombre ni ordenar por visitas; solo el
+  orden por `updated_at` del servidor. Filtro/orden 100% client-side sobre `projects`, sin
+  cambios de backend.
