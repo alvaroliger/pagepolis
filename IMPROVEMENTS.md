@@ -6,6 +6,21 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ ANTES DE EMPEZAR: revisa las PRs abiertas, no solo este archivo (2026-07-15)
+A día de hoy hay **15 PRs abiertas sin revisar (#44-#58)** creadas por sesiones concurrentes
+de este mismo agente, y varias están duplicadas entre sí porque cada sesión solo miraba
+este `IMPROVEMENTS.md` y no el estado real del repo remoto:
+- Rendimiento del hero 3D en gama baja: **al menos 6 ramas** distintas lo implementan por
+  separado (`perf/hero3d-low-end-throttle` = PR #45 ya abierta, y otras 5 ramas más sin PR:
+  `perf/hero3d-low-end-device-tier`, `perf/hero3d-low-end-devices`, `perf/hero3d-low-end-mobile`,
+  `perf/hero3d-low-power-devices`, `feat/hero3d-low-end-device-perf`, `feature/hero3d-low-end-*`).
+- Variantes de geometría del hero 3D: **al menos 4 ramas** (PR #46 y #57 abiertas, más
+  `feature/hero3d-shape-variants`, `feature/hero3d-variants`).
+- Filtro Simple/3D en la galería de plantillas: PR #44 y #51 son la misma mejora.
+- Antes de tocar `hero3d.js`, el editor, el wizard de creación o la galería de plantillas:
+  **haz `git fetch origin` y `git branch -r`**, y revisa las PRs abiertas (`gh pr list` o el
+  MCP de GitHub) — no solo este documento. Si ya hay una rama/PR para tu idea, elige otra.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -77,6 +92,14 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **`aria-pressed` en los chips de filtro de categoría de la galería de plantillas**
+  (`Templates/Index.tsx`) — mismo patrón que ya usa el selector PC/Tablet/Móvil del
+  editor: el grupo de chips ahora es `role="group"` + `aria-label`, y cada botón lleva
+  `aria-pressed` reflejando si esa categoría es el filtro activo. Antes solo el color de
+  fondo distinguía el filtro activo, invisible para lectores de pantalla/alto contraste.
+  Sin cambios visuales. Verificado con Chromium headless (Playwright) contra una sesión
+  real logueada: `role="group"` presente, `aria-pressed` en `true` en "Todos" al cargar y
+  se mueve correctamente al chip clicado, sin errores de consola.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
