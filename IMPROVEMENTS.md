@@ -6,6 +6,15 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+⚠️ **Antes de elegir tarea: `git fetch origin --prune` y revisa `git branch -r` +
+las PRs abiertas del repo, no solo este documento.** A 2026-07-15 hay ~18 PRs
+abiertas (#44-#61) que aún no están fusionadas a master, así que este archivo
+no las refleja todas todavía — varias implementan lo mismo (rendimiento del
+hero 3D en gama baja: al menos 2 ramas distintas; variantes de geometría del
+hero 3D: al menos 2 ramas; filtro Simple/3D de la galería: al menos 2 ramas).
+Comprobar el contenido real de las ramas/PRs abiertas evita duplicar trabajo
+que otra sesión ya empujó pero que master todavía no ha integrado.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -34,6 +43,11 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Aviso cuando falla el guardado del editor** — `save()` (botón "Guardar" y autosave) no
+  tenía manejo de errores; si el POST fallaba (sesión caducada, red, 500) el cliente no se
+  enteraba y podía perder cambios sin saberlo. Ahora se muestra un toast de error y, como
+  `dirty` no se limpia en el catch, el autosave lo reintenta solo en el siguiente ciclo de
+  2,5 s (`resources/js/Pages/Editor/Index.tsx`).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +121,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Galería de plantillas (`Templates/Index.tsx`): cuando un filtro de categoría no tiene
+  resultados, la cuadrícula se queda en blanco sin ningún mensaje ("no hay plantillas en esta
+  categoría"). Además `useTemplate()` no muestra ningún aviso si `router.post('/proyectos', ...)`
+  falla (p. ej. límite del plan gratis alcanzado) — el botón "Creando proyecto…" solo vuelve a su
+  estado normal sin explicar por qué.
+- 🟢 Revisar si `fix/destructive-confirm-dialogs` (PR abierta) cubre también `purge()` en
+  `Dashboard/Index.tsx:205`, que sigue usando `confirm()` nativo para el borrado permanente de la
+  papelera — si no lo cubre, migrarlo al mismo `DeleteModal` que ya usa el borrado normal.
