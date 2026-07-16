@@ -18,6 +18,17 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+⚠️ **Coordinación (importante):** hay ~21 PRs abiertas en GitHub (#44-#64) de sesiones
+anteriores, muchas duplicadas entre sí (varias implementan lo mismo: variantes del hero 3D,
+filtro Simple/3D de la galería, vista previa de plantillas sin JS…). `git branch -r` y
+`git log` **no son suficientes** para detectar esto — varias de esas ramas nunca se
+mezclaron a master y algunas ni siquiera tienen rama local visible hasta que se hace
+`git fetch`. **Antes de elegir tarea, lista los PRs abiertos del repo
+(`alvaroliger/pagepolis`) con la herramienta de GitHub disponible en el entorno** y
+descarta cualquier ítem cuyo archivo/objetivo ya esté cubierto por una PR abierta, aunque
+siga sin fusionar. Si ya empezaste a programar algo y descubres que duplica una PR
+existente, no la abras — descarta la rama y elige otra mejora.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -72,6 +83,19 @@ no abras PR.
   inventar). (heredado del backlog anterior)
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
+## Producto (continuación)
+- ✅ **Páginas de error 404/500 con marca Pagepolis** — no existía `resources/views/errors/`
+  ni `bootstrap/app.php` registraba ninguna vista de error, así que cualquier 404 (por
+  ejemplo un visitante entrando a `/s/{slug}` con un enlace roto o una web ya
+  despublicada — visible para los clientes FINALES de cada negocio, no solo para
+  usuarios de la app) caía en la página gris de error por defecto de Laravel, sin logo,
+  sin navegación, sin ninguna relación visual con Pagepolis ni con la web que buscaban.
+  Añadidas `resources/views/errors/404.blade.php` y `500.blade.php`: página oscura de
+  marca (mismo lenguaje visual que `GuestLayout`/emails — logo con gradiente violeta →
+  fucsia → cian, fondo `#030712`), autocontenida (CSS inline, sin depender del bundle de
+  Vite) con enlaces a inicio y al panel. Cubierto por `ErrorPagesTest` (2 tests: slug
+  inexistente en `/s/{slug}` y ruta inexistente en la app).
+
 ## Calidad
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
@@ -107,3 +131,13 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Página de error 403 con la misma marca que los nuevos 404/500 (`resources/views/errors/403.blade.php`) — hoy solo hay 404 y 500; menos frecuente pero mismo problema de página gris sin marca cuando salta un `abort(403)`/policy.
+- 🟢 Vista Inertia de error dentro del SPA autenticado (patrón estándar de `laravel/breeze` con
+  Inertia: `bootstrap/app.php` → `withExceptions()->render()` para 404/403/419/500 fuera de
+  `local`/`testing`, más `resources/js/Pages/Error.tsx`) — así un 404/403 dentro del dashboard
+  (p.ej. abrir un proyecto que no es tuyo) se queda dentro del look del SPA en vez de salir a
+  una página HTML suelta. Las vistas Blade de esta sesión ya cubren el caso público
+  (`/s/{slug}`, rutas fuera de la SPA); esto sería el complemento para dentro de la app.
+- 🟢 Mensaje de error 419 (sesión/CSRF expirada) más amable en formularios largos del editor —
+  hoy un guardado con sesión caducada probablemente devuelve la página de error genérica de
+  Laravel en vez de un aviso claro de "tu sesión ha caducado, vuelve a iniciar sesión".
