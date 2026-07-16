@@ -16,7 +16,10 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    has_3d_hero: boolean;
 }
+
+type StyleFilter = 'all' | 'classic' | '3d';
 
 interface Props {
     templates: Template[];
@@ -39,11 +42,14 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
 
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [styleFilter, setStyleFilter] = useState<StyleFilter>('all');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = templates
+        .filter(t => filter === 'Todos' || t.category === filter)
+        .filter(t => styleFilter === 'all' || (styleFilter === '3d' ? t.has_3d_hero : !t.has_3d_hero));
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -79,6 +85,30 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     <p className="text-xs text-gray-500">Opcional — puedes cambiarlo luego</p>
                 </div>
 
+                {/* Estilo: clásica o 3D interactiva */}
+                <div className="mb-5">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Estilo de página</p>
+                    <div className="inline-flex bg-gray-800 border border-gray-700 rounded-full p-1 gap-1">
+                        {([
+                            { value: 'all', label: 'Todas' },
+                            { value: 'classic', label: 'Clásica' },
+                            { value: '3d', label: '✨ 3D' },
+                        ] as { value: StyleFilter; label: string }[]).map(opt => (
+                            <button
+                                key={opt.value}
+                                onClick={() => setStyleFilter(opt.value)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                                    styleFilter === opt.value
+                                        ? 'bg-violet-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Filtros */}
                 <div className="flex gap-2 flex-wrap mb-8">
                     {['Todos', ...categories].map(cat => (
@@ -97,6 +127,14 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Grid de plantillas */}
+                {filtered.length === 0 ? (
+                    <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+                        <p className="text-gray-400 text-sm">
+                            No hay plantillas {styleFilter === '3d' ? '3D' : styleFilter === 'classic' ? 'clásicas' : ''}
+                            {' '}en «{filter}». Prueba otro estilo o categoría.
+                        </p>
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(template => (
                         <div
@@ -109,6 +147,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
+                                {template.has_3d_hero && (
+                                    <span className="absolute top-2 left-2 bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">
+                                        ✨ 3D
+                                    </span>
+                                )}
                                 {template.is_premium && (
                                     <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
                                         PRO
@@ -147,6 +190,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         </div>
                     ))}
                 </div>
+                )}
             </div>
 
             {/* Modal de preview */}

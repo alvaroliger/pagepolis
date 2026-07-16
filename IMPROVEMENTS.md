@@ -57,6 +57,14 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Elección "Clásica | 3D" en la galería de plantillas** — `TemplateController@index`
+  detecta si el HTML de la plantilla lleva el canvas `hero3d-canvas` (no hay columna en BD,
+  se infiere del propio contenido) y expone `has_3d_hero`; la galería (`Templates/Index.tsx`)
+  añade un selector de estilo "Todas / Clásica / ✨ 3D" además del filtro por categoría,
+  badge "✨ 3D" en las tarjetas correspondientes, y un estado vacío cuando la combinación de
+  filtros no deja ninguna plantilla. Es el primer paso de la elección explícita de tipo de
+  página pedida en el foco de la semana; el flujo "Crear con IA" (`/crear`) sigue sin esa
+  elección — ver idea nueva más abajo.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -107,3 +115,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Llevar la elección "Clásica | 3D" también al flujo "Crear con IA" (`/crear`,
+  `Pages/Create/Index.tsx`) — hoy solo la galería de plantillas la tiene; en el wizard de IA
+  el hero 3D depende de que el modelo decida añadirlo según el rubro (`AnthropicService`),
+  el cliente no lo elige. Añadir un toggle/checkbox "quiero un hero 3D interactivo" que se
+  pase como pista al prompt resolvería la asimetría entre los dos flujos de creación.
+- 🟢 Persistir el filtro de estilo (`Clásica | 3D`) de la galería de plantillas en la URL
+  (query param) para poder compartir/enlazar un enlace ya filtrado, igual que otras vistas
+  con filtros de la app.
