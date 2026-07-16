@@ -18,6 +18,17 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+**⚠️ Coordinación (2026-07-16): revisa las PRs abiertas de GitHub, no solo `git branch -r`
+ni este documento.** Hay ~22 PRs abiertas sin fusionar (#44-#65 en el momento de escribir
+esto) y varias duplican exactamente el mismo cambio entre sí (p. ej. 4+ ramas distintas
+para "rendimiento del hero 3D en gama baja", 2 para "variantes de geometría del hero 3D",
+2 para "filtro Simple/3D en la galería de plantillas"). `git branch -r` sin `git fetch
+origin --prune` puede no mostrar ramas remotas nuevas — usa el MCP de GitHub
+(`list_pull_requests`/`search_pull_requests`, estado `open`) para ver el estado real antes
+de elegir tarea. Esta sesión detectó dos duplicados propios a mitad de trabajo (rendimiento
+del hero 3D en gama baja, ya cubierto por la PR #45, y elección Automático/Clásica/3D en
+el wizard, ya cubierto por la PR #49) y los descartó sin abrir PR.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +45,15 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Fix: guardar en el editor fallaba (422) al vaciar HTML/CSS/JS o el nombre** —
+  `ConvertEmptyStringsToNull` convierte un campo `""` en `null` antes de la validación;
+  con `sometimes|string` eso rechazaba el guardado en cuanto el cliente borraba todo el
+  código en el editor avanzado (o vaciaba el nombre), y el autosave con debounce lo
+  reintentaba cada 2,5 s sin éxito. `EditorController::save` ahora acepta `null` y lo
+  normaliza a `''` para HTML/CSS/JS (persiste el vaciado real que pidió el cliente) y
+  simplemente ignora un nombre vacío (conserva el anterior, ya que la columna no admite
+  NULL). Detectado verificando en navegador real (Playwright) el nuevo `role="status"`
+  de guardado (ver "Diseño / nivel visual"), no solo con la suite de tests.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -82,6 +102,10 @@ no abras PR.
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+- ✅ **Estado de guardado del editor anunciado a lectores de pantalla** — el indicador
+  "Guardando…"/"Guardado"/"Sin guardar" de `Editor/Index.tsx` solo existía como texto
+  visual dentro del botón; ahora hay un `<span role="status" className="sr-only">` que
+  anuncia los mismos cambios de estado sin alterar nada visual.
 
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
@@ -104,6 +128,21 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-16)
+- Fix del guardado del editor con contenido vacío (422 → 200) + estado de guardado
+  anunciado a lectores de pantalla (`role="status"` + `sr-only` en `Editor/Index.tsx`).
+  Descubierto verificando en navegador real (Playwright) el nuevo `role="status"`: el
+  guardado fallaba en silencio (autosave reintentando cada 2,5 s sin éxito) en cuanto el
+  HTML/CSS/JS o el nombre quedaban vacíos. 3 tests nuevos en `EditorSaveTest`, suite
+  247/247 verde, `npm run build` OK.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Aplicar el mismo `role="status"`/`sr-only` de guardado a otros indicadores puramente
+  visuales del editor (p. ej. "Generando…"/"SEO activo" del botón de SEO), que tienen el
+  mismo problema de solo comunicarse por color/texto dentro de un botón no enfocado.
+- 🟢 Revisar si otros endpoints con campos de texto libre opcionales (`sometimes|string`
+  sin `nullable`) tienen el mismo problema que tenía `EditorController::save` con
+  `ConvertEmptyStringsToNull` — candidatos: cualquier `PUT`/`POST` que acepte un campo de
+  texto que el cliente pueda vaciar del todo (p. ej. bio de perfil, mensaje de contacto).

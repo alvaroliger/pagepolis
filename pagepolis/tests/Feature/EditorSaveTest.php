@@ -92,6 +92,56 @@ class EditorSaveTest extends TestCase
         $this->assertSame('var x = 1;', $fresh->js);
     }
 
+    public function test_clearing_js_to_empty_string_saves_instead_of_failing(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user, ['js' => 'var x = 1;']);
+
+        // El middleware global convierte "" en null antes de la validación: sin el
+        // fix, esto devolvía 422 y el cliente no podía guardar tras borrar su JS.
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", [
+                'name' => 'Mi web',
+                'html' => '<h1>Original</h1>',
+                'css'  => 'h1{color:red}',
+                'js'   => '',
+            ])
+            ->assertOk()
+            ->assertExactJson(['success' => true]);
+
+        $this->assertSame('', $project->fresh()->js);
+    }
+
+    public function test_clearing_html_and_css_to_empty_string_saves_instead_of_failing(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", ['html' => '', 'css' => ''])
+            ->assertOk();
+
+        $fresh = $project->fresh();
+        $this->assertSame('', $fresh->html);
+        $this->assertSame('', $fresh->css);
+    }
+
+    public function test_emptying_name_keeps_previous_name_instead_of_failing(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", ['name' => ''])
+            ->assertOk()
+            ->assertExactJson(['success' => true]);
+
+        $this->assertSame('Mi web', $project->fresh()->name);
+    }
+
     public function test_other_user_cannot_save_project(): void
     {
         Queue::fake();
