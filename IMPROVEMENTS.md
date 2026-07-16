@@ -46,6 +46,15 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **La vista previa de plantillas ahora muestra el hero 3D/tilt real, no solo html/css
+  estáticos** — `TemplateController::index` no seleccionaba la columna `js` (motor
+  `engine.js`+`hero3d.js`), así que el modal de "vista previa" (el momento en que el
+  cliente decide qué plantilla usar) nunca ejecutaba el canvas WebGL ni las tarjetas
+  `tilt-3d`; se veía una web plana aunque la plantilla real sí tuviera 3D. Fix acotado al
+  modal grande (la miniatura del grid se deja sin JS a propósito: hasta 12 tarjetas a la
+  vez ejecutando WebGL sería un riesgo de rendimiento — ver ítem de auditoría de rendimiento
+  más abajo). Test añadido en `LandingTest.php` que verifica que `js` llega al prop de
+  Inertia. Suite 245/245 verde, `npm run build` OK.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -107,3 +116,23 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Split real "Simple | 3D" en el modelo de plantillas** — hoy las 12 plantillas de
+  `TemplateSeeder` llevan TODAS el mismo `js` (engine+hero3d), no existe ninguna variante
+  sin 3D ni columna que distinga el "tipo" de plantilla (`category` es el rubro de negocio,
+  no el nivel visual). Para el objetivo de "Simple | 3D" del wizard hace falta: columna
+  `templates.style` (`simple`|`3d`), una versión sin canvas 3D de cada plantilla (o al
+  menos de las más pesadas) y el toggle/filtro correspondiente en `Templates/Index.tsx`
+  (junto al filtro de categoría ya existente).
+- 🟢 **Unificar los dos flujos de creación de sitio** — `Create/Index.tsx` (wizard de IA,
+  sin paso de plantillas) y `Templates/Index.tsx` (galería, sin IA) están totalmente
+  desconectados; un cliente que entra por el wizard de IA nunca ve la galería ni elige
+  3D/simple. Enlazar ambos flujos (o fusionarlos) para que la elección de plantilla/3D
+  sea consistente sea cual sea la puerta de entrada.
+- 🟢 Llevar el JS del hero 3D también a la miniatura del grid de `Templates/Index.tsx`
+  (`TemplatePreview`), pero con guardas de rendimiento (máx. N canvas WebGL simultáneos,
+  `IntersectionObserver` para solo animar las tarjetas visibles) — hoy se deja sin JS a
+  propósito para no arriesgar con hasta 12 contextos WebGL a la vez; una vez resuelto el
+  ítem de rendimiento en móviles de gama baja, esto daría vista previa 3D también en el grid.
+- 🟢 Añadir cadena i18n para "Plantillas 3D" / "Plantillas clásicas" y demás copy nuevo del
+  selector Simple|3D — hoy `i18n/locales/*.json` no tiene ninguna clave de plantillas salvo
+  el título de la página.
