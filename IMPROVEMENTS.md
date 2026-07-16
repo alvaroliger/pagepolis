@@ -76,12 +76,25 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **Modales: cerrar con Escape + bloquear scroll de fondo** — hook compartido
+  `Hooks/useModalKeyboard.ts` aplicado al preview de plantillas (`Templates/Index.tsx`),
+  al confirm de la IA en el editor (`Editor/Index.tsx`) y al de "mover a la papelera" del
+  dashboard (`Dashboard/Index.tsx`): antes solo se cerraban haciendo clic fuera y la página
+  de detrás seguía haciendo scroll con el overlay abierto.
+- 🟢 Revisar accesibilidad/responsive de las páginas nuevas (queda: foco atrapado dentro
+  del modal —Tab no debería salir a la página de fondo— y devolver el foco al elemento que
+  abrió el modal al cerrarlo).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+
+## Hecho recientemente (2026-07-16)
+- Los 3 modales de la app (preview de plantillas, confirmación de la IA en el editor,
+  "mover a la papelera" en el dashboard) ahora se cierran con Escape y bloquean el scroll
+  de la página de fondo mientras están abiertos, vía un hook compartido
+  (`Hooks/useModalKeyboard.ts`). Suite 244/244 verde, build OK.
 
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)

@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import type { ActiveTab } from './CodeMirrorEditor';
+import useModalKeyboard from '@/Hooks/useModalKeyboard';
 
 // CodeMirror (~530 kB) solo se carga cuando el usuario activa el modo avanzado
 // (ver código), no en cada visita al editor.
@@ -96,6 +97,7 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
 }
 
 function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+    useModalKeyboard(true, onCancel);
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
             <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">

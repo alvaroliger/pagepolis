@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import useModalKeyboard from '@/Hooks/useModalKeyboard';
 
 // Evita que al pulsar enlaces en la vista previa el iframe navegue a la app
 // (lo que en local saturaba el servidor → "localhost rechaza la conexión").
@@ -45,6 +46,9 @@ export default function TemplatesIndex({ templates, categories }: Props) {
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
     const previewTemplate = templates.find(t => t.id === previewId);
+
+    const closePreview = useCallback(() => setPreviewId(null), []);
+    useModalKeyboard(!!previewTemplate, closePreview);
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
