@@ -48,6 +48,16 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+  (Hay una rama abierta `feature/hero3d-geometry-variants` con esto — revisar su PR antes
+  de retomar el ítem para no duplicar trabajo.)
+- ✅ **La vista previa de plantillas ahora ejecuta el JS real de la plantilla** — el modal
+  de "Vista previa" en `/plantillas` (`Templates/Index.tsx`) inyectaba solo `html`+`css`
+  en el iframe, así que el hero 3D (WebGL), el carrito, el menú móvil y cualquier
+  interacción de `engine.js`/`hero3d.js` no se veían nunca antes de elegir plantilla — el
+  cliente elegía "a ciegas" una plantilla "3D" sin ver el 3D. `TemplateController` ahora
+  incluye la columna `js` y el modal la inyecta igual que hace el sitio publicado
+  (`SiteController`). Las miniaturas pequeñas de la rejilla se dejan sin JS a propósito
+  (evita levantar 8-12 contextos WebGL simultáneos solo por hacer scroll en la galería).
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +117,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Insignia "3D" en las tarjetas de la rejilla de `/plantillas` para las plantillas cuyo
+  `html` incluye `data-hero3d` — así el cliente distingue de un vistazo, sin abrir el
+  modal, qué plantillas tienen motion design 3D (complementa el fix de esta sesión que
+  hace que el modal de vista previa sí ejecute el JS real).
+- 🟢 Reproducir la miniatura de la rejilla con el hero 3D activo solo bajo demanda (p.ej.
+  con `IntersectionObserver`, animar solo la tarjeta bajo el cursor o visible en viewport,
+  con un límite de 2-3 contextos WebGL a la vez) para dar vida a la galería sin el coste
+  de 8-12 canvases simultáneos.
+- 🟢 Revisar si el paso de plantillas del wizard de creación (antes de `/plantillas`, si
+  existe una preview propia ahí) tiene el mismo problema de no ejecutar `js` — auditar
+  todos los puntos donde se previsualiza una plantilla (wizard, galería, editor) para que
+  todos muestren fielmente lo que verá el cliente final.
