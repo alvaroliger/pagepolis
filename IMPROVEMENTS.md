@@ -46,6 +46,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **Elección "Simple | 3D" en la galería de plantillas** — nuevo control segmentado
+  ("Todas / Simple / ✨ 3D") sobre los filtros de categoría en `Templates/Index.tsx`,
+  más una insignia "✨ 3D" en la miniatura y en el modal de vista previa. El backend
+  calcula `has3d` (accesor `Template::getHas3dAttribute()`, detecta el canvas
+  `data-hero3d` del HTML) y lo expone via `TemplateController::index`. Antes solo se
+  distinguía abriendo cada preview; ahora el cliente elige el tipo de página desde el
+  primer vistazo. 3 tests nuevos (`TemplateGalleryTest`), suite 247/247 verde, build OK.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -107,3 +114,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Llevar la elección "Simple | 3D" al wizard de creación con IA** — `Create/Index.tsx`
+  (`/crear-con-ia` → `ProjectController::createWithAi` → `GenerateWebsiteJob`) hoy no pasa
+  por `database/templates/*` ni por `hero3d.js` en absoluto: los proyectos generados por
+  IA nunca tienen `template_id` ni hero 3D. Es el hueco más grande de la misión "Simple vs
+  3D" — el toggle que se acaba de añadir en la galería de plantillas solo cubre el flujo
+  de "clonar plantilla", no el flujo principal de creación por IA.
+- 🟢 Variantes de paleta para la insignia "✨ 3D" de la galería una vez existan las 2-3
+  geometrías/paletas del hero 3D (ítem de arriba) — que la insignia refleje qué variante
+  trae cada plantilla, no solo "tiene 3D sí/no".
+- 🟡 El badge "PRO" de la galería de plantillas nunca se pinta: `is_premium` está
+  hardcodeado a `false` para las 12 plantillas en `TemplateSeeder.php`. Si en algún
+  momento se decide que el hero 3D (u otras plantillas) sea un feature de pago, aquí está
+  el punto de enganche — requiere decisión de producto de Álvaro, no solo código.

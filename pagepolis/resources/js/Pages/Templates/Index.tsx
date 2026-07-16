@@ -16,6 +16,7 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    has3d: boolean;
 }
 
 interface Props {
@@ -37,13 +38,18 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
     );
 }
 
+type TypeFilter = 'all' | 'simple' | '3d';
+
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = templates
+        .filter(t => filter === 'Todos' || t.category === filter)
+        .filter(t => typeFilter === 'all' || (typeFilter === '3d' ? t.has3d : !t.has3d));
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -79,7 +85,31 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     <p className="text-xs text-gray-500">Opcional — puedes cambiarlo luego</p>
                 </div>
 
-                {/* Filtros */}
+                {/* Tipo de página: Simple vs 3D */}
+                <div className="flex items-center gap-3 flex-wrap mb-4">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tipo de página</span>
+                    <div className="inline-flex bg-gray-800 rounded-full p-1 gap-1">
+                        {([
+                            { key: 'all', label: 'Todas' },
+                            { key: 'simple', label: 'Simple' },
+                            { key: '3d', label: '✨ 3D' },
+                        ] as { key: TypeFilter; label: string }[]).map(opt => (
+                            <button
+                                key={opt.key}
+                                onClick={() => setTypeFilter(opt.key)}
+                                className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                                    typeFilter === opt.key
+                                        ? 'bg-violet-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Filtros por categoría */}
                 <div className="flex gap-2 flex-wrap mb-8">
                     {['Todos', ...categories].map(cat => (
                         <button
@@ -96,6 +126,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     ))}
                 </div>
 
+                {filtered.length === 0 && (
+                    <div className="text-center py-16 text-gray-500 text-sm">
+                        No hay plantillas que coincidan con este filtro.
+                    </div>
+                )}
+
                 {/* Grid de plantillas */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(template => (
@@ -109,11 +145,18 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
-                                {template.is_premium && (
-                                    <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
-                                        PRO
-                                    </span>
-                                )}
+                                <div className="absolute top-2 right-2 flex gap-1.5 z-10">
+                                    {template.has3d && (
+                                        <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ✨ 3D
+                                        </span>
+                                    )}
+                                    {template.is_premium && (
+                                        <span className="bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            PRO
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
@@ -165,7 +208,14 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                                 <span className="w-3 h-3 rounded-full bg-green-400"></span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-600">{previewTemplate.name}</span>
+                            <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                                {previewTemplate.name}
+                                {previewTemplate.has3d && (
+                                    <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                        ✨ 3D
+                                    </span>
+                                )}
+                            </span>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => { setPreviewId(null); useTemplate(previewTemplate.id); }}

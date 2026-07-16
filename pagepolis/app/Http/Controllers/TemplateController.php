@@ -13,7 +13,8 @@ class TemplateController extends Controller
         $templates = Template::where('is_active', true)
             ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count', 'html', 'css')
             ->orderByDesc('uses_count')
-            ->get();
+            ->get()
+            ->append('has3d');
 
         $categories = $templates->pluck('category')->unique()->values();
 
