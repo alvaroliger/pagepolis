@@ -48,6 +48,14 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Elección "Clásico | 3D" en la galería de plantillas** — columna `templates.is_3d`
+  (migración + `TemplateSeeder`, poblada según qué plantillas usan `tilt-3d`/`hero3d`:
+  abogados, coach, fotógrafo, gimnasio, inmobiliaria, saas y servicios son 3D; belleza,
+  cafetería, clínica, restaurante y tienda son clásicas), expuesta por `TemplateController`
+  y un selector de estilo en `Templates/Index.tsx` (además de los filtros por categoría de
+  siempre) con badge "✨ 3D" en las tarjetas y estado vacío cuando la combinación de
+  filtros no deja ninguna plantilla. Aún pendiente: llevar esta misma elección al flujo
+  "Crear con IA" (`Create/Index.tsx`), que hoy no pasa por la galería en absoluto.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +115,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Llevar la elección "Clásico | 3D" al flujo "Crear con IA"** (`Create/Index.tsx` /
+  `ProjectController::createWithAi`) — hoy ese flujo no pasa por la galería de plantillas
+  ni por `templates.is_3d`; el usuario que crea con IA no tiene ningún control sobre el
+  estilo 3D. Añadir un toggle simple al formulario y pasarlo a `buildPrompt()`/al job de
+  generación para que la IA use (o no) el hero 3D y `tilt-3d` en el resultado.
+- 🟢 Miniaturas reales de plantillas en vez de iframe en vivo escalado 0.4x
+  (`TemplatePreview` en `Templates/Index.tsx`) — genera una captura estática cacheada
+  (o al menos `loading="lazy"` + placeholder) para que la galería no tenga que montar y
+  pintar 12 iframes completos (con su JS/canvas 3D) solo para mostrar el grid.
+- 🟢 Antes de extender el toggle 3D a "Crear con IA", validar en `TemplateSeeder`/manifest
+  que el flag `is3d` se mantiene sincronizado si se añaden plantillas nuevas (hoy es un
+  valor a mano en el array; un test que compare `is3d` contra la presencia real de
+  `tilt-3d`/`hero3d` en el `.html` evitaría que se desincronicen).

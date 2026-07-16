@@ -13,10 +13,13 @@ interface Template {
     thumbnail: string | null;
     tags: string[] | null;
     is_premium: boolean;
+    is_3d: boolean;
     uses_count: number;
     html: string;
     css: string;
 }
+
+type StyleFilter = 'todos' | '3d' | 'simple';
 
 interface Props {
     templates: Template[];
@@ -39,11 +42,14 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
 
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [styleFilter, setStyleFilter] = useState<StyleFilter>('todos');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = templates
+        .filter(t => filter === 'Todos' || t.category === filter)
+        .filter(t => styleFilter === 'todos' || (styleFilter === '3d' ? t.is_3d : !t.is_3d));
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -79,6 +85,30 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     <p className="text-xs text-gray-500">Opcional — puedes cambiarlo luego</p>
                 </div>
 
+                {/* Estilo: clásico vs 3D interactivo */}
+                <div className="flex items-center gap-3 mb-5">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estilo</span>
+                    <div className="inline-flex bg-gray-800 border border-gray-700 rounded-full p-1">
+                        {([
+                            { key: 'todos', label: 'Todos' },
+                            { key: 'simple', label: 'Clásico' },
+                            { key: '3d', label: '✨ 3D' },
+                        ] as { key: StyleFilter; label: string }[]).map(opt => (
+                            <button
+                                key={opt.key}
+                                onClick={() => setStyleFilter(opt.key)}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                                    styleFilter === opt.key
+                                        ? 'bg-violet-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Filtros */}
                 <div className="flex gap-2 flex-wrap mb-8">
                     {['Todos', ...categories].map(cat => (
@@ -97,6 +127,18 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Grid de plantillas */}
+                {filtered.length === 0 ? (
+                    <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+                        <p className="text-gray-400 font-semibold mb-1">No hay plantillas con estos filtros</p>
+                        <p className="text-gray-600 text-sm mb-4">Prueba a cambiar el estilo o la categoría</p>
+                        <button
+                            onClick={() => { setFilter('Todos'); setStyleFilter('todos'); }}
+                            className="text-violet-400 hover:text-violet-300 text-sm font-semibold"
+                        >
+                            Quitar filtros
+                        </button>
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {filtered.map(template => (
                         <div
@@ -109,6 +151,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
+                                {template.is_3d && (
+                                    <span className="absolute top-2 left-2 bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">
+                                        ✨ 3D
+                                    </span>
+                                )}
                                 {template.is_premium && (
                                     <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
                                         PRO
@@ -147,6 +194,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         </div>
                     ))}
                 </div>
+                )}
             </div>
 
             {/* Modal de preview */}
