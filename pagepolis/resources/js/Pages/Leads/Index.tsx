@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -13,6 +14,17 @@ interface Lead {
 }
 
 export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) {
+    const [query, setQuery] = useState('');
+
+    const filteredLeads = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return leads;
+        return leads.filter((lead) =>
+            [lead.name, lead.email, lead.phone, lead.message, lead.project]
+                .some((field) => field?.toLowerCase().includes(q))
+        );
+    }, [leads, query]);
+
     return (
         <AuthenticatedLayout header={
             <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -47,7 +59,22 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {leads.map((lead) => (
+                        <input
+                            type="search"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Buscar por nombre, email, teléfono, mensaje o web..."
+                            aria-label="Buscar mensajes"
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-500"
+                        />
+
+                        {filteredLeads.length === 0 ? (
+                            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
+                                <div className="text-4xl mb-3">🔍</div>
+                                <h2 className="text-lg font-bold text-white">Sin resultados para &quot;{query}&quot;</h2>
+                                <p className="text-gray-400 text-sm mt-2">Prueba con otro nombre, email o palabra del mensaje.</p>
+                            </div>
+                        ) : filteredLeads.map((lead) => (
                             <div
                                 key={lead.id}
                                 className={`bg-gray-900 border rounded-2xl p-5 ${lead.is_new ? 'border-violet-600/60' : 'border-gray-800'}`}

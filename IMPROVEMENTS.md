@@ -18,6 +18,12 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+⚠️ **Coordinación (2026-07-16):** hay ~19-20 PRs abiertas sin revisar/mergear todavía,
+varias duplicadas entre sí (p.ej. dos PRs distintas añadiendo variantes de geometría al
+hero 3D, dos añadiendo filtro Simple/3D a la galería). Antes de elegir ítem, revisa la
+lista de PRs abiertas (no solo este archivo, que solo refleja lo que ya está en `master`)
+para no repetir trabajo ya en curso.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +40,11 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Buscador en la bandeja de mensajes** (`Leads/Index.tsx`) — con hasta 200 leads
+  cargados de golpe y cero forma de filtrar, encontrar un contacto concreto era scrollear
+  a ojo. Ahora hay un campo de búsqueda (cliente, sin endpoint nuevo) que filtra al
+  instante por nombre/email/teléfono/mensaje/web, con estado vacío propio "sin resultados
+  para..." distinto del estado "aún no tienes mensajes".
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -46,8 +57,9 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- 🟡 Variantes del hero 3D (2-3 geometrías/paletas distintas) — **ya hay PRs abiertas para
+  esto** (variantes de geometría en `hero3d.js`), no reimplementar hasta que se
+  revisen/mergeen o se descarten.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +119,10 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Paginar/limitar de verdad la bandeja de mensajes (`LeadController::index`) — hoy trae
+  hasta 200 leads en una sola petición sin paginación; con el buscador nuevo ya se puede
+  encontrar cualquiera, pero seguirá creciendo el payload inicial en cuentas con mucho
+  tráfico.
+- 🟢 Un lead marcado "Nuevo" que además coincide con el filtro de búsqueda actual debería
+  seguir siendo visualmente distinguible tras filtrar (ya lo es, solo falta contar/mostrar
+  cuántos "nuevos" hay entre los resultados filtrados en `Leads/Index.tsx`).
