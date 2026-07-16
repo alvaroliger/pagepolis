@@ -6,6 +6,21 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ AVISO IMPORTANTE (2026-07-16) — ramas duplicadas, revisar antes de seguir
+`git ls-remote --heads origin` tiene **83 ramas** sin fusionar (`git branch -r` en un
+checkout fresco NO las muestra todas si no se ha hecho fetch completo — usar siempre
+`git ls-remote --heads origin` en la orientación, no solo `git branch -r`). Hay
+**al menos 5 implementaciones distintas** de "variantes de geometría/paleta del hero 3D"
+(`feature/hero3d-geometry-variants`, `feature/hero3d-shape-variants`,
+`feature/hero3d-shape-palette-variants`, `feature/hero3d-variants`, más una en
+`d9526c9`/`783021c`/`6403804`/`cfe84f7`/`474ce02`) y **~10 ramas** sobre rendimiento del
+hero 3D en gama baja, **3 ramas** sobre filtro/insignia 3D en la galería de plantillas,
+y varias más duplicadas en editor/accesibilidad/mobile-nav. Ninguna está fusionada a
+`master` todavía. **Álvaro debería revisar y fusionar (o cerrar) el lote cuanto antes**
+para que el agente deje de tener que esquivarlas en cada sesión; mientras tanto, cada
+sesión nueva debe listar TODAS las ramas remotas antes de elegir tarea, no solo las que
+aparecen fusionadas en `git log`.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -104,6 +119,26 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-16)
+- ✅ **Feedback de éxito/error al mover a la papelera / restaurar / eliminar definitivamente**
+  un proyecto desde el dashboard — antes esas tres acciones (`resources/js/Pages/Dashboard/Index.tsx`)
+  no tenían `onSuccess`/`onError` ni usaban el `react-hot-toast` ya montado globalmente
+  (`app.tsx`) y usado en el editor; si la petición fallaba (sesión caducada, red, error
+  500) el usuario no se enteraba. Verificado con Chromium headless real: login, mover a
+  papelera → toast "Proyecto movido a la papelera", restaurar → toast "Proyecto
+  restaurado"; suite 244/244 verde, `npm run build` OK.
+
 ## Ideas nuevas
+- 🟢 **Páginas de error 404/403/419/500 con la identidad visual de la app** — hoy
+  `bootstrap/app.php` no registra vistas de error y no existe `resources/views/errors/`,
+  así que cualquier cliente que llegue a una URL rota, con la sesión caducada o un error
+  de servidor ve la plantilla blanca genérica de Laravel, un salto brusco respecto al
+  resto de la app (fondo oscuro violeta/fucsia). Puramente aditivo, sin tocar rutas
+  existentes — riesgo muy bajo.
+- 🟢 Bandeja de mensajes (`LeadController.php`, `-&gt;limit(200)`): el listado se corta en 200
+  leads sin avisar ni devolver el total, mientras la exportación CSV no tiene ese límite
+  — un negocio con más de 200 leads pierde visibilidad de los más antiguos sin saber por
+  qué. Devolver el total y mostrar un aviso "mostrando 200 de N, exporta el CSV para
+  verlos todos" cuando se trunque.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
