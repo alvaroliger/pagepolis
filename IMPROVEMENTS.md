@@ -46,6 +46,18 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **Elección explícita "Clásico | 3D interactivo" en el wizard de creación con IA**
+  (`Pages/Create/Index.tsx`, paso 5) — el cliente ya no depende de que la IA "adivine"
+  por tipo de negocio si le pega un hero 3D: elige él, y `ProjectController::buildPrompt`
+  se lo indica a la IA como instrucción explícita con prioridad sobre la heurística por
+  sector (fuerza o prohíbe `hero3d-canvas`/`tilt-3d` según la elección).
+- 🟢 Llevar la misma elección "Clásico | 3D" a la galería de plantillas
+  (`Pages/Templates/Index.tsx`): hoy la web ya sabe distinguir qué plantillas llevan
+  hero 3D (basta comprobar si `template.html` contiene `data-hero3d`: hoy son
+  servicios, abogados, coach, inmobiliaria, fotógrafo y saas) pero la galería no lo
+  muestra. Añadir una insignia "✨ 3D" en las tarjetas con hero 3D y un filtro rápido
+  "Todas / Clásicas / 3D" junto a los filtros de categoría — refuerza el mismo criterio
+  que ya se aplicó al wizard de IA.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -104,6 +116,18 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-16)
+- Elección explícita "Clásico | 3D interactivo" como paso 5 del wizard de creación con
+  IA, con instrucción de prioridad alta en el prompt que fuerza (o prohíbe) el hero 3D
+  independientemente del tipo de negocio. Suite 246/246 verde, `npm run build` OK.
+
 ## Ideas nuevas
+- 🟢 Llevar la insignia/filtro "3D" a la galería de plantillas (`Templates/Index.tsx`,
+  ver detalle en "Diseño / nivel visual" más arriba) — mismo criterio que ya tiene el
+  wizard de IA, aplicado a las plantillas base.
+- 🟢 En el editor, cuando el proyecto ya tiene `hero3d-canvas` en su HTML, mostrar un
+  indicador "Hero 3D activo" (con toggle para añadir/quitar vía instrucción de IA
+  preescrita) — hoy el cliente no tiene forma visual de saber si su web ya lleva el
+  motor 3D sin abrir el código.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).

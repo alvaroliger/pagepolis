@@ -106,6 +106,38 @@ class SmokeTest extends TestCase
         Queue::assertPushed(GenerateWebsiteJob::class);
     }
 
+    public function test_wizard_page_type_3d_forces_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'page_type'     => '3d',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function ($job) {
+            return str_contains($job->input, 'hero3d-canvas') && str_contains($job->input, 'tilt-3d');
+        });
+    }
+
+    public function test_wizard_page_type_simple_forces_no_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Bufete García',
+            'description'   => 'Abogados especializados en derecho mercantil.',
+            'page_type'     => 'simple',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function ($job) {
+            return str_contains($job->input, 'NO añadas el <canvas class="hero3d-canvas">');
+        });
+    }
+
     public function test_generate_endpoint_queues_job(): void
     {
         Queue::fake();

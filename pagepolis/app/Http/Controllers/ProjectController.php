@@ -26,6 +26,7 @@ class ProjectController extends Controller
             'whatsapp'      => 'nullable|string|max:30',
             'style'         => 'nullable|string|max:40',
             'location'      => 'nullable|string|max:80',
+            'page_type'     => 'nullable|in:simple,3d',
         ]);
 
         $user = auth()->user();
@@ -77,6 +78,12 @@ class ProjectController extends Controller
         }
         if (!empty($d['style'])) {
             $p .= "Estilo visual preferido: {$d['style']}.\n";
+        }
+
+        if (($d['page_type'] ?? null) === '3d') {
+            $p .= "IMPORTANTE — el cliente ha elegido explícitamente el diseño \"3D interactivo\" (esto tiene prioridad sobre cualquier heurística por tipo de negocio): añade SIEMPRE en el hero el <canvas class=\"hero3d-canvas\" data-hero3d aria-hidden=\"true\"> siguiendo la convención (hero con position:relative;overflow:hidden; canvas en position:absolute;inset:0;z-index:0;pointer-events:none; contenido de texto/CTAs con position:relative;z-index:1), y aplica la clase \"tilt-3d\" a 3-6 tarjetas clave (features, precios o productos destacados) para reforzar la profundidad interactiva.\n";
+        } elseif (($d['page_type'] ?? null) === 'simple') {
+            $p .= "IMPORTANTE — el cliente ha elegido explícitamente el diseño \"clásico\" (esto tiene prioridad sobre cualquier heurística por tipo de negocio): NO añadas el <canvas class=\"hero3d-canvas\"> ni la clase \"tilt-3d\" en ningún elemento; usa en el hero una imagen/foto potente en su lugar.\n";
         }
 
         return trim($p);

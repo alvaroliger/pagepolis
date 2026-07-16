@@ -14,6 +14,7 @@ export default function CreateWizard() {
     const [sells, setSells]               = useState(false);
     const [whatsapp, setWhatsapp]         = useState('');
     const [style, setStyle]               = useState('Moderno');
+    const [pageType, setPageType]         = useState<'simple' | '3d'>('simple');
     const [location, setLocation]         = useState('');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
@@ -43,6 +44,7 @@ export default function CreateWizard() {
                 whatsapp: sells ? whatsapp : null,
                 style,
                 location,
+                page_type: pageType,
             });
             if (data.success) {
                 router.visit(data.redirect);   // el editor muestra el progreso
@@ -159,6 +161,29 @@ export default function CreateWizard() {
                                 placeholder="Ej: Sevilla"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-600"
                             />
+                        </div>
+                    </div>
+
+                    {/* 5. Página clásica o 3D interactiva */}
+                    <div>
+                        <label className="block text-sm font-semibold text-white mb-2">5. ¿Diseño clásico o 3D interactivo?</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setPageType('simple')}
+                                className={`text-left p-3.5 rounded-xl border transition ${pageType === 'simple' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                            >
+                                <span className="block text-sm font-semibold">Clásico</span>
+                                <span className={`block text-xs mt-0.5 ${pageType === 'simple' ? 'text-violet-100' : 'text-gray-500'}`}>Diseño limpio, foto potente en el hero</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPageType('3d')}
+                                className={`text-left p-3.5 rounded-xl border transition ${pageType === '3d' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                            >
+                                <span className="block text-sm font-semibold">✨ 3D interactivo</span>
+                                <span className={`block text-xs mt-0.5 ${pageType === '3d' ? 'text-violet-100' : 'text-gray-500'}`}>Hero animado con profundidad, estilo agencia premium</span>
+                            </button>
                         </div>
                     </div>
 
