@@ -52,6 +52,11 @@ no abras PR.
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
+- ✅ **Elección explícita "Automático / Clásica / 3D" en el wizard de creación con IA** —
+  antes la IA decidía sola el tipo de hero según el rubro; ahora `Create/Index.tsx` tiene
+  un paso 5 con tres opciones y `ProjectController::buildPrompt` inyecta una instrucción
+  que fuerza (o prohíbe) el `<canvas class="hero3d-canvas">` cuando el cliente elige
+  explícitamente "3D" o "Clásica" (con "Automático" se mantiene el criterio previo).
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
   (`Components/Hero3D.tsx`, mismo motor que `hero3d.js`, sin three.js), primitivas de
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
@@ -104,6 +109,22 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-16)
+- Elección explícita "Automático / Clásica / 3D" en el wizard de creación con IA
+  (`Create/Index.tsx` paso 5 + `ProjectController::buildPrompt`), con 4 tests nuevos
+  cubriendo los tres valores y el rechazo de valores inválidos. Suite 248/248 verde,
+  `npm run build` OK.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Ahora que el wizard permite elegir "3D" explícitamente, el editor (`Editor/Index.tsx`)
+  podría mostrar una insignia "Página 3D" cuando el proyecto tenga el canvas `hero3d`, para
+  que el cliente sepa qué tipo de página tiene sin tener que mirar el código.
+- 🟢 La galería de plantillas (`Pages/Templates/Index.tsx`) no distingue plantillas con
+  hero 3D de las clásicas — añadir un filtro/etiqueta "3D" (usa las mismas plantillas que
+  ya llevan `hero3d-canvas` en `TemplateSeeder`) para que el wizard manual tenga la misma
+  elección clara que ya tiene el wizard de IA.
+- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas, ver backlog "Diseño / nivel
+  visual") — con la elección explícita ya lista, diversificar `buildIcosahedron()` (p.ej.
+  octaedro/toroide low-poly) haría que elegir "3D" no diera siempre el mismo aspecto.

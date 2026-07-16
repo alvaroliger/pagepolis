@@ -13,9 +13,9 @@ use Illuminate\Http\Response as HttpResponse;
 class ProjectController extends Controller
 {
     /**
-     * Asistente "a prueba de abuelos": con 4 respuestas en lenguaje natural crea el
-     * proyecto y lanza la generación de la web en segundo plano. El editor (al que
-     * se redirige) muestra el progreso y aplica el resultado al terminar.
+     * Asistente "a prueba de abuelos": con unas pocas respuestas en lenguaje natural
+     * crea el proyecto y lanza la generación de la web en segundo plano. El editor
+     * (al que se redirige) muestra el progreso y aplica el resultado al terminar.
      */
     public function createWithAi(Request $request): JsonResponse
     {
@@ -26,6 +26,7 @@ class ProjectController extends Controller
             'whatsapp'      => 'nullable|string|max:30',
             'style'         => 'nullable|string|max:40',
             'location'      => 'nullable|string|max:80',
+            'page_type'     => 'nullable|string|in:auto,classic,3d',
         ]);
 
         $user = auth()->user();
@@ -77,6 +78,12 @@ class ProjectController extends Controller
         }
         if (!empty($d['style'])) {
             $p .= "Estilo visual preferido: {$d['style']}.\n";
+        }
+
+        if (($d['page_type'] ?? 'auto') === '3d') {
+            $p .= "IMPORTANTE: el cliente ha elegido explícitamente una página con HERO 3D animado (estilo agencia premium). Añade SIEMPRE el <canvas class=\"hero3d-canvas\" data-hero3d aria-hidden=\"true\"> en el hero (siguiendo la convención del sistema), sea cual sea el rubro del negocio.\n";
+        } elseif (($d['page_type'] ?? 'auto') === 'classic') {
+            $p .= "IMPORTANTE: el cliente ha elegido explícitamente una página CLÁSICA, sin animación 3D. NO añadas el canvas hero3d bajo ningún concepto; usa una imagen o un fondo con degradado como protagonista del hero.\n";
         }
 
         return trim($p);

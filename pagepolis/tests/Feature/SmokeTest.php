@@ -106,6 +106,64 @@ class SmokeTest extends TestCase
         Queue::assertPushed(GenerateWebsiteJob::class);
     }
 
+    public function test_wizard_page_type_3d_forces_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'page_type'     => '3d',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function (GenerateWebsiteJob $job) {
+            return str_contains($job->input, 'HERO 3D animado') && !str_contains($job->input, 'CLÁSICA');
+        });
+    }
+
+    public function test_wizard_page_type_classic_forbids_hero3d_instruction(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'page_type'     => 'classic',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function (GenerateWebsiteJob $job) {
+            return str_contains($job->input, 'CLÁSICA') && !str_contains($job->input, 'HERO 3D animado');
+        });
+    }
+
+    public function test_wizard_page_type_auto_leaves_decision_to_ai(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+        ])->assertOk();
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function (GenerateWebsiteJob $job) {
+            return !str_contains($job->input, 'HERO 3D animado') && !str_contains($job->input, 'CLÁSICA');
+        });
+    }
+
+    public function test_wizard_rejects_invalid_page_type(): void
+    {
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'page_type'     => 'ultra-mega-3d',
+        ])->assertStatus(422);
+    }
+
     public function test_generate_endpoint_queues_job(): void
     {
         Queue::fake();
