@@ -18,6 +18,33 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+## ⚠️ Antes de elegir tarea: revisa TODAS las ramas remotas, no solo `git log`
+`master` lleva sin integrar desde 2026-07-03 y hay **~90 ramas remotas sin mergear**
+(`git ls-remote --heads origin`, no basta `git branch -r` justo después de clonar — a
+veces no trae todas las remote-tracking refs). Varios ítems de este backlog ya tienen
+**varios** intentos duplicados sin mergear, por ejemplo:
+- Hero 3D en gama baja (rendimiento): `feat/hero3d-low-end-device-perf`,
+  `feature/hero3d-low-end-device-perf`, `feature/hero3d-low-end-device-tier`,
+  `feature/hero3d-low-end-mobile-perf`, `feature/hero3d-low-end-perf`,
+  `perf/hero3d-low-end-*` (varias) — **no crear una más**, esta idea ya está agotada.
+- Variantes de geometría/paleta del hero 3D: `feature/hero3d-geometry-variants`,
+  `feature/hero3d-shape-palette-variants`, `feature/hero3d-shape-variants`,
+  `feature/hero3d-variants`.
+- Elección Simple/3D en el wizard: `feature/wizard-3d-page-choice`,
+  `feature/wizard-page-type-choice`.
+- Filtro 3D en la galería de plantillas: `feature/template-gallery-3d-badge-filter`,
+  `feature/template-gallery-3d-filter`, `feature/template-gallery-3d-simple-filter`,
+  `feature/template-gallery-3d-style-filter`, `feature/template-gallery-simple-3d-filter`.
+- Vista previa en vivo de plantillas: `feature/template-gallery-live-3d-preview`,
+  `feature/template-preview-live-js`, `fix/template-preview-missing-js*`.
+- Accesibilidad: más de 10 ramas `fix/*-a11y*` / `feature/accessible-modals` ya cubren
+  formularios, modales, gráficos de analítica, nav móvil, chips de categoría.
+
+**Antes de implementar, comprueba con `git ls-remote --heads origin | grep <tema>`.**
+Si ya existe una rama para la idea, no la dupliques: o bien elige otra idea del backlog,
+o (si tienes acceso) revisa esa rama existente y complétala/mejórala en vez de reinventarla.
+Álvaro debería revisar y fusionar (o cerrar) el backlog de PRs abiertos cuando pueda.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +61,13 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Panel de SEO en el editor** — el botón "Generar SEO" antes solo llamaba a la IA sin
+  mostrar nunca el resultado (`seo_meta` se guardaba pero no se veía en ningún sitio); ahora
+  abre un panel con preview estilo resultado de Google (título/URL/descripción) y campos
+  editables con contador de caracteres (título 60, descripción 155, keywords 200) que se
+  guardan sin gastar IA (`POST /editor/{project}/seo`, conserva `og_title`/`og_description`/
+  `schema` generados por IA). El cliente puede revisar y ajustar cómo se verá su web en
+  Google antes de publicar, en vez de confiar a ciegas en un toast puntual.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +141,17 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 `AuthenticatedLayout.tsx` (~línea 87): `auth.user.name[0].toUpperCase()` para el
+  avatar no protege contra un `name` vacío/en blanco — si algún día ocurre, revienta el nav
+  entero en vez de degradar con un fallback ("?" o similar).
+- 🟢 Dashboard: los dos pasos del checklist de onboarding "Publica tu web" y "Conecta tu
+  dominio propio" (`Dashboard/Index.tsx` ~línea 50-54) enlazan al mismo `/publicar` sin
+  distinguir cuál paso es — parece un enlace duplicado/roto para un cliente nuevo.
+- 🟢 `Leads/Index.tsx` usa emojis sueltos (📭 ✉️ 📞) como iconos en vez de `lucide-react`,
+  que es el sistema de iconos del resto de la app (Dashboard, Editor) — inconsistente
+  visualmente entre SO/navegador.
+- 🟢 Templates gallery (`Templates/Index.tsx`): sin estado vacío si un filtro de categoría
+  no devuelve resultados — hoy no ocurre (categorías vienen del propio catálogo), pero es
+  una trampa latente en cuanto el catálogo de plantillas se desequilibre entre categorías.
+- 🟢 El panel de SEO nuevo del editor no incluye `og_title`/`og_description` (solo la IA los
+  genera); valorar exponerlos como campos avanzados opcionales una vez haya feedback de uso.

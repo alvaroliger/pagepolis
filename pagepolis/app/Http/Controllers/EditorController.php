@@ -26,6 +26,7 @@ class EditorController extends Controller
                 'js'         => $project->js ?? '',
                 'ai_history' => $project->ai_history ?? [],
                 'seo_meta'   => $project->seo_meta ?? null,
+                'preview_url'=> $project->preview_url,
                 'status'     => $project->status,
                 'ai_status'  => $project->ai_status,
                 'ai_progress'=> $project->ai_progress,
@@ -56,5 +57,28 @@ class EditorController extends Controller
         $project->deployToLiveDomain();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Guarda ediciones manuales del título/descripción/keywords SEO (sin pasar
+     * por la IA). Conserva og_title/og_description/schema, que solo genera la IA.
+     */
+    public function updateSeo(Request $request, Project $project): JsonResponse
+    {
+        $this->authorize('update', $project);
+
+        $validated = $request->validate([
+            'title'       => 'nullable|string|max:60',
+            'description' => 'nullable|string|max:155',
+            'keywords'    => 'nullable|string|max:200',
+        ]);
+
+        $meta = array_filter(
+            array_merge($project->seo_meta ?? [], $validated),
+            fn ($value) => $value !== null && $value !== ''
+        );
+        $project->update(['seo_meta' => $meta]);
+
+        return response()->json(['success' => true, 'meta' => $meta]);
     }
 }

@@ -91,6 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Editor
     Route::get('/editor/{project}', [EditorController::class, 'index'])->name('editor.index');
     Route::post('/editor/{project}/guardar', [EditorController::class, 'save'])->name('editor.save');
+    Route::post('/editor/{project}/seo', [EditorController::class, 'updateSeo'])->name('editor.seo.update');
 
     // IA
     Route::post('/ai/generar', [AiController::class, 'generate'])

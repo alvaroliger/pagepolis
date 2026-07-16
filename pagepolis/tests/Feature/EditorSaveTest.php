@@ -186,6 +186,72 @@ class EditorSaveTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_owner_can_save_seo_fields(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['seo_meta' => ['og_title' => 'Título social']]);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/seo", [
+                'title'       => 'Mi negocio en Madrid',
+                'description' => 'La mejor pastelería del barrio, pedidos online.',
+                'keywords'    => 'pastelería, tartas, madrid',
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $fresh = $project->fresh();
+        $this->assertSame('Mi negocio en Madrid', $fresh->seo_meta['title']);
+        $this->assertSame('La mejor pastelería del barrio, pedidos online.', $fresh->seo_meta['description']);
+        $this->assertSame('pastelería, tartas, madrid', $fresh->seo_meta['keywords']);
+        // Los campos generados por IA que el usuario no edita no deben perderse.
+        $this->assertSame('Título social', $fresh->seo_meta['og_title']);
+    }
+
+    public function test_guest_cannot_save_seo_fields(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->postJson("/editor/{$project->id}/seo", ['title' => 'Hacked'])
+            ->assertUnauthorized();
+    }
+
+    public function test_other_user_cannot_save_seo_fields(): void
+    {
+        $owner   = $this->user();
+        $other   = $this->user();
+        $project = $this->project($owner, ['seo_meta' => ['title' => 'Original']]);
+
+        $this->actingAs($other)
+            ->postJson("/editor/{$project->id}/seo", ['title' => 'Hacked'])
+            ->assertForbidden();
+
+        $this->assertSame('Original', $project->fresh()->seo_meta['title']);
+    }
+
+    public function test_seo_title_exceeding_max_length_is_rejected(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/seo", ['title' => str_repeat('a', 61)])
+            ->assertUnprocessable();
+    }
+
+    public function test_clearing_a_seo_field_removes_it(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['seo_meta' => ['title' => 'Antiguo', 'description' => 'Desc']]);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/seo", ['title' => '', 'description' => 'Desc'])
+            ->assertOk();
+
+        $this->assertArrayNotHasKey('title', $project->fresh()->seo_meta);
+    }
+
     public function test_no_deploy_job_dispatched_for_path_domain(): void
     {
         Queue::fake();
