@@ -39,11 +39,15 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
 
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [sortBy, setSortBy] = useState<'popular' | 'name'>('popular');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const sorted = [...filtered].sort((a, b) =>
+        sortBy === 'name' ? a.name.localeCompare(b.name) : b.uses_count - a.uses_count
+    );
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -80,25 +84,38 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Filtros */}
-                <div className="flex gap-2 flex-wrap mb-8">
-                    {['Todos', ...categories].map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setFilter(cat)}
-                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                                filter === cat
-                                    ? 'bg-violet-600 text-white'
-                                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                            }`}
+                <div className="flex gap-3 flex-wrap items-center justify-between mb-8">
+                    <div className="flex gap-2 flex-wrap">
+                        {['Todos', ...categories].map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setFilter(cat)}
+                                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+                                    filter === cat
+                                        ? 'bg-violet-600 text-white'
+                                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                    <label className="flex items-center gap-2 text-sm text-gray-400">
+                        Ordenar
+                        <select
+                            value={sortBy}
+                            onChange={e => setSortBy(e.target.value as 'popular' | 'name')}
+                            className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500"
                         >
-                            {cat}
-                        </button>
-                    ))}
+                            <option value="popular">Más usadas</option>
+                            <option value="name">Nombre (A-Z)</option>
+                        </select>
+                    </label>
                 </div>
 
                 {/* Grid de plantillas */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {filtered.map(template => (
+                    {sorted.map(template => (
                         <div
                             key={template.id}
                             className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-700/50 transition-all hover:-translate-y-1 group"

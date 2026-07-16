@@ -18,6 +18,19 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+## ⚠️ Aviso operativo (2026-07-16): ramas remotas sin integrar
+`git ls-remote --heads origin` muestra ~90 ramas remotas sin mergear a `master` (la
+integración más reciente sigue siendo la de 2026-07-03). Hay MUCHA duplicación: al menos
+4 ramas distintas implementan variantes de geometría del hero 3D (`feature/hero3d-shape-variants`,
+`feature/hero3d-geometry-variants`, `feature/hero3d-shape-palette-variants`, `feature/hero3d-variants`),
+5+ el rendimiento del hero 3D en gama baja (`*/hero3d-low-end-*`), 5 el filtro Simple/3D
+de la galería (`feature/template-gallery-3d-*-filter`), 2 el paso Simple|3D del wizard, etc.
+**Antes de empezar un ítem nuevo, no basta con `git branch -r`** (en este clon no trae todas
+las ramas remotas) — usa `git ls-remote --heads origin` o `git fetch --all` para ver el
+panorama completo y evitar añadir un 5º/6º duplicado. Álvaro debería revisar y fusionar
+(o cerrar) ese backlog de PRs cuanto antes; hasta entonces, los runs automáticos deberían
+priorizar ítems que NO tengan ya una rama con nombre similar.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +47,13 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Orden en la galería de plantillas** — selector "Más usadas / Nombre (A-Z)" en
+  `Templates/Index.tsx`; antes solo había filtro por categoría y el orden venía fijo del
+  backend (por `uses_count`), sin forma de buscar una plantilla conocida por nombre.
+- 🟢 Galería de plantillas: contador de resultados ("N plantillas") y estado vacío cuando
+  un filtro de categoría no tiene resultados (hoy el grid queda en blanco sin mensaje).
+- 🟢 Buscador por texto (nombre/tag) en la galería de plantillas, junto al selector de
+  categoría y el de orden nuevo — útil según crezca el catálogo.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
