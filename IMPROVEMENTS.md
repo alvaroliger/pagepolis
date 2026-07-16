@@ -18,6 +18,13 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+⚠️ **Coordinación (2026-07-16):** hay ~20 PRs abiertas sin revisar/mergear todavía (#44-#63
+en el momento de escribir esto), varias duplicadas entre sí (al menos dos añadiendo
+variantes de geometría al hero 3D, y dos añadiendo el filtro Simple/3D a la galería de
+plantillas — casi abro una tercera copia de este último antes de revisar los PRs abiertos).
+Antes de elegir ítem, revisa la lista de PRs abiertas del repo (no solo este archivo, que
+solo refleja lo que ya está en `master`) para no repetir trabajo ya en curso.
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +41,11 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Buscador en la cuadrícula de proyectos del Dashboard** (`Dashboard/Index.tsx`) — con
+  más de 3 proyectos aparece un campo de búsqueda (cliente, sin endpoint nuevo) que filtra
+  al instante por nombre o dominio, con estado vacío propio "Sin resultados para..."
+  distinto del estado de "aún no tienes proyectos". Mismo patrón que el buscador de la
+  bandeja de leads.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +119,13 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 `useTemplate()` en la galería de plantillas (`Templates/Index.tsx`) no avisa si falla la
+  creación del proyecto (p.ej. límite del plan gratis) — el botón solo vuelve a su estado
+  normal en silencio. Mismo patrón que el toast de error ya usado en el autosave del editor.
+- 🟢 Ordenar la cuadrícula de proyectos del Dashboard (por nombre / fecha de edición / más
+  visitas) además del buscador ya añadido.
+- 🟢 Paginar de verdad la bandeja de mensajes (`LeadController::index`, hasta 200 leads sin
+  paginación) — con el buscador ya no hace falta para encontrar uno concreto, pero el
+  payload inicial seguirá creciendo en cuentas con mucho tráfico.
+- 🔵 Deshacer el último cambio de la IA en el editor antes del autosave (snapshot de
+  html/css/js previo a "Regenerar"; botón "Deshacer" en el panel de chat).
