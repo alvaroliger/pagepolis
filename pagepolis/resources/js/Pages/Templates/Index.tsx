@@ -13,6 +13,7 @@ interface Template {
     thumbnail: string | null;
     tags: string[] | null;
     is_premium: boolean;
+    is_3d: boolean;
     uses_count: number;
     html: string;
     css: string;
@@ -21,6 +22,7 @@ interface Template {
 interface Props {
     templates: Template[];
     categories: string[];
+    hero3dJs: string;
 }
 
 function TemplatePreview({ html, css }: { html: string; css: string }) {
@@ -37,7 +39,7 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
     );
 }
 
-export default function TemplatesIndex({ templates, categories }: Props) {
+export default function TemplatesIndex({ templates, categories, hero3dJs }: Props) {
     const [filter, setFilter] = useState('Todos');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
@@ -114,6 +116,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                         PRO
                                     </span>
                                 )}
+                                {template.is_3d && (
+                                    <span className="absolute top-2 left-2 bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">
+                                        3D
+                                    </span>
+                                )}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
@@ -165,7 +172,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                                 <span className="w-3 h-3 rounded-full bg-green-400"></span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-600">{previewTemplate.name}</span>
+                            <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                                {previewTemplate.name}
+                                {previewTemplate.is_3d && (
+                                    <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">3D</span>
+                                )}
+                            </span>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => { setPreviewId(null); useTemplate(previewTemplate.id); }}
@@ -180,7 +192,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script>${previewTemplate.is_3d ? `<script>${hero3dJs}<\/script>` : ''}</body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}
