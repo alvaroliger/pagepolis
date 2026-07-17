@@ -57,6 +57,12 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Insignia "3D" + vista previa animada en la galería de plantillas** — las 6
+  plantillas con hero 3D llevan ahora una insignia visible en la tarjeta y en el modal
+  (`TemplateController::index` calcula `is_3d` mirando `data-hero3d` en el HTML), y el
+  modal de vista previa inyecta el motor `hero3d.js` real (prop `hero3dJs`) para que el
+  cliente vea el efecto animado antes de elegir la plantilla, en vez de un canvas
+  estático. Antes la vista previa no ejecutaba ningún JS.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -104,6 +110,29 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-17)
+- Insignia "3D" + vista previa animada en la galería de plantillas (ver "Diseño / nivel
+  visual" arriba). Suite 245/245 verde, `npm run build` OK, verificado visualmente con
+  Playwright (capturas de la galería y del modal con el hero 3D animado).
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Elección explícita "Simple | 3D" en el wizard de creación con IA** — hoy
+  `Create/Index.tsx` (`/crear-con-ia`) no pregunta nada sobre el tipo de página; la IA
+  decide la plantilla/estilo sin que el cliente elija si quiere una web con hero 3D o
+  clásica. Añadir un selector visual (con preview) antes de generar encajaría con la
+  insignia "3D" ya añadida a la galería manual.
+- 🟢 **Miniatura animada (no solo el modal) para las plantillas 3D en la galería** — el
+  `TemplatePreview` de la tarjeta (grid, escala 0.4, `pointer-events-none`) sigue sin JS;
+  solo el modal de vista previa grande anima el hero 3D. Añadirlo también a la miniatura
+  (con cuidado de no crear 6 contextos WebGL simultáneos si se ve toda la galería a la
+  vez — quizá con `IntersectionObserver` y solo 1-2 activos) daría aún más nivel de
+  "agencia premium" de un vistazo.
+- 🟢 Soporte del editor para plantillas 3D: si el proyecto usa el hero 3D (detectable
+  igual que en `TemplateController`), mostrar un aviso o toggle en `Editor/Index.tsx`
+  explicando que ese bloque es interactivo/WebGL, para que el cliente no lo borre sin
+  saber qué es al editar con IA o a mano.
+- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (sigue pendiente, ver
+  "Diseño / nivel visual" arriba): no hay comprobación de `navigator.hardwareConcurrency`
+  ni reducción del nº de figuras (`hero3d.js` genera 6-8 siempre).
