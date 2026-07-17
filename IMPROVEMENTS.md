@@ -36,6 +36,15 @@ no abras PR.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Galería de plantillas: el hero 3D ahora se ve animado en la vista previa** — el
+  `TemplateController` no seleccionaba la columna `js`, y `Templates/Index.tsx` solo
+  inyectaba `html`+`css` en el `srcDoc` del iframe (miniatura y modal), así que las 6
+  plantillas con hero 3D (saas, servicios, abogados, coach, inmobiliaria, fotógrafo)
+  mostraban un `<canvas>` vacío justo en el momento en que el cliente decide qué
+  plantilla usar. Ahora se selecciona e inyecta también `js`, igual que ya hacía el
+  editor (`Editor/Index.tsx`), así el escaparate premium (WebGL, tilt-3d) es visible
+  desde el primer vistazo. Test añadido (`LandingTest`) que verifica que el motor 3D
+  llega al HTML de la página; suite 245/245 verde, `npm run build` OK.
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
@@ -107,3 +116,17 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Badge "3D" en la galería de plantillas** (`Templates/Index.tsx`) — ahora que el hero 3D
+  ya se ve animado en la vista previa (ver arriba), añadir una etiqueta visible en la tarjeta
+  (p.ej. junto a "PRO") para las plantillas que lo llevan, así el cliente entiende por qué
+  esa plantilla se mueve y elige con criterio en vez de descubrirlo por sorpresa.
+- 🟢 **Selector "Simple | 3D" explícito en el wizard de creación con IA** (`Create/Index.tsx` +
+  `AnthropicService`) — hoy la decisión de meter el hero 3D la toma la IA sola según el rubro
+  del negocio (`AnthropicService.php` ~L308-312) y el usuario no tiene ni idea ni control.
+  Un simple toggle ("¿Quieres un hero 3D tipo agencia premium?") le da agencia real al
+  cliente sin tocar el motor; encaja directo con el foco de la semana de Álvaro.
+- 🟢 Aviso/salvaguarda en el editor cuando el proyecto usa el motor 3D (`PAGEPOLIS-HERO3D-ENGINE`
+  en el JS) — un pequeño aviso al abrir la pestaña JS ("este código incluye el motor 3D del
+  hero, bórralo con cuidado") evita que el cliente rompa el efecto sin querer al editar.
+- 🟢 Variantes de estilo 3D seleccionables (no solo geometrías nuevas en `hero3d.js`, sino
+  exponerlas como opción visual en la propia plantilla/gallery una vez existan 2-3).

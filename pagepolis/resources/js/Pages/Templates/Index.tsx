@@ -16,6 +16,7 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    js: string;
 }
 
 interface Props {
@@ -23,8 +24,8 @@ interface Props {
     categories: string[];
 }
 
-function TemplatePreview({ html, css }: { html: string; css: string }) {
-    const srcDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden}${css}</style></head><body>${html}</body></html>`;
+function TemplatePreview({ html, css, js }: { html: string; css: string; js: string }) {
+    const srcDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden}${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
     return (
         <iframe
             srcDoc={srcDoc}
@@ -108,7 +109,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 className="h-44 overflow-hidden relative cursor-pointer bg-white"
                                 onClick={() => setPreviewId(template.id)}
                             >
-                                <TemplatePreview html={template.html} css={template.css} />
+                                <TemplatePreview html={template.html} css={template.css} js={template.js} />
                                 {template.is_premium && (
                                     <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
                                         PRO
@@ -180,7 +181,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script><script>${previewTemplate.js}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}
