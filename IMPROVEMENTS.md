@@ -6,6 +6,18 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Estado del backlog (2026-07-17) — ramas sin integrar
+`master` sigue en el commit de la integración del 2026-07-03; desde entonces se han
+abierto ~90 ramas (`git branch -r`) que nunca se han fusionado, muchas duplicadas 3-8
+veces sobre la misma idea (variantes de rendimiento del hero 3D, elección clásica/3D en
+el wizard, badge/filtro 3D en la galería de plantillas, preview en vivo de plantillas,
+nav móvil, modales accesibles, confirmaciones destructivas, autosave/undo del editor,
+búsqueda/orden del dashboard...). Antes de picar una idea nueva, **revisa `git branch -r`
+y el log de esas ramas**: es muy probable que ya exista una rama abierta para lo que
+tenías en mente. Y para Álvaro: esto necesita otra pasada de integración como la del
+2026-07-03 (elegir la mejor versión de cada familia y fusionar) antes de que el backlog
+de abajo tenga sentido de nuevo.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -83,6 +95,12 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-17)
+- ✅ **Botón de copiar enlace** en la pantalla de "web publicada" (URL en vivo) y en la de
+  aprovisionamiento de dominio — antes había que seleccionar el texto a mano, incómodo en
+  móvil justo cuando el cliente va a compartir la URL. Nuevo `Components/CopyButton.tsx`
+  reutilizable (Clipboard API + respaldo `execCommand`, feedback visual "¡Copiado!").
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +125,11 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Extender `Components/CopyButton.tsx` (nuevo, ver arriba) a la tarjeta de proyecto del
+  Dashboard: el dominio/`live_url` que se muestra ahí también se copia a mano hoy.
+- 🟢 En "Publicando…" (dominio propio) sustituir el texto estático "tarda unos minutos" por
+  un indicador de progreso real (polling del estado de aprovisionamiento/DNS) en vez de que
+  el cliente tenga que refrescar el dashboard para saber si ya está listo.
+- 🟢 Función "Duplicar proyecto" en el Dashboard — partir de una web ya creada para lanzar
+  una variante (útil para clientes con varias ubicaciones/servicios) sin pasar por el
+  wizard de IA de nuevo.
