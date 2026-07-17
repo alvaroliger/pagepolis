@@ -34,7 +34,14 @@ class BillingController extends Controller
 
     public function portal(): RedirectResponse
     {
-        return auth()->user()->redirectToBillingPortal(route('dashboard'));
+        $user = auth()->user();
+
+        if (! $user->hasStripeId()) {
+            return redirect()->route('dashboard')->with('error',
+                'Todavía no tienes ninguna suscripción de pago que gestionar.');
+        }
+
+        return $user->redirectToBillingPortal(route('dashboard'));
     }
 
     // El webhook de Stripe lo gestiona Cashier en POST /stripe/webhook.

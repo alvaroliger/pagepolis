@@ -99,9 +99,13 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                             <Link href="/perfil" role="menuitem" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors">
                                                 Mi perfil
                                             </Link>
-                                            <Link href="/facturacion/portal" role="menuitem" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors">
+                                            {/* <a> nativo, no <Link> de Inertia: este endpoint siempre sale de
+                                                la SPA (al portal de Stripe, o de vuelta al dashboard con un
+                                                aviso si el usuario aún no tiene suscripción) — una navegación
+                                                completa evita que Inertia trague el mensaje flash en el camino. */}
+                                            <a href="/facturacion/portal" role="menuitem" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors">
                                                 Suscripción
-                                            </Link>
+                                            </a>
                                             <Link
                                                 href="/logout"
                                                 method="post"

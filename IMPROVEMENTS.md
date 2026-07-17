@@ -4,6 +4,13 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
+⚠️ **Antes de elegir tarea: `git fetch origin` no basta.** `git branch -r`/`git log` solo
+muestran lo que este checkout ya tiene fetcheado — con ~26 PRs abiertas simultáneas (#44-#69
+en la última sesión), un checkout fresco no las ve y es fácil reimplementar algo que ya
+existe en una rama sin fusionar (me pasó: dupliqué por completo la PR #45 de rendimiento del
+hero 3D en gama baja antes de darme cuenta). Usa el MCP de GitHub — `list_pull_requests`
+con `state=open` — para ver el listado real de PRs abiertas y sus ramas antes de tocar código.
+
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
@@ -28,6 +35,18 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **El enlace "Suscripción" del menú de cuenta ya no rompe la app para clientes del plan
+  gratuito** — `BillingController::portal()` llamaba a `redirectToBillingPortal()` de Cashier,
+  que lanza `InvalidCustomer` si el usuario no tiene `stripe_id` (cualquiera que no haya
+  pagado nunca, es decir, la mayoría de la base gratuita) → 500 al hacer clic en un enlace
+  visible para todos. Ahora comprueba `hasStripeId()` antes y redirige con un aviso claro
+  si aún no hay suscripción que gestionar. De paso: el enlace pasó de `<Link>` de Inertia a
+  `<a>` nativo (siempre sale de la SPA, sea al portal de Stripe o de vuelta al dashboard), y
+  se añadió un listener global (`app.tsx`, `router.on('navigate')`) que convierte los mensajes
+  flash (`flash.error`/`flash.message`, ya compartidos por `HandleInertiaRequests` pero que
+  hasta ahora nadie mostraba en ningún sitio) en el mismo toast que ya usa el resto de la app
+  — beneficia también a otros flashes ya existentes como el límite de proyectos del plan
+  gratuito en `ProjectController`.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -107,3 +126,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Fallo silencioso al aprovisionar un dominio de pago** — `PurchaseDomain.php` hace
+  `fail($e)` sin dejar ningún rastro visible para el cliente si falla (dominio ocupado, error
+  de la API del registrador, DNS...); la fila `Domain` se queda en `status='pending'` para
+  siempre y el Dashboard no muestra ningún distintivo de estado. Un cliente que pagó por su
+  dominio propio no tiene forma de saber que su compra falló. Mostrar el estado
+  (`pending`/`active`/`failed`) como badge en la tarjeta del proyecto sería suficiente para
+  empezar.
+- 🟢 **Paginación real de la bandeja de mensajes** — `LeadController::index` sigue limitando a
+  200 leads sin ningún "cargar más"; un negocio con mucho volumen no puede ver ni buscar leads
+  más antiguos que ese tope en la UI (solo vía exportación CSV completa). Nota: distinto del
+  buscador cliente-side que ya añade la PR #63 sobre esos mismos 200 — aquí falta el paginado
+  en sí.
+- 🟢 **Panel de SEO del editor sin contenido visible** — en `Editor/Index.tsx` el botón
+  "Generar SEO" solo cicla entre "Generar SEO" / "Generando…" / "SEO activo"; el título,
+  descripción y keywords generados (ya están en memoria en `seoMeta`) nunca se muestran ni se
+  pueden editar a mano. Un panel/popover con esos 3 campos editables cerraría el círculo.
