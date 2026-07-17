@@ -38,6 +38,24 @@ class LeadCaptureTest extends TestCase
             ->assertSee('addEventListener("submit"', false);
     }
 
+    public function test_lead_capture_script_prevents_default_before_checking_for_content(): void
+    {
+        // e.preventDefault() must run unconditionally, before the "has content?" check.
+        // Otherwise a visitor submitting an empty/whitespace-only form falls through to
+        // the browser's native submission (a confusing page reload) instead of getting
+        // an inline validation message.
+        $this->publishedProject();
+
+        $html = $this->get('/s/panaderia-x')->getContent();
+
+        $preventDefaultPos = strpos($html, 'e.preventDefault()');
+        $hasCheckPos       = strpos($html, 'if(!has)');
+
+        $this->assertNotFalse($preventDefaultPos);
+        $this->assertNotFalse($hasCheckPos);
+        $this->assertLessThan($hasCheckPos, $preventDefaultPos, 'preventDefault() must be called before the empty-form check.');
+    }
+
     public function test_lead_is_stored_and_owner_notified(): void
     {
         Mail::fake();

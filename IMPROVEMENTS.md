@@ -6,6 +6,16 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Aviso (2026-07-17): ramas sin revisar acumuladas
+Hay **~75 ramas remotas abiertas sin mergear** (muchas de ellas duplicados: 9 ramas de
+"hero3d bajo rendimiento en gama baja", 7 de "badge/filtro 3D en galería de plantillas",
+4 de "variantes del hero 3D", 3 de "elegir Simple/3D en el wizard", 3 de "menú móvil",
+etc.). Antes de picar un ítem de este backlog, **haz `git fetch --prune` y revisa
+`git branch -r` a fondo** — con este volumen, `git branch -r` sin fetch previo puede no
+reflejar ramas muy recientes. Álvaro debería revisar y mergear (o cerrar) el lote
+acumulado; hasta entonces cada nueva ejecución debe extremar el cuidado para no abrir
+un décimo duplicado de la misma idea.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -26,6 +36,16 @@ no abras PR.
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
+- ✅ **Bug: formulario de contacto de la web publicada recargaba la página sin avisar
+  si se enviaba vacío** — el script de captura de leads (`SiteController::show`,
+  `$leadCapture`) llamaba a `e.preventDefault()` *después* de comprobar si había
+  contenido, así que un envío sin ningún campo relleno caía al envío nativo del
+  navegador (recarga confusa, sin action real). Ahora `preventDefault()` se llama
+  siempre y, si no hay contenido, se muestra un aviso inline ("Completa al menos un
+  campo antes de enviar.") en vez de recargar. Verificado con un test de Playwright
+  ad-hoc (sin recarga, sin fetch en envío vacío; fetch correcto en envío con datos) +
+  test PHP nuevo que comprueba el orden del script generado (`LeadCaptureTest`,
+  245/245 verde).
 
 ## Producto
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
@@ -48,8 +68,13 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+  **Ya hay ≥4 ramas remotas abiertas para esto** (`feature/hero3d-geometry-variants`,
+  `feature/hero3d-shape-palette-variants`, `feature/hero3d-shape-variants`,
+  `feature/hero3d-variants`) — revisar/mergear la mejor antes de crear una más.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  **Ya hay ≥9 ramas remotas abiertas para esto** (familias `*/hero3d-low-end-*` y
+  `perf/hero3d-low-*`) — no crear más, solo mergear una.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -105,5 +130,15 @@ no abras PR.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
 ## Ideas nuevas
+- 🔵 **Paso "Simple | 3D" en el wizard de creación** — hoy `Pages/Create/Index.tsx` no
+  deja al cliente elegir plantilla ni tipo de página; la IA asigna la categoría sola.
+  Es el hito central de la misión de plantillas 3D. **Ya hay 3 ramas abiertas**
+  (`feature/wizard-3d-page-choice`, `feature/wizard-explicit-page-type`,
+  `feature/wizard-page-type-choice`) — revisar y mergear la mejor antes de tocar esto de nuevo.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Bandeja de leads: sin señal cuando hay más de 200 mensajes** — `LeadController::index()`
+  limita a `latest()->limit(200)` y `Leads/Index.tsx` no pagina ni avisa; un negocio con más
+  de 200 leads pierde visibilidad en la app de los más antiguos (siguen en el CSV, pero no
+  en la bandeja) sin ningún aviso. Añadir paginación simple o un aviso "mostrando los
+  últimos 200 — exporta el CSV para ver todos".
