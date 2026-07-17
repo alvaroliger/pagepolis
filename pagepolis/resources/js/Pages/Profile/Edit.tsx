@@ -11,15 +11,21 @@ interface User {
 }
 
 export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
-    const { auth } = usePage<{ auth: { user: User } }>().props;
+    const { auth, errors: pageErrors } = usePage<{
+        auth: { user: User };
+        errors: { userDeletion?: { password?: string } };
+    }>().props;
 
-    const { data, setData, patch, errors, processing } = useForm({
+    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
         name:            auth.user.name,
         email:           auth.user.email,
         whatsapp_phone:  auth.user.whatsapp_phone ?? '',
     });
 
-    const { data: pwData, setData: setPwData, put: putPw, errors: pwErrors, processing: pwProcessing, reset } = useForm({
+    const {
+        data: pwData, setData: setPwData, put: putPw, errors: pwErrors, processing: pwProcessing,
+        reset, recentlySuccessful: pwRecentlySuccessful,
+    } = useForm({
         current_password: '',
         password: '',
         password_confirmation: '',
@@ -91,9 +97,12 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                         {mustVerifyEmail && !auth.user.email_verified_at && (
                             <p className="text-sm text-yellow-400">Tu email no está verificado.</p>
                         )}
-                        <button type="submit" disabled={processing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
-                            {processing ? 'Guardando…' : 'Guardar cambios'}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button type="submit" disabled={processing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
+                                {processing ? 'Guardando…' : 'Guardar cambios'}
+                            </button>
+                            {recentlySuccessful && <span className="text-sm text-green-400">Cambios guardados.</span>}
+                        </div>
                     </form>
                 </div>
 
@@ -115,9 +124,12 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                                 {pwErrors[field] && <p className="mt-1 text-sm text-red-400">{pwErrors[field]}</p>}
                             </div>
                         ))}
-                        <button type="submit" disabled={pwProcessing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
-                            {pwProcessing ? 'Actualizando...' : 'Cambiar contraseña'}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button type="submit" disabled={pwProcessing} className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
+                                {pwProcessing ? 'Actualizando...' : 'Cambiar contraseña'}
+                            </button>
+                            {pwRecentlySuccessful && <span className="text-sm text-green-400">Contraseña actualizada.</span>}
+                        </div>
                     </form>
                 </div>
 
@@ -148,6 +160,9 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             placeholder="Confirma tu contraseña"
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
                         />
+                        {pageErrors.userDeletion?.password && (
+                            <p className="text-sm text-red-400">{pageErrors.userDeletion.password}</p>
+                        )}
                         <button type="submit" disabled={delProcessing} className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors">
                             {delProcessing ? 'Eliminando...' : 'Eliminar mi cuenta'}
                         </button>

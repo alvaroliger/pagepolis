@@ -6,6 +6,17 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+⚠️ **Antes de elegir tarea: revisa las PRs abiertas en GitHub, no solo `git branch -r`.**
+A fecha 2026-07-17 hay decenas de ramas remotas y ~10 PRs abiertas (varias sesiones en
+paralelo cada hora), muchas duplicando exactamente la misma idea sin saberlo entre sí
+(p. ej. media docena de ramas casi idénticas para "insignia 3D en la galería de
+plantillas", otras tantas para "rendimiento del hero 3D en gama baja" y para "elección
+Simple/3D en el wizard"). `git branch -r` sin un `git fetch origin` previo puede mostrar
+solo `origin/master` aunque existan decenas de ramas remotas — no basta para detectar
+trabajo en curso. Haz `git fetch origin` y `mcp__github__list_pull_requests` (o
+equivalente) con estado `open` antes de tocar código, y si tu idea ya tiene una PR
+abierta, no dupliques: elige otra cosa del backlog.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -28,6 +39,13 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **Feedback de guardado en "Mi perfil"** — los formularios de datos personales y de
+  cambio de contraseña (`Profile/Edit.tsx`) no mostraban ninguna confirmación al guardar
+  con éxito (el banner `status` nunca se rellenaba desde el backend); ahora usan
+  `recentlySuccessful` de Inertia para mostrar "Cambios guardados." / "Contraseña
+  actualizada.". Además, el formulario de "Eliminar cuenta" nunca leía `errors` — si el
+  cliente escribía mal su contraseña actual, el botón simplemente volvía a su estado
+  normal sin explicar por qué no se había eliminado la cuenta; ahora se muestra el error.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -46,6 +64,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- 🟡 **(PR #67 abierta, no fusionada)** Insignia "3D" + filtro "Todas / Simple / 3D" en
+  la galería de plantillas (`Templates/Index.tsx`, `TemplateController`). No reimplementar
+  hasta que se fusione o se cierre. Buen follow-up una vez esté en master: la vista previa
+  (miniatura y modal) sigue mostrando el HTML/CSS estático sin ejecutar JS, así que el
+  hero 3D no se ve animado hasta publicar la web — inyectar el motor `hero3d.js` real en
+  el modal de vista previa (solo para plantillas con `<canvas data-hero3d>`) para que el
+  cliente vea el efecto en movimiento antes de elegir.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -73,6 +98,17 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Mensajes de validación/autenticación en español real** — la app fuerza
+  `config('app.locale') = 'es'` pero no existía ningún `lang/es/*.php`: Laravel no
+  encontraba traducción y devolvía la clave interna sin traducir (p. ej.
+  `"validation.required"`, `"auth.failed"`, `"validation.current_password"`) tal cual en
+  pantalla, en TODOS los formularios de la app (registro, login, bloqueo por intentos,
+  perfil, editor, leads, etc.) — un cliente real veía literalmente claves internas de
+  Laravel en vez de un mensaje. Añadidos `lang/es/validation.php`, `lang/es/auth.php` y
+  `lang/es/passwords.php` (traducción completa de los archivos que Laravel trae en
+  inglés, con `attributes` para los nombres de campo reales de la app). Verificado con
+  3 tests nuevos (`SpanishValidationMessagesTest`: registro, login fallido, eliminar
+  cuenta con contraseña incorrecta) y a mano en el navegador.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -104,6 +140,23 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-17)
+- Mensajes de validación/autenticación traducidos al español real (`lang/es/*.php`) —
+  antes se veían claves internas de Laravel sin traducir en toda la app. Feedback de
+  guardado (`recentlySuccessful`) y error visible al fallar "Eliminar cuenta" en
+  `Profile/Edit.tsx`. Suite 248/248 verde, `npm run build` OK, verificado con Playwright.
+
 ## Ideas nuevas
+- 🟢 Auditar el resto de vistas Blade/notificaciones que usan `__()`/`trans()` fuera de
+  validación (p. ej. emails transaccionales, notificaciones de Laravel) para confirmar
+  que también salen en español y no en inglés/clave cruda — `lang/es/validation.php`,
+  `auth.php` y `passwords.php` ya están cubiertos, pero puede haber más strings del
+  framework (p. ej. `Illuminate\Notifications\Notification` por defecto) sin traducir.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟡 **Ya hay ramas/PRs en curso, no dupliques sin comprobar antes:** elección explícita
+  "Simple vs 3D" en el wizard de creación con IA (varias ramas `feature/wizard-*-3d-*` /
+  `feature/wizard-*page-type*`) y auditoría de rendimiento del hero 3D en gama baja
+  (varias ramas `perf/hero3d-low-end-*` / `feature/hero3d-low-end-*`). Antes de tocar
+  cualquiera de estos dos temas, revisa qué PR sigue abierta y sobre esa continúa (o
+  revisa por qué ninguna se fusionó todavía) en lugar de abrir una rama más.

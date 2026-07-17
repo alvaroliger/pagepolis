@@ -97,4 +97,21 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_delete_account_error_reaches_the_profile_page_props(): void
+    {
+        // La página de perfil debe recibir el error bajo `errors.userDeletion.password`
+        // (así lo lee `Profile/Edit.tsx`); si no, el cliente no ve ningún aviso de por
+        // qué no se pudo eliminar la cuenta tras escribir mal la contraseña.
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->from('/perfil')->delete('/perfil', [
+            'password' => 'wrong-password',
+        ])->assertRedirect('/perfil');
+
+        $errors = $this->actingAs($user)->get('/perfil')
+            ->original->getData()['page']['props']['errors'];
+
+        $this->assertNotEmpty($errors->userDeletion->password ?? null);
+    }
 }
