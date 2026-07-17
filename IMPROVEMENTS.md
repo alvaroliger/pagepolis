@@ -28,6 +28,17 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **Fix: el enlace "Suscripción" del menú de usuario y "Reactivar suscripción" del
+  banner de gracia no funcionaban** — ambos usaban `<Link>` de Inertia hacia
+  `/facturacion/portal`, que responde con una redirección 302 externa a Stripe
+  (`redirectToBillingPortal`). Inertia hace esa petición por XHR, y el navegador bloquea
+  la redirección cross-origin a Stripe por CORS: el clic no hacía nada (sin error visible
+  para el usuario). Es el único acceso a gestionar/cancelar/reactivar la suscripción desde
+  la cabecera, así que el bug era 100% bloqueante para esa acción. Cambiados a `<a href>`
+  normal (mismo patrón que ya usa `/perfil/exportar` para su descarga), lo que fuerza una
+  navegación real de página y deja que el 302 del backend llegue a Stripe sin pasar por
+  CORS. `resources/js/Layouts/AuthenticatedLayout.tsx` y
+  `resources/js/Pages/Dashboard/Index.tsx`.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -104,6 +115,26 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Backlog de PRs sin revisar (2026-07-17)
+Hay **26 PRs abiertas sin mergear** (#44–#69) de rondas anteriores de auto-mejora — ninguna
+integrada porque Álvaro ha estado desconectado. Varias son **duplicados directos** de la
+misma idea (p.ej. #44, #51 y #67 implementan las tres el filtro "Simple/3D" de la galería
+de plantillas; #46 y #57 implementan las dos variantes de geometría del hero 3D). Antes de
+seguir picoteando ítems 🟢 de este backlog, **revisar y mergear (o cerrar duplicados) esas
+26 PRs** — si no, cada ronda nueva corre el riesgo real de reimplementar algo que ya existe
+sin mergear (como casi pasó en esta sesión: se detectó a tiempo con `git fetch` + `gh pr
+list` antes de empujar una 4ª versión del filtro Simple/3D). Recomendado: `git fetch
+--all` y revisar `list_pull_requests` (no solo `git branch -r`, que no basta) en el paso
+de orientación de cada ronda futura.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Estado de gestión del dominio en el dashboard** — hoy `Dashboard/Index.tsx` solo
+  imprime el dominio comprado como texto plano, sin indicar si el DNS/SSL sigue
+  "pendiente" o ya está activo (`DomainController::reserve` guarda el estado 'pending' pero
+  nada lo muestra después). Añadir un badge de estado (pendiente/activo/error) al dominio
+  en la tarjeta de proyecto.
+- 🟢 Sustituir el `alert()` de error del formulario de captura de leads en las webs
+  publicadas de los clientes (script inyectado por `SiteController`) por un mensaje inline
+  no bloqueante, coherente con el mensaje de éxito que ya sustituye el formulario.

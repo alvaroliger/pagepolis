@@ -249,9 +249,9 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                 {inGracePeriod && (
                     <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700/40 rounded-xl text-sm text-yellow-300">
                         Tu suscripción ha expirado. Tus proyectos seguirán activos durante el periodo de gracia.{' '}
-                        <Link href="/facturacion/portal" className="underline font-semibold hover:text-yellow-200">
+                        <a href="/facturacion/portal" className="underline font-semibold hover:text-yellow-200">
                             Reactivar suscripción
-                        </Link>
+                        </a>
                     </div>
                 )}
 
