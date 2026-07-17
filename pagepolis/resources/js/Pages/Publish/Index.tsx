@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import CopyButton from '@/Components/CopyButton';
 import axios from 'axios';
 import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
 
@@ -86,6 +87,11 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                         Tu web se está registrando y publicando en{' '}
                         <span className="text-violet-300 font-mono break-all">{provisioning}</span>.
                     </p>
+                    <CopyButton
+                        text={provisioning}
+                        label="Copiar dominio"
+                        className="mb-6 text-xs text-gray-500 hover:text-violet-300"
+                    />
                     <p className="text-gray-500 text-sm mb-8">
                         Tarda unos minutos en estar disponible (registro del dominio y propagación de DNS).
                         Lo verás en tu panel cuando esté activo.
@@ -108,14 +114,22 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     </div>
                     <h2 className="text-3xl font-black text-white mb-4">Tu web está online</h2>
                     <p className="text-gray-400 mb-8">Accede a ella en:</p>
-                    <a
-                        href={published}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block bg-gray-800 border border-gray-700 text-violet-300 font-mono px-6 py-3 rounded-xl hover:border-violet-600 transition-colors text-sm break-all"
-                    >
-                        {published}
-                    </a>
+                    <div className="inline-flex items-stretch bg-gray-800 border border-gray-700 rounded-xl overflow-hidden max-w-full">
+                        <a
+                            href={published}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-violet-300 font-mono px-6 py-3 hover:border-violet-600 transition-colors text-sm break-all"
+                        >
+                            {published}
+                        </a>
+                        <CopyButton
+                            text={published}
+                            label="Copiar enlace"
+                            iconOnly
+                            className="px-4 border-l border-gray-700 text-gray-400 hover:text-violet-300 hover:bg-gray-700/50"
+                        />
+                    </div>
                     <div className="mt-8 flex gap-3 justify-center">
                         <a
                             href={project ? `/editor/${project.id}` : '/dashboard'}
