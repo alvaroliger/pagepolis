@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
-import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
+import { Link2, Globe, Sparkles, Rocket, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 
 interface Props {
     project: { id: number; name: string; slug: string } | null;
@@ -14,6 +14,13 @@ interface Props {
 
 type Tier = 'free' | 'subdomain' | 'custom';
 
+const DOMAIN_FORMAT = /^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.[a-z]{2,}$/i;
+
+interface DomainCheckState {
+    status: 'idle' | 'checking' | 'available' | 'unavailable' | 'error';
+    price?: number;
+}
+
 export default function PublishIndex({ project, baseDomain }: Props) {
     const [tier, setTier]           = useState<Tier>('free');
     const [step, setStep]           = useState(1);
@@ -24,8 +31,32 @@ export default function PublishIndex({ project, baseDomain }: Props) {
     const [error, setError]         = useState('');
     const [published, setPublished] = useState<string | null>(null);
     const [provisioning, setProvisioning] = useState<string | null>(null);
+    const [domainCheck, setDomainCheck] = useState<DomainCheckState>({ status: 'idle' });
 
     const freeUrl = project ? `${window.location.origin}/s/${project.slug}` : '';
+
+    // Comprueba disponibilidad del dominio propio en el registrador antes de dejar
+    // continuar: sin esto, un usuario podía reservar y pagar por un dominio ya
+    // ocupado y enterarse solo cuando fallaba el aprovisionamiento tras el pago.
+    useEffect(() => {
+        if (tier !== 'custom') { setDomainCheck({ status: 'idle' }); return; }
+        if (!DOMAIN_FORMAT.test(customDomain)) { setDomainCheck({ status: 'idle' }); return; }
+
+        setDomainCheck({ status: 'checking' });
+        const timer = setTimeout(async () => {
+            try {
+                const res = await axios.post('/dominios/verificar', { domain: customDomain });
+                setDomainCheck({
+                    status: res.data.available ? 'available' : 'unavailable',
+                    price: res.data.price,
+                });
+            } catch {
+                setDomainCheck({ status: 'error' });
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [tier, customDomain]);
 
     const publishFree = async () => {
         if (!project) return;
@@ -250,19 +281,44 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                         <span className="text-gray-500 text-sm">.{baseDomain}</span>
                                     </div>
                                 ) : (
-                                    <input
-                                        type="text"
-                                        value={customDomain}
-                                        onChange={e => setCustomDomain(e.target.value.toLowerCase())}
-                                        placeholder="minegocio.com"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 mb-4"
-                                    />
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={customDomain}
+                                            onChange={e => setCustomDomain(e.target.value.toLowerCase())}
+                                            placeholder="minegocio.com"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 mb-1.5"
+                                        />
+                                        <div className="min-h-[1.5rem] mb-2.5 text-xs">
+                                            {domainCheck.status === 'checking' && (
+                                                <span className="inline-flex items-center gap-1.5 text-gray-500">
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />
+                                                    Comprobando disponibilidad…
+                                                </span>
+                                            )}
+                                            {domainCheck.status === 'available' && (
+                                                <span className="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+                                                    <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={2} />
+                                                    Disponible{domainCheck.price ? ` · ${domainCheck.price.toFixed(2)}€/año` : ''}
+                                                </span>
+                                            )}
+                                            {domainCheck.status === 'unavailable' && (
+                                                <span className="inline-flex items-center gap-1.5 text-red-400 font-medium">
+                                                    <XCircle className="w-3.5 h-3.5" strokeWidth={2} />
+                                                    Este dominio ya está registrado. Prueba con otro.
+                                                </span>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
 
                                 {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
                                 <button
                                     onClick={project ? reserveDomain : () => setStep(2)}
-                                    disabled={loading || (tier === 'subdomain' ? !subdomain : !customDomain)}
+                                    disabled={
+                                        loading ||
+                                        (tier === 'subdomain' ? !subdomain : !customDomain || domainCheck.status === 'unavailable')
+                                    }
                                     className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-colors"
                                 >
                                     {loading ? 'Reservando…' : 'Continuar →'}

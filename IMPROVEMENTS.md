@@ -34,6 +34,15 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Comprobación de disponibilidad de dominio propio en el paso de publicación** —
+  `DomainController::check()`/`/dominios/verificar` ya existían (con tests) pero
+  `Publish/Index.tsx` nunca los llamaba: un cliente podía reservar y pagar por un
+  dominio ya registrado y enterarse solo cuando fallaba el aprovisionamiento tras el
+  pago. Ahora, al escribir un dominio propio con formato válido, se consulta (debounce
+  500ms) y se muestra "Comprobando…" / "✓ Disponible (precio)" / "✗ Ya registrado,
+  prueba con otro"; "Continuar" se deshabilita si está confirmado como no disponible.
+  5 tests nuevos para el endpoint (`tests/Feature/DomainCheckTest.php`), antes sin
+  cobertura.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +116,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Validación del formato de WhatsApp en el propio cliente — `Profile/Edit.tsx` y el
+  wizard `Create/Index.tsx` tienen un `<input type="tel">` libre sin patrón ni feedback
+  inline, aunque el backend ya exige `regex:/^\+?[0-9\s\-]{7,20}$/` en
+  `ProfileController`; hoy un número mal escrito solo falla tras enviar el formulario
+  (o, peor, en el wizard, en silencio más tarde cuando el bot no puede contactar).
+- 🔵 El editor (`Editor/Index.tsx`) no tiene ni una clase `sm:`/`md:`/`lg:` en todo el
+  archivo: en pantallas de móvil real (no el toggle de vista del iframe, que es la
+  vista previa interna) el layout de 3 columnas fijas (chat 288px + código 384px) no
+  reflows y desborda. Necesita apilar paneles verticalmente o un selector de pestaña
+  chat/preview/código por debajo de `md`.
+- 🟡 Preferencias de notificación del cliente (email al recibir lead, resumen semanal,
+  avisos de expiración…) — hoy no existe ninguna UI para desactivarlas selectivamente;
+  necesita decidir el alcance mínimo viable antes de implementarlo.
