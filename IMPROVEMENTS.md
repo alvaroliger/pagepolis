@@ -29,6 +29,13 @@ no abras PR.
 
 ## Producto
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
+- ✅ **Feedback de progreso durante la generación con IA** — `Create/Index.tsx` es la única
+  espera de 1-3 min de toda la app y antes solo mostraba un botón deshabilitado con texto
+  fijo ("Creando tu web…"), sin ninguna señal de que algo seguía en marcha. Ahora el botón
+  lleva un spinner y debajo va rotando una serie de mensajes de progreso ("Analizando tu
+  negocio…" → "Diseñando la estructura…" → "Redactando los textos…" → "Aplicando los
+  últimos detalles…", uno cada 4 s, se queda en el último si tarda más). Respeta
+  `prefers-reduced-motion` (sin `animate-spin` ni desplazamiento, solo fundido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
   (`resources/js/Pages/Editor/Index.tsx`).
@@ -104,6 +111,27 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Nota operativa (2026-07-17)
+Hay **28 PRs abiertas** sin fusionar (varias familias con 3-9 ramas casi duplicadas cada
+una: variantes/rendimiento del hero 3D, elección Simple/3D en el wizard, distintivo/filtro
+3D en la galería, fixes de la vista previa de plantillas…) más de 100 ramas más ya
+empujadas a `origin` que ni siquiera llegaron a abrir PR. Antes de arrancar una mejora
+nueva conviene revisar `git branch -r` y la lista de PRs abiertas para no duplicar
+trabajo — esta sesión ha tenido que descartar dos intentos (variantes del hero 3D y
+feedback de guardado en "Mi perfil") por encontrarlos ya cubiertos. 🟡 Álvaro: esto pide
+una ronda de fusión/triage — con tantas ramas compitiendo por los mismos archivos
+(`Profile/Edit.tsx`, `Dashboard/Index.tsx`, `Create/Index.tsx`, `hero3d.js`…) el riesgo de
+conflictos solo crece cuanto más se tarde.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Estado vacío en la galería de plantillas cuando un filtro no encuentra resultados
+  (`Templates/Index.tsx`) — hoy es inalcanzable porque `categories` sale solo de las
+  plantillas activas, pero en cuanto se fusione el filtro Simple/3D (varias PRs abiertas
+  ya lo añaden) sí será real: p. ej. "Restaurante" + "3D" da 0 resultados a propósito. Vale
+  la pena revisarlo junto con esa fusión, no antes.
+- 🟢 Tooltips del gráfico de Analítica accesibles al tacto, no solo a teclado — hoy
+  `Analytics/Index.tsx` solo revela el detalle con `:hover`; la PR abierta de teclado no
+  cubre el caso táctil (móvil), así que un cliente mirando sus visitas desde el teléfono no
+  puede ver el nº exacto por día.
