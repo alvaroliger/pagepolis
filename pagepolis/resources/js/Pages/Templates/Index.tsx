@@ -16,6 +16,7 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    js: string;
 }
 
 interface Props {
@@ -180,7 +181,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script><script>${previewTemplate.js}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}
