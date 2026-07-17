@@ -6,6 +6,21 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ ANTES DE EMPEZAR (2026-07-17): revisa las ramas y PRs abiertos
+El clon de este contenedor solo trae `master` por defecto — `git branch -r` no basta.
+Ejecuta primero `git fetch origin '+refs/heads/*:refs/remotes/origin/*'` y luego mira los
+PRs abiertos (herramienta MCP de GitHub, `list_pull_requests` con `state: open`). A fecha
+de hoy hay **30 PRs abiertos sin mergear** (ninguno de los ítems de abajo está en `master`
+todavía aunque parezca "🟢 listo para hacer"), incluidos como mínimo 9 intentos duplicados
+del mismo rendimiento del hero 3D en gama baja (`perf/hero3d-low-end-*`,
+`feature/hero3d-low-end-*`, `feat/hero3d-low-end-device-perf`…) y varios duplicados de
+"elegir plantilla clásica/3D" (`feature/wizard-*-page-*`, `feature/template-gallery-3d-*`,
+`feature/hero3d-*-variants`). **No propongas nada de esa familia sin comprobar antes que no
+exista ya un PR abierto con ese título o alcance** — usa `search_pull_requests` con
+palabras clave del tema antes de crear rama nueva. Si casi todo el backlog "obvio" ya tiene
+PR abierto, mejor buscar un hueco concreto y verificado (ver sección "Ideas nuevas") que
+añadir el PR nº 10 de la misma idea.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -76,7 +91,18 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟢 Revisar accesibilidad/responsive de las páginas nuevas (hay varios PRs abiertos ya
+  sobre esto — revisar la lista de PRs antes de tocar más formularios/modales/gráficos).
+- ✅ **Registro: la "Confirmar contraseña" nunca mostraba error** — el campo no tenía
+  ningún bloque de error (a diferencia de nombre/email/contraseña) y, además, la regla
+  `confirmed` de Laravel adjunta el mensaje de fallo al campo `password`, no a
+  `password_confirmation`, así que el cliente veía un error en el campo equivocado (o
+  ninguno) al escribir mal la confirmación. Ahora `Register.tsx` calcula el desajuste en
+  el propio cliente (tras salir del campo confirmación, sin molestar mientras se escribe)
+  y muestra "Las contraseñas no coinciden." bajo el campo correcto; también respeta un
+  futuro `errors.password_confirmation` del backend si llegara a existir. Verificado con
+  Playwright contra la app real: error visible tras `blur` con contraseñas distintas,
+  desaparece al corregirlas, y no aparece mientras se está escribiendo.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -105,5 +131,29 @@ no abras PR.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
 ## Ideas nuevas
+(verificadas el 2026-07-17 contra los 30 PRs abiertos + ~100 ramas remotas — ninguna
+duplica trabajo en curso a esa fecha; revalidar igualmente antes de empezar, ver aviso de
+arriba)
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
-- 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟡 ~~Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()`~~ — revisado: aunque
+  `$weekAgo->subDay()` sí muta el objeto in-place, es la última vez que se lee `$weekAgo` en
+  la función (las lecturas anteriores ya habían ocurrido), así que hoy **no** produce el
+  sesgo de 8 vs 7 días que describía este ítem. Sigue siendo código frágil (un cambio futuro
+  en el orden de las líneas reintroduciría el bug fácilmente) — si se toca, usar
+  `$weekAgo->copy()->subDay()` por seguridad, pero no es una corrección urgente de cara al
+  cliente.
+- 🟢 SEO técnico multi-idioma: hoy no existe ningún `hreflang`, sitemap por idioma ni
+  `generateSeoMeta` compartido — cada página mete su `<Head>` a mano (18 archivos) y
+  `SitemapController`/`sitemap.blade.php` generan un único `sitemap.xml` sin locale. Empezar
+  por hreflang + helper compartido de meta sería un primer paso contenido.
+- 🟢 Precios localizados por región — hoy el precio mostrado en `Landing.tsx` sale de
+  cadenas fijas por idioma en `i18n/locales/*.json` (`en.json` dice "$10.99", `es.json`
+  dice "9,99€") totalmente desconectadas del cobro real: `BillingController` siempre usa
+  un único Stripe Price ID (`config('services.stripe.price_monthly')`), sin variar por
+  moneda. Antes de "localizar" más habría que decidir si el cobro real va a ser
+  multi-moneda en Stripe (🟡 decisión de Álvaro) — mostrar una cifra que no es la que se
+  cobra sería peor que lo actual.
+- 🔵 Referido/afiliado simple ("invita y gana 1 mes gratis") — confirmado que no existe
+  ninguna tabla/columna/ruta relacionada todavía (búsqueda de "referral"/"afiliado" en
+  `app/`, `database/`, `resources/` vacía). Diseño + migración + UI de invitación en el
+  dashboard es tarea grande para una sola tanda.

@@ -4,6 +4,7 @@ import GuestLayout from '@/Layouts/GuestLayout';
 
 export default function Register() {
     const [acceptedTos, setAcceptedTos] = useState(false);
+    const [confirmTouched, setConfirmTouched] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -11,6 +12,10 @@ export default function Register() {
         password: '',
         password_confirmation: '',
     });
+
+    const passwordsMismatch = confirmTouched
+        && data.password_confirmation.length > 0
+        && data.password !== data.password_confirmation;
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -70,10 +75,16 @@ export default function Register() {
                         type="password"
                         value={data.password_confirmation}
                         onChange={e => setData('password_confirmation', e.target.value)}
+                        onBlur={() => setConfirmTouched(true)}
                         autoComplete="new-password"
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                         required
                     />
+                    {(passwordsMismatch || errors.password_confirmation) && (
+                        <p className="mt-1 text-sm text-red-400">
+                            {errors.password_confirmation || 'Las contraseñas no coinciden.'}
+                        </p>
+                    )}
                 </div>
 
                 <label className="flex items-start gap-3 cursor-pointer group">
