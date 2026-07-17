@@ -4,6 +4,20 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
+⚠️ **Antes de elegir tarea: `git fetch origin` (el checkout inicial no trae las ramas
+remotas nuevas) y LUEGO lista las PRs abiertas en GitHub (MCP `list_pull_requests`
+state=open — hace falta `perPage` alto, hay más de las que caben en una página)** — a
+fecha 2026-07-17 hay ~25 PRs abiertas sin revisar (#44-#68) y decenas de ramas remotas más
+sin PR aún, con duplicados claros dentro de ambos grupos (p. ej. 3 PRs para el filtro
+Simple/3D de la galería: #44, #51, #67; varias ramas `perf/hero3d-low-end-*` y
+`fix/template-preview-missing-js*` para la misma idea). Un `git branch -r` sin `fetch`
+previo (o hecho nada más entrar, antes de que el remoto tenga las ramas de otras sesiones)
+parece limpio y engaña — no es señal fiable de que no hay nada en marcha. Comprueba
+también el título/cuerpo de las PRs abiertas contra la idea que vayas a picar, no solo
+contra este backlog (que varias sesiones no han actualizado a tiempo). Esta sesión
+(2026-07-17) descartó una rama entera (`feature/template-gallery-3d-badge`, insignia y
+filtro 3D en la galería) al descubrir tras el hecho que duplicaba las PRs #44/#51/#67.
+
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
@@ -34,6 +48,14 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Deshacer el último cambio de la IA en el editor** — botón "↩ Deshacer" en la barra
+  superior del editor (`Editor/Index.tsx`), visible solo cuando hay algo que deshacer.
+  Cada edición vía chat (instantánea por `IntentRouter` o vía `GenerateWebsiteJob`) guarda
+  un snapshot (`previous_html/css/js` en `projects`) del estado justo anterior; deshacer
+  restaura ese snapshot con confirmación previa (se pierden los cambios posteriores) y es
+  de un solo nivel. Una regeneración completa invalida el snapshot (no hay un "antes" único
+  al que volver); los mensajes de ayuda/aclaración del chat no lo tocan. Nuevo endpoint
+  `POST /ai/deshacer`, gratis (no llama a la IA, sin límite de cuota).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +129,17 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Historial de deshacer con más de un nivel** — ahora mismo `previous_html/css/js` en
+  `projects` solo guarda un nivel (deshacer el último cambio de la IA). Si un cliente
+  encadena varios cambios y quiere volver más atrás, no puede. Ampliarlo a una pila corta
+  (3-5 snapshots) requeriría mover el snapshot a una tabla propia en vez de columnas sueltas.
+- 🟢 **"Rehacer" tras deshacer** — complementa el "↩ Deshacer" del editor (`Editor/Index.tsx`,
+  `AiController::undo`): si el cliente deshace por error, no hay forma de recuperar el
+  cambio que acaba de descartar hasta que la IA lo repita. Guardar también el estado
+  "siguiente" al deshacer (aunque sea de un solo nivel) cerraría el círculo.
+- 🟢 Revisar el estado vacío de `/publicar` cuando el proyecto aún no tiene dominio ni
+  contenido suficiente para publicar — comprobar que el mensaje guía con claridad al
+  cliente sobre qué le falta.
+- 🟢 Auditar `Publish/Index.tsx` y `DomainController` en busca de estados de carga/error
+  sin manejar (mismo criterio que ya se ha aplicado en Dashboard y Editor en varias PRs
+  recientes: #62, #66, #68).

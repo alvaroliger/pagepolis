@@ -18,6 +18,9 @@ class Project extends Model
         'html',
         'css',
         'js',
+        'previous_html',
+        'previous_css',
+        'previous_js',
         'ai_history',
         'ai_status',
         'ai_progress',
@@ -77,6 +80,28 @@ class Project extends Model
         }
 
         return route('projects.preview', $this->id);
+    }
+
+    public function canUndoAiChange(): bool
+    {
+        return $this->previous_html !== null;
+    }
+
+    /**
+     * Deshace el último cambio de la IA (chat/instant), restaurando el snapshot
+     * guardado justo antes de aplicarlo. Deshacer es de un solo nivel: al
+     * restaurar se limpia el snapshot para que no se pueda deshacer dos veces.
+     */
+    public function undoAiChange(): void
+    {
+        $this->update([
+            'html'          => $this->previous_html,
+            'css'           => $this->previous_css,
+            'js'            => $this->previous_js,
+            'previous_html' => null,
+            'previous_css'  => null,
+            'previous_js'   => null,
+        ]);
     }
 
     /**

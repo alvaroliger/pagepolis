@@ -134,10 +134,22 @@ class GenerateWebsiteJob implements ShouldQueue
             'type'       => $type,
         ], $extraAssistant);
 
-        $project->update([
+        $project->update(array_merge([
             'html'        => $result['html'] ?? $project->html,
             'css'         => $result['css'] ?? $project->css,
             'js'          => $result['js'] ?? $project->js,
+            // Snapshot para poder deshacer el último cambio. Una edición guarda el
+            // estado previo; una regeneración completa invalida cualquier snapshot
+            // anterior (no hay un "antes" único al que volver).
+        ], $type === 'update' ? [
+            'previous_html' => $project->html,
+            'previous_css'  => $project->css,
+            'previous_js'   => $project->js,
+        ] : [
+            'previous_html' => null,
+            'previous_css'  => null,
+            'previous_js'   => null,
+        ], [
             'ai_history'  => array_merge($project->ai_history ?? [], [
                 [
                     'role'       => 'user',
@@ -149,7 +161,7 @@ class GenerateWebsiteJob implements ShouldQueue
             ]),
             'ai_status'   => 'ready',
             'ai_progress' => null,
-        ]);
+        ]));
 
         // Refleja los cambios en el dominio propio si está publicado.
         $project->deployToLiveDomain();
