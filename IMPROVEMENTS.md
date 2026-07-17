@@ -36,6 +36,12 @@ no abras PR.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Galería de plantillas: distinción visual Simple vs 3D** — la galería (`Templates/Index.tsx`)
+  ahora marca con una insignia "✨ 3D" (tarjeta + modal de vista previa) las plantillas que
+  llevan el hero 3D interactivo (detectado server-side por el marcador `data-hero3d` en el
+  HTML, sin nueva columna en BD), y añade un filtro "Solo webs 3D" junto a las categorías,
+  con estado vacío si una categoría no tiene ninguna. Primer paso visible hacia el selector
+  "Simple | 3D" del wizard de creación.
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
@@ -107,3 +113,17 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Selector "Simple | 3D" en el wizard de creación** (`Create/Index.tsx`) — ahora mismo
+  el wizard solo pide nombre/descripción/venta/estilo y la IA decide todo; añadir un paso
+  explícito de tipo de página (Simple vs 3D interactiva) que se envíe a `AnthropicService`
+  para sesgar el prompt hacia una plantilla con o sin hero 3D. Es el siguiente peldaño real
+  tras la insignia "✨ 3D" y el filtro ya añadidos a la galería de plantillas.
+- 🟢 **Editor: aviso/soporte para plantillas 3D** — en `Editor/Index.tsx`, cuando el HTML del
+  proyecto contiene `data-hero3d`, mostrar un indicador claro (ej. chip "Hero 3D activo") y,
+  si la IA reescribe el hero durante una edición, evitar que borre el `<canvas data-hero3d>`
+  sin querer (algunas ediciones por IA podrían sustituir el hero por texto plano).
+- 🟢 2-3 variantes de paleta/geometría para `hero3d.js` (icosaedro ya existe) para que las
+  plantillas 3D no se vean todas iguales entre sí — parámetro simple por plantilla.
+- 🟢 Revisar accesibilidad del nuevo filtro "Solo webs 3D" y las insignias en pantallas
+  pequeñas (contraste de la insignia fucsia sobre miniaturas claras, tamaño táctil del botón
+  de filtro en móvil).
