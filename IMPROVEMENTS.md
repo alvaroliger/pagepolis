@@ -34,6 +34,9 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Ordenar proyectos en el dashboard** — selector "Más recientes / Nombre (A-Z) / Más
+  visitas" junto al resumen de visitas (`Dashboard/Index.tsx`), 100% client-side (sin tocar
+  el backend); solo visible con más de un proyecto.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +110,8 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Paginación real en la bandeja de leads (`LeadController::index()` usa hoy un `limit(200)`
+  fijo) — con `paginate()` + controles en `Leads/Index.tsx` para clientes con más de 200
+  mensajes recibidos.
+- 🟢 Aviso (toast) si falla crear un proyecto desde una plantilla en `Templates/Index.tsx` —
+  hoy un error de red/servidor ahí no da ningún feedback visible al cliente.

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
@@ -42,6 +42,14 @@ const statusLabels: Record<string, string> = {
     published: 'Publicado',
     suspended: 'Suspendido',
     deleted:   'Eliminado',
+};
+
+type SortOption = 'recent' | 'name' | 'views';
+
+const sortLabels: Record<SortOption, string> = {
+    recent: 'Más recientes',
+    name:   'Nombre (A-Z)',
+    views:  'Más visitas',
 };
 
 function OnboardingChecklist({ hasProject, hasPublished, hasDomain }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean }) {
@@ -193,6 +201,17 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
 export default function Dashboard({ projects, trashed, isSubscribed, inGracePeriod, onboarding }: Props) {
     const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
     const [showTrash, setShowTrash] = useState(false);
+    const [sortBy, setSortBy] = useState<SortOption>('recent');
+
+    const sortedProjects = useMemo(() => {
+        if (sortBy === 'name') {
+            return [...projects].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+        }
+        if (sortBy === 'views') {
+            return [...projects].sort((a, b) => b.views_30d - a.views_30d);
+        }
+        return projects; // ya vienen del backend ordenados por última edición
+    }, [projects, sortBy]);
 
     const confirmDelete = () => {
         if (!deleteTarget) return;
@@ -285,18 +304,34 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                 ) : (
                     <>
                         {/* Resumen de visitas */}
-                        <div className="mb-6 flex flex-wrap items-center gap-4">
+                        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                                 <span className="text-2xl font-black text-white">{totalViews.toLocaleString('es-ES')}</span>
                                 visitas en los últimos 30 días
                             </div>
-                            <Link href="/analytics" className="text-sm text-violet-400 hover:text-violet-300 font-semibold">
-                                Ver analítica completa →
-                            </Link>
+                            <div className="flex items-center gap-4">
+                                {projects.length > 1 && (
+                                    <label className="flex items-center gap-2 text-sm text-gray-500">
+                                        Ordenar
+                                        <select
+                                            value={sortBy}
+                                            onChange={e => setSortBy(e.target.value as SortOption)}
+                                            className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-600"
+                                        >
+                                            {(Object.keys(sortLabels) as SortOption[]).map(option => (
+                                                <option key={option} value={option}>{sortLabels[option]}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                )}
+                                <Link href="/analytics" className="text-sm text-violet-400 hover:text-violet-300 font-semibold">
+                                    Ver analítica completa →
+                                </Link>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                            {projects.map((project, i) => (
+                            {sortedProjects.map((project, i) => (
                                 <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
                                     <ProjectCard project={project} onDelete={setDeleteTarget} />
                                 </Reveal>
