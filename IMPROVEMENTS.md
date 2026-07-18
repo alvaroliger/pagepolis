@@ -18,6 +18,19 @@ general a ingresos:
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
 
+## ⚠️ Nota operativa (2026-07-18): revisa las PRs abiertas en GitHub, no solo `git branch -r`
+`git branch -r` recién clonado solo trae `origin/master` — hay que hacer `git fetch origin`
+(o usar la herramienta de GitHub) para ver el resto. A día de hoy hay **~33 PRs abiertas**
+(#44–#76) y >100 ramas remotas sin fusionar en `master`, con **varios duplicados exactos**
+del mismo ítem (p.ej. 4+ ramas para "rendimiento del hero 3D en gama baja" — `perf/hero3d-low-end-throttle`
+ya tiene PR #45 abierta con esa implementación completa; 5+ ramas para "filtro Simple/3D en
+la galería"; 3+ para "variantes del hero 3D"). Como ninguna PR está fusionada todavía, este
+`IMPROVEMENTS.md` en `master` sigue marcando esos ítems como pendientes aunque ya estén
+resueltos en una PR abierta — **antes de implementar, lista las PRs abiertas (`list_pull_requests`
+del MCP de GitHub) y comprueba que el ítem elegido no esté ya cubierto**, no te fíes solo de
+este fichero. (Encargo pendiente para Álvaro: revisar/fusionar el backlog de PRs abiertas
+antes de que la duplicación siga creciendo.)
+
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
 - ✅ **Vender la captura de leads** en landing/precios — feature card + línea en pricing + FAQ, en los 6 idiomas (PR #40).
@@ -34,6 +47,10 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Copiar enlace tras publicar gratis** — en `Publish/Index.tsx`, la pantalla "Tu web
+  está online" solo dejaba copiar la URL seleccionando el texto a mano; ahora hay un botón
+  "Copiar enlace" (con fallback a `execCommand` si `navigator.clipboard` no está disponible)
+  que confirma con "¡Enlace copiado!" durante 2 s.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -107,3 +124,10 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 El mismo botón "Copiar enlace" de `Publish/Index.tsx` (este PR) falta en la pantalla de
+  "Publicando…" (tier subdominio/dominio propio) y en `Publish/Success.tsx` (checkout de
+  pago) una vez que el dominio esté activo — homogeneizar el patrón en las tres pantallas
+  de publicación.
+- 🟢 En el wizard de dominio de `Publish/Index.tsx`, el paso 1 (elegir subdominio/dominio)
+  no se resetea si el cliente cambia de tier (`subdomain` ↔ `custom`) después de haber
+  reservado ya un dominio y volver atrás — puede dejar datos de un tier mezclados con otro.
