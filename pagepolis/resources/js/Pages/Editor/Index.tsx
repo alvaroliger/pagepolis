@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -346,6 +346,11 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         }
     };
 
+    // El motor hero 3D se detecta por su marcador en el HTML (mismo criterio que
+    // AnthropicService/TemplateController): así el aviso se mantiene en vivo si el
+    // cliente añade o borra el <canvas> a mano.
+    const has3d = useMemo(() => /hero3d-canvas|data-hero3d/.test(html), [html]);
+
     const currentValue = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
     const handleChange = activeTab === 'html' ? handleHtmlChange : activeTab === 'css' ? handleCssChange : handleJsChange;
 
@@ -377,6 +382,14 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         onChange={e => { setName(e.target.value); markDirty(); }}
                         className="bg-transparent text-white font-semibold text-base focus:outline-none border-b border-transparent focus:border-gray-600 px-1 min-w-0"
                     />
+                    {has3d && (
+                        <span
+                            title="Esta página usa el motor 3D (WebGL) de Pagepolis. Si borras el <canvas> del hero, se desactiva."
+                            className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-900/40 text-violet-300 border border-violet-800/50 flex-shrink-0"
+                        >
+                            ✨ 3D
+                        </span>
+                    )}
                     {dirty && <span className="text-xs text-yellow-500 flex-shrink-0">Sin guardar</span>}
                 </div>
                 <div className="flex items-center gap-2">
