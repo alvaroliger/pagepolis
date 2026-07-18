@@ -34,6 +34,12 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Dashboard: no ocultar que un dominio propio falló o sigue en proceso** — `PurchaseDomain`
+  dejaba el dominio en `pending` para siempre si el registrador/Cloudflare fallaban, y el
+  Dashboard mostraba "Ver web" con el enlace roto sin ninguna pista. Ahora el job marca
+  `failed` en el error, y la tarjeta muestra "Configurando…"/"No se pudo configurar" en vez
+  del enlace cuando el dominio no está `active` (`DashboardController`, `PurchaseDomain`,
+  `Dashboard/Index.tsx`).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -83,6 +89,18 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-18)
+- Dashboard: los proyectos con dominio propio en proceso o con la compra fallida ya no
+  muestran un "Ver web" roto en silencio — se avisa "Configurando…" (ámbar) o "No se pudo
+  configurar" (rojo), y `PurchaseDomain` marca `failed` en vez de dejar el dominio en
+  `pending` para siempre. 248/248 tests verdes (4 nuevos), `npm run build` OK, verificado
+  navegando el Dashboard real en Chromium con los 3 estados (pendiente/fallido/activo).
+  **Nota de proceso:** esta sesión encontró 3 colisiones seguidas con ~34 PRs abiertos ya
+  en vuelo antes de dar con esta mejora — `git branch -r` al arrancar solo mostraba
+  `origin/master` (refs remotos no traídos aún). Cualquier sesión futura debe hacer
+  `git fetch origin` (o `--all`) y revisar los PRs abiertos por título antes de elegir
+  qué construir, no solo `git branch -r` con lo que ya haya en el remote-tracking local.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +125,18 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **No perder el dominio anterior activo al intentar subir a uno nuevo** — `DomainController::reserve`
+  hace `Domain::updateOrCreate(['project_id' => ...], [...'status' => 'pending'...])`, así que
+  si un cliente ya tiene un dominio `active` (o el `/s/slug` gratis) y prueba a comprar uno
+  nuevo, la ÚNICA fila de `domains` de ese proyecto se sobrescribe a `pending` de inmediato:
+  la web que ya funcionaba deja de tener un dominio activo mientras se provisiona el nuevo, y
+  si la compra falla (ver mejora de hoy, que ya avisa de eso) el cliente se queda sin ningún
+  dominio funcionando aunque antes tuviera uno. Requiere no tocar el dominio viejo hasta que el
+  nuevo confirme `active` (p. ej. fila nueva + swap atómico, o guardar snapshot del anterior).
+- 🟡 Placeholders legales sin rellenar en producción — `Legal/Privacy.tsx` y `Legal/Terms.tsx`
+  muestran literalmente `[NOMBRE O RAZÓN SOCIAL]`, `[NIF/DNI]`, `[DIRECCIÓN]` en la sección
+  de responsable del tratamiento. Necesita los datos reales de Álvaro (razón social/NIF/
+  dirección) — no se pueden inventar.
+- 🟢 Domain provisioning: mostrar en `/publicar` (no solo en el Dashboard) un aviso si el
+  dominio de este proyecto quedó `failed` la última vez, con botón directo para reintentar
+  en vez de que el cliente tenga que adivinarlo desde el Dashboard.
