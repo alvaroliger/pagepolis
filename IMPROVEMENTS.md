@@ -4,7 +4,7 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
-Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
+Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho · 🔁 ya tiene rama(s) abierta(s), no lo repitas
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
@@ -17,6 +17,20 @@ general a ingresos:
    esta semana sin necesitar decisiones de Álvaro.
 Sigue aplicando el listón de calidad de siempre: nada de churn; si no hay mejora clara,
 no abras PR.
+
+## ⚠️ Aviso: decenas de ramas/PRs sin fusionar duplicando la misma idea (2026-07-17/18)
+`git branch -r` muestra ~90 ramas remotas sin fusionar, con hasta 8-10 ramas distintas
+implementando literalmente la misma mejora (rendimiento del hero 3D en gama baja,
+insignia/filtro "3D" en la galería de plantillas, elección Clásico/3D en el wizard,
+la vista previa de plantillas ejecutando el JS real, etc.) — evidencia de que muchas
+ejecuciones concurrentes están cogiendo el mismo ítem 🟢 obvio del backlog sin verse
+entre sí a tiempo. **Antes de empezar a implementar, haz `git fetch --all` (no solo
+`git branch -r`, que puede no reflejar ramas recién empujadas por otra sesión) y revisa
+si el ítem que ibas a coger ya tiene una rama abierta con ese tema** (aunque el nombre no
+coincida exacto — compara el resumen del commit). Si ya existe, elige otro ítem distinto.
+Álvaro: esto necesita una pasada de integración como la del 2026-07-03 (revisar las ramas,
+quedarse con la mejor versión de cada familia duplicada, cerrar el resto) — el volumen
+actual ya dificulta que las siguientes ejecuciones encuentren trabajo nuevo que hacer.
 
 ## Ingresos / conversión (lo que hace que el cliente pague)
 - ✅ **Captura de leads** en las webs generadas (endpoint + email al dueño + bandeja `/mensajes`).
@@ -34,6 +48,12 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Aviso de cuota de IA en el wizard de creación** — `/crear` recibía cero información
+  sobre la cuota diaria (a diferencia del editor, que ya muestra contador + aviso con
+  "Mejora tu plan"); ahora `ProjectController::create` expone el mismo `aiUsage` y el
+  wizard deshabilita el envío y muestra el mismo aviso ámbar si ya no quedan generaciones
+  hoy, o si la cuota se agota justo al enviar (respuesta 429, cuyos campos `limit`/`upgrade`
+  el frontend ya recibía pero ignoraba).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -46,10 +66,15 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
+- 🟡🔁 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base. **Ya tiene
+  varias ramas abiertas** (`feature/hero3d-geometry-variants`, `feature/hero3d-shape-variants`,
+  `feature/hero3d-variants`, `feature/hero3d-shape-palette-variants`…) — no la repitas, mejor
+  ayuda a fusionar/consolidar una de esas.
+- 🟡🔁 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  **Ya tiene varias ramas abiertas** (`perf/hero3d-low-power-devices`,
+  `perf/hero3d-low-end-device-tier`, `feature/hero3d-low-end-device-perf`…) — no la repitas.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +132,9 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Buscador por nombre/etiqueta en la galería de plantillas** (`resources/js/Pages/Templates/Index.tsx`) —
+  ya hay filtro por categoría y `tags` en cada plantilla, pero no se pueden buscar por texto
+  (ej. escribir "abogado" o "peluquería"); con el catálogo creciendo esto ayuda a encontrar
+  una plantilla conocida sin escanear tarjetas a ojo. (Nota: el filtro/insignia "3D" y el
+  orden por nombre/popularidad de esta misma página YA tienen ramas abiertas — no las repitas,
+  mira el aviso de arriba.)
