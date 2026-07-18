@@ -12,6 +12,7 @@ interface Project {
     updated_at: string;
     views_30d: number;
     domain: string | null;
+    domain_status: string | null;
     live_url: string | null;
     preview_url: string;
 }
@@ -129,7 +130,17 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                     </span>
                 </div>
 
-                {project.domain && (
+                {project.domain && project.domain_status === 'failed' && (
+                    <p className="text-xs text-red-400 mb-2 truncate" title={project.domain}>
+                        ⚠ No se pudo configurar {project.domain} — contáctanos
+                    </p>
+                )}
+                {project.domain && project.domain_status === 'pending' && (
+                    <p className="text-xs text-amber-400 mb-2 truncate" title={project.domain}>
+                        Configurando {project.domain}…
+                    </p>
+                )}
+                {project.domain && project.domain_status === 'active' && (
                     <p className="text-xs text-gray-500 mb-2 truncate" title={project.domain}>
                         {project.domain}
                     </p>

@@ -63,6 +63,7 @@ class PurchaseDomain implements ShouldQueue
 
         } catch (\Exception $e) {
             Log::error('PurchaseDomain failed: ' . $e->getMessage());
+            $this->domain->update(['status' => 'failed']);
             $this->fail($e);
         }
     }

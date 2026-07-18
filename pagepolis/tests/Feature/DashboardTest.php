@@ -37,6 +37,14 @@ class DashboardTest extends TestCase
             ->inertiaProps('onboarding');
     }
 
+    private function projects(User $user): array
+    {
+        return $this->actingAs($user)
+            ->get('/dashboard')
+            ->assertOk()
+            ->inertiaProps('projects');
+    }
+
     public function test_onboarding_all_false_for_draft_only_user(): void
     {
         $user = $this->user();
@@ -131,6 +139,64 @@ class DashboardTest extends TestCase
         $ob = $this->onboarding($user);
 
         $this->assertFalse($ob['domain'], 'Pending domains must not satisfy the domain step');
+    }
+
+    public function test_live_url_is_hidden_while_custom_domain_is_still_provisioning(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['status' => 'published']);
+
+        Domain::create([
+            'user_id'    => $user->id,
+            'project_id' => $project->id,
+            'domain'     => 'miweb.com',
+            'type'       => 'custom',
+            'status'     => 'pending',
+        ]);
+
+        $projects = $this->projects($user);
+
+        $this->assertNull($projects[0]['live_url'], 'Must not show a link to a domain that has not finished provisioning');
+        $this->assertSame('pending', $projects[0]['domain_status']);
+        $this->assertSame('miweb.com', $projects[0]['domain']);
+    }
+
+    public function test_live_url_is_hidden_when_custom_domain_purchase_failed(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['status' => 'published']);
+
+        Domain::create([
+            'user_id'    => $user->id,
+            'project_id' => $project->id,
+            'domain'     => 'miweb.com',
+            'type'       => 'custom',
+            'status'     => 'failed',
+        ]);
+
+        $projects = $this->projects($user);
+
+        $this->assertNull($projects[0]['live_url']);
+        $this->assertSame('failed', $projects[0]['domain_status']);
+    }
+
+    public function test_live_url_is_shown_for_active_custom_domain(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['status' => 'published']);
+
+        Domain::create([
+            'user_id'    => $user->id,
+            'project_id' => $project->id,
+            'domain'     => 'miweb.com',
+            'type'       => 'custom',
+            'status'     => 'active',
+        ]);
+
+        $projects = $this->projects($user);
+
+        $this->assertSame('https://miweb.com', $projects[0]['live_url']);
+        $this->assertSame('active', $projects[0]['domain_status']);
     }
 
     public function test_dashboard_includes_onboarding_key_for_new_user_with_no_projects(): void

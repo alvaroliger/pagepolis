@@ -7,6 +7,7 @@ use App\Jobs\PurchaseDomain;
 use App\Models\Domain;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\DinahostingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -96,6 +97,29 @@ class DomainFlowTest extends TestCase
         $this->actingAs($u)->postJson("/editor/{$p->id}/guardar", ['html' => '<h1>Nuevo</h1>'])->assertOk();
 
         Queue::assertNotPushed(DeploySite::class);
+    }
+
+    public function test_purchase_domain_marks_it_failed_instead_of_stuck_pending(): void
+    {
+        $u = $this->subscribedUser();
+        $p = $this->project($u);
+        $domain = Domain::create([
+            'user_id' => $u->id, 'project_id' => $p->id,
+            'domain' => 'minegocio.com', 'type' => 'custom', 'status' => 'pending',
+        ]);
+
+        $this->mock(DinahostingService::class, function ($mock) {
+            $mock->shouldReceive('register')->andThrow(new \Exception('registrar caído'));
+        });
+
+        (new PurchaseDomain($domain))->handle(
+            app(DinahostingService::class),
+            app(\App\Services\CloudflareService::class),
+            app(\App\Services\NginxService::class),
+        );
+
+        $this->assertSame('failed', $domain->fresh()->status);
+        $this->assertSame('draft', $p->fresh()->status, 'A project must not be marked published when its domain purchase failed');
     }
 
     public function test_cannot_reserve_domain_for_another_users_project(): void
