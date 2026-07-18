@@ -68,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Asistente de creación con IA ("a prueba de abuelos")
-    Route::get('/crear', fn () => \Inertia\Inertia::render('Create/Index'))->name('create.wizard');
+    Route::get('/crear', [ProjectController::class, 'create'])->name('create.wizard');
     Route::post('/crear-con-ia', [ProjectController::class, 'createWithAi'])
         ->middleware('ai.ratelimit')
         ->name('projects.create-ai');

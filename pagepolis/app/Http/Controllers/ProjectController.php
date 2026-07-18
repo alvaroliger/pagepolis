@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\AiRateLimit;
 use App\Jobs\GenerateWebsiteJob;
 use App\Models\Project;
 use App\Models\Template;
@@ -9,9 +10,30 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 class ProjectController extends Controller
 {
+    /**
+     * Asistente de creación con IA: muestra el mismo aviso de cuota diaria que ya
+     * ve el cliente en el editor, para que si ya no le quedan generaciones hoy lo
+     * sepa antes de rellenar el formulario en vez de descubrirlo al enviarlo.
+     */
+    public function create(): InertiaResponse
+    {
+        $user = auth()->user();
+
+        return Inertia::render('Create/Index', [
+            'aiUsage' => [
+                'used'         => AiRateLimit::used($user),
+                'limit'        => AiRateLimit::dailyLimit($user),
+                'tier'         => AiRateLimit::tier($user),
+                'isSubscribed' => $user->isSubscribed(),
+            ],
+        ]);
+    }
+
     /**
      * Asistente "a prueba de abuelos": con 4 respuestas en lenguaje natural crea el
      * proyecto y lanza la generación de la web en segundo plano. El editor (al que

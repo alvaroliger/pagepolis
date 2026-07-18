@@ -78,4 +78,36 @@ class AiRateLimitTest extends TestCase
         // Slot was pre-reserved then released on the 409 — net counter must be 0
         $this->assertSame(0, (int) $u->fresh()->ai_calls_today);
     }
+
+    // ── Wizard: aviso de cuota agotada ────────────────────────────────────
+
+    public function test_creation_wizard_exposes_ai_usage_so_client_sees_quota_before_submitting(): void
+    {
+        $u = $this->user();
+        $u->update(['ai_calls_today' => 5, 'ai_calls_reset_date' => now()->toDateString()]); // límite trial = 5
+
+        $usage = $this->actingAs($u)
+            ->get('/crear')
+            ->assertOk()
+            ->inertiaProps('aiUsage');
+
+        $this->assertSame(5, $usage['used']);
+        $this->assertSame(5, $usage['limit']);
+        $this->assertTrue($usage['used'] >= $usage['limit']);
+    }
+
+    public function test_creation_wizard_ai_call_returns_upgrade_hint_when_quota_exhausted(): void
+    {
+        $u = $this->user();
+        $u->update(['ai_calls_today' => 5, 'ai_calls_reset_date' => now()->toDateString()]);
+
+        $response = $this->actingAs($u)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Panadería artesana de barrio',
+        ]);
+
+        $response->assertStatus(429)
+            ->assertJsonPath('limit', 5)
+            ->assertJsonPath('upgrade', true);
+    }
 }

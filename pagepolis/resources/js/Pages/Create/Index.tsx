@@ -8,7 +8,18 @@ import { FadeIn } from '@/Components/Motion';
 const STYLES  = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
 const DESC_MAX = 1000;
 
-export default function CreateWizard() {
+interface AiUsage {
+    used: number;
+    limit: number;
+    tier: string;
+    isSubscribed: boolean;
+}
+
+interface Props {
+    aiUsage: AiUsage;
+}
+
+export default function CreateWizard({ aiUsage }: Props) {
     const [businessName, setBusinessName] = useState('');
     const [description, setDescription]   = useState('');
     const [sells, setSells]               = useState(false);
@@ -18,10 +29,11 @@ export default function CreateWizard() {
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
     const [touched, setTouched]           = useState(false);
+    const [quotaExceeded, setQuotaExceeded] = useState(aiUsage.used >= aiUsage.limit);
 
     const nameOk    = businessName.trim().length > 1;
     const descOk    = description.trim().length > 4;
-    const canSubmit = nameOk && descOk && !loading;
+    const canSubmit = nameOk && descOk && !loading && !quotaExceeded;
 
     const validationHint = touched && !canSubmit && !loading
         ? (!nameOk ? 'Añade el nombre de tu negocio.' : 'Cuéntanos un poco más sobre lo que haces.')
@@ -48,7 +60,11 @@ export default function CreateWizard() {
                 router.visit(data.redirect);   // el editor muestra el progreso
             }
         } catch (err: any) {
-            setError(err.response?.data?.error ?? 'No se pudo crear la web. Inténtalo de nuevo.');
+            if (err.response?.status === 429) {
+                setQuotaExceeded(true);
+            } else {
+                setError(err.response?.data?.error ?? 'No se pudo crear la web. Inténtalo de nuevo.');
+            }
             setLoading(false);
         }
     };
@@ -163,7 +179,22 @@ export default function CreateWizard() {
                     </div>
 
                     <AnimatePresence>
-                        {error && (
+                        {quotaExceeded ? (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.25, ease: 'easeOut' }}
+                                className="overflow-hidden"
+                            >
+                                <div className="p-3 bg-amber-900/20 border border-amber-800/40 rounded-xl text-xs text-amber-300/90 leading-relaxed">
+                                    Has alcanzado el límite de {aiUsage.limit} generaciones con IA hoy. Se restablece a medianoche.{' '}
+                                    {!aiUsage.isSubscribed && (
+                                        <a href="/publicar" className="underline text-violet-300">Mejora tu plan</a>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ) : error && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -183,10 +214,10 @@ export default function CreateWizard() {
                         disabled={!canSubmit || loading}
                         className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40"
                     >
-                        {loading ? 'Creando tu web…' : '✨ Crear mi web con IA'}
+                        {loading ? 'Creando tu web…' : quotaExceeded ? 'Sin generaciones IA hoy' : '✨ Crear mi web con IA'}
                     </button>
 
-                    {validationHint && !error && (
+                    {validationHint && !error && !quotaExceeded && (
                         <p className="text-center text-xs text-amber-400 -mt-4">{validationHint}</p>
                     )}
 
