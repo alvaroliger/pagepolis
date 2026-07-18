@@ -46,8 +46,12 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Variantes del hero 3D** — 3 geometrías (icosaedro redondeado, octaedro afilado
+  tipo cristal, cubo anguloso "tech") + paleta/shading propios por variante (`--brand`
+  vs `--brand-2`, distinto balance de luz difusa/rim). Selección determinista por sitio
+  (hash de `hostname+pathname`, con override manual vía `data-hero3d-variant`) para que
+  dos webs con el mismo motor no se vean idénticas, manteniendo la misma variante entre
+  visitas de una misma web. `buildPolyhedron()` genérico reutilizado por las tres formas.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -83,6 +87,14 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-18)
+- Variantes de geometría/paleta para el hero 3D (`hero3d.js`): icosaedro, octaedro y cubo,
+  cada uno con su color (`--brand`/`--brand-2`) y balance de luz propio, elegidos de forma
+  determinista por sitio (hash de host) para que las webs "tech" dejen de verse clonadas.
+  Verificado en Playwright headless (WebGL vía swiftshader): las tres variantes renderizan
+  sin errores de consola y son visualmente distintas (capturas comparadas manualmente);
+  fallback `prefers-reduced-motion` comprobado igual. Suite 244/244 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +119,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **Selector explícito "Simple | 3D" en el paso de plantilla del wizard** — hoy la
+  variante de `hero3d.js` (icosaedro/octaedro/cubo) se elige sola por hash del hostname;
+  el siguiente paso es dejar que el cliente la elija/preview antes de publicar (guardar
+  la variante elegida en el proyecto, pasarla como `data-hero3d-variant` en el HTML
+  generado). Es el hito que falta para que "Simple vs 3D" sea una decisión real del
+  cliente y no solo un efecto del motor.
+- 🟢 Aplicar el mismo lenguaje de variantes (`tilt-3d` + paleta `--brand`/`--brand-2`) a
+  las tarjetas de la galería de plantillas del wizard, para que la elección de plantilla
+  ya transmita el nivel de diseño 3D antes de generarla.
+- 🟢 Miniatura con movimiento real (no solo captura estática) en las tarjetas de la
+  galería para plantillas con hero 3D — un iframe pequeño con el motor corriendo (o un
+  clip corto) vende mejor el efecto que una imagen fija.
