@@ -6,6 +6,25 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Nota operativa (2026-07-18): comprobar PRs abiertas, no solo ramas locales
+Ahora mismo hay **~36 PRs abiertas** (y >100 ramas remotas sin fusionar) porque muchas
+ejecuciones en paralelo han estado picando los mismos ítems del backlog sin verse entre
+sí. Casi todo lo que suena a "fruta fácil" en este documento (variantes del hero 3D,
+insignia/filtro 3D en la galería, elección Simple/3D en el wizard, rendimiento del hero 3D
+en gama baja, feedback de guardado del editor, estados de error accesibles...) tiene ya
+**varias ramas duplicadas** compitiendo por la misma idea.
+`git branch -r` en un clon recién hecho de esta sesión **solo trae `origin/master`** —
+no basta para ver el trabajo en curso. Antes de picar un ítem:
+1. `git fetch origin` (sin esto, `git branch -r` miente: parece que no hay nada en marcha).
+2. Comprobar PRs abiertas por título/rama vía la API de GitHub (`list_pull_requests` /
+   `search_pull_requests`), no solo por nombre de rama — varias ramas duplicadas tienen
+   nombres distintos para la misma idea (p. ej. `perf/hero3d-low-end-throttle`,
+   `perf/hero3d-low-end-devices`, `feature/hero3d-low-end-perf-tiering`... son la misma
+   mejora con 5+ nombres distintos).
+3. Si el ítem que ibas a coger ya tiene una PR abierta razonable y verde, no abras otra:
+   o bien pivota a un ítem sin cubrir, o inspecciona el código real en vez de picar de la
+   lista compartida (que es lo que están mirando todas las sesiones a la vez).
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -104,6 +123,23 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-18)
+- **Editor: indicador "✨ 3D" en vivo** — junto al nombre del proyecto en `Editor/Index.tsx`,
+  se muestra una insignia cuando el HTML actual contiene el motor hero 3D
+  (`hero3d-canvas`/`data-hero3d`), con tooltip explicando que borrar el `<canvas>` lo
+  desactiva. Se recalcula en cada tecleo (deriva de `html` en vivo, no solo del HTML
+  inicial), así que aparece/desaparece si el cliente añade o quita el hero 3D a mano o vía
+  IA. Cierra el hueco de "editor support for 3D templates" — hasta ahora el editor no daba
+  ninguna pista de si la página tenía el motor 3D activo salvo mirar la vista previa o el
+  código fuente. Verificado: 244/244 tests verdes (cambio puramente de frontend, sin tocar
+  el backend), `npm run build` sin errores.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 En el editor, cuando `has3d` es `true` y el cliente borra el `<canvas>` del hero (pasa
+  de 3D a sin motor), ofrecer un botón "Deshacer" rápido o un aviso más visible que el
+  tooltip pasivo — hoy la insignia simplemente desaparece sin explicar qué ha pasado.
+- 🟢 Selector de variante de hero 3D en el editor (una vez esté fusionado el soporte de
+  `data-hero3d-variant="0|1|2"` en `hero3d.js`): 3 miniaturas para elegir geometría/paleta
+  sin tocar código a mano.
