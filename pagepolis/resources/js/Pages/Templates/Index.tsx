@@ -13,9 +13,11 @@ interface Template {
     thumbnail: string | null;
     tags: string[] | null;
     is_premium: boolean;
+    is_3d: boolean;
     uses_count: number;
     html: string;
     css: string;
+    js: string;
 }
 
 interface Props {
@@ -39,11 +41,13 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
 
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [only3d, setOnly3d] = useState(false);
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = (filter === 'Todos' ? templates : templates.filter(t => t.category === filter))
+        .filter(t => !only3d || t.is_3d);
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -80,7 +84,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Filtros */}
-                <div className="flex gap-2 flex-wrap mb-8">
+                <div className="flex gap-2 flex-wrap items-center mb-8">
                     {['Todos', ...categories].map(cat => (
                         <button
                             key={cat}
@@ -94,6 +98,17 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             {cat}
                         </button>
                     ))}
+                    <button
+                        onClick={() => setOnly3d(v => !v)}
+                        aria-pressed={only3d}
+                        className={`ml-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
+                            only3d
+                                ? 'bg-fuchsia-600 border-fuchsia-500 text-white'
+                                : 'bg-gray-800 border-transparent text-gray-400 hover:bg-gray-700 hover:text-white'
+                        }`}
+                    >
+                        ✨ Solo 3D
+                    </button>
                 </div>
 
                 {/* Grid de plantillas */}
@@ -109,11 +124,18 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
-                                {template.is_premium && (
-                                    <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
-                                        PRO
-                                    </span>
-                                )}
+                                <div className="absolute top-2 right-2 flex gap-1.5 z-10">
+                                    {template.is_3d && (
+                                        <span className="bg-fuchsia-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ✨ 3D
+                                        </span>
+                                    )}
+                                    {template.is_premium && (
+                                        <span className="bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            PRO
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
@@ -165,7 +187,14 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
                                 <span className="w-3 h-3 rounded-full bg-green-400"></span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-600">{previewTemplate.name}</span>
+                            <span className="text-sm font-semibold text-gray-600 flex items-center gap-2">
+                                {previewTemplate.name}
+                                {previewTemplate.is_3d && (
+                                    <span className="bg-fuchsia-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                        ✨ 3D
+                                    </span>
+                                )}
+                            </span>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => { setPreviewId(null); useTemplate(previewTemplate.id); }}
@@ -180,7 +209,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script><script>${previewTemplate.js}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}

@@ -11,9 +11,15 @@ class TemplateController extends Controller
     public function index(): Response
     {
         $templates = Template::where('is_active', true)
-            ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count', 'html', 'css')
+            ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count', 'html', 'css', 'js')
             ->orderByDesc('uses_count')
-            ->get();
+            ->get()
+            ->map(function (Template $template) {
+                $template->is_3d = str_contains($template->html, 'data-hero3d')
+                    || str_contains($template->html, 'hero3d-canvas');
+
+                return $template;
+            });
 
         $categories = $templates->pluck('category')->unique()->values();
 
