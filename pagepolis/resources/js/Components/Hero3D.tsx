@@ -128,12 +128,34 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
     return sh;
 }
 
+/* Nivel de rendimiento aproximado (núcleos de CPU / RAM del dispositivo).
+ * 'low': ni se monta WebGL (ahorra batería en gama muy baja).
+ * 'mid': menos figuras y menor resolución (móviles habituales).
+ * 'high': comportamiento completo (escritorio / gama alta). */
+type PerfTier = 'low' | 'mid' | 'high';
+
+function devicePerfTier(): PerfTier {
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const cores = nav.hardwareConcurrency || 4;
+    const mem = nav.deviceMemory;
+    if (cores <= 2 || (mem !== undefined && mem <= 2)) return 'low';
+    if (cores <= 4 || (mem !== undefined && mem <= 4)) return 'mid';
+    return 'high';
+}
+
 export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], count = 7 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
+        const tier = devicePerfTier();
+        if (tier === 'low') {
+            // Gama muy baja: ni se monta WebGL, se ahorra CPU/GPU/batería.
+            canvas.style.display = 'none';
+            return;
+        }
 
         let gl: WebGLRenderingContext | null = null;
         try {
@@ -182,7 +204,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapeCount = tier === 'mid' ? Math.max(3, Math.round(count * 0.5)) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +226,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, tier === 'mid' ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

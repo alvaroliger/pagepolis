@@ -31,6 +31,19 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* ── Nivel de rendimiento del dispositivo (núcleos de CPU / RAM aprox.) ──
+     'low': gama muy baja -> el motor ni se inicializa (ahorra CPU/GPU/batería,
+     el hero se queda con el mesh-gradient de base.css).
+     'mid': gama media (móviles habituales) -> menos figuras y menor resolución.
+     'high': resto -> comportamiento completo. */
+  function devicePerfTier() {
+    var cores = navigator.hardwareConcurrency || 4;
+    var mem = navigator.deviceMemory; // no soportado en todos los navegadores
+    if (cores <= 2 || (mem && mem <= 2)) return 'low';
+    if (cores <= 4 || (mem && mem <= 4)) return 'mid';
+    return 'high';
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -139,7 +152,7 @@
     return sh;
   }
 
-  function setupScene(canvas) {
+  function setupScene(canvas, tier) {
     var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
       || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
     if (!gl) { canvas.style.display = 'none'; return null; }
@@ -179,7 +192,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = tier === 'mid' ? 3 + Math.round(Math.random()) : 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -200,9 +213,16 @@
 
   function initCanvas(canvas) {
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var tier = devicePerfTier();
+    if (tier === 'low') {
+      /* Gama muy baja: ni se monta WebGL. El hero conserva el mesh-gradient
+         de base.css, así que sigue viéndose bien sin gastar batería/CPU. */
+      canvas.style.display = 'none';
+      return;
+    }
     var scene;
     try {
-      scene = setupScene(canvas);
+      scene = setupScene(canvas, tier);
     } catch (e) {
       canvas.style.display = 'none';
       return;
@@ -214,7 +234,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, tier === 'mid' ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
