@@ -46,6 +46,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **Galería de plantillas: hacer visible el hero 3D en el momento de elegir plantilla**
+  — el modal de vista previa solo renderizaba html+css (nunca el `js`), así que el motor
+  WebGL no se animaba nunca ahí; el cliente no podía distinguir una plantilla 3D de una
+  clásica en el paso donde importa. Ahora el modal incluye el `js` de la plantilla (se
+  anima de verdad), cada tarjeta con hero 3D muestra insignia "✨ 3D" (detectado por
+  `data-hero3d`/`hero3d-canvas` en el html, sin cambios de esquema) y hay un filtro
+  "Solo 3D" en `Templates/Index.tsx` + `TemplateController`.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
@@ -107,3 +114,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🔵 **El wizard de creación con IA (`/crear`, `Create/Index.tsx`) sigue sin un selector
+  explícito "Simple | 3D"** — hoy la IA decide sola si añade el hero 3D según el rubro del
+  negocio (`AnthropicService.php`). Añadir un paso/toggle visible en el wizard (y pasar esa
+  preferencia a `buildPrompt()`) para que el cliente elija con conocimiento de causa, no que
+  quede oculto en la lógica del prompt. Es el hueco principal para cerrar el flujo
+  "Simple | 3D" de extremo a extremo que pide el objetivo de la semana.
+- 🟢 Las miniaturas de la galería (`Templates/Index.tsx`, `TemplatePreview`) siguen sin
+  ejecutar el `js` (solo el modal lo hace ahora) — a propósito, para no correr varios
+  contextos WebGL a la vez en la rejilla. Si se quiere, animar solo la miniatura bajo el
+  cursor (`onMouseEnter`) sería un término medio seguro en rendimiento.
+- 🟢 El editor (`Editor/Index.tsx`) sigue sin ningún control para activar/desactivar el hero
+  3D o ajustar sus parámetros (nº de figuras, paleta) en una web ya creada.
