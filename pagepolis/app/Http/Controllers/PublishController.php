@@ -98,6 +98,29 @@ class PublishController extends Controller
         ]);
     }
 
+    /**
+     * Despublica un proyecto: deja de ser accesible en /s/{slug} (o en su
+     * dominio propio) sin borrar nada. Libera al instante el hueco del límite
+     * de publicaciones del tier gratuito, que solo cuenta status='published'.
+     */
+    public function unpublish(Request $request): JsonResponse
+    {
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+        ]);
+
+        $project = Project::where('id', $request->project_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $project->update([
+            'status'       => 'draft',
+            'published_at' => null,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function success(Request $request): Response
     {
         return Inertia::render('Publish/Success', [

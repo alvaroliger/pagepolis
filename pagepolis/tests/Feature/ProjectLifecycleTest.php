@@ -141,4 +141,68 @@ class ProjectLifecycleTest extends TestCase
 
         $this->assertSame('draft', $project->fresh()->status);
     }
+
+    // ── unpublish ────────────────────────────────────────────────────────
+
+    public function test_owner_can_unpublish_a_published_project(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['status' => 'published', 'published_at' => now()]);
+
+        $this->actingAs($user)
+            ->postJson('/publicar/despublicar', ['project_id' => $project->id])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $project->refresh();
+        $this->assertSame('draft', $project->status);
+        $this->assertNull($project->published_at);
+    }
+
+    public function test_unpublish_frees_a_slot_under_the_free_publish_limit(): void
+    {
+        config(['pagepolis.limits.free_max_published' => 1]);
+        $user = $this->user();
+        $published = $this->project($user, ['status' => 'published', 'published_at' => now()]);
+        $draft = $this->project($user);
+
+        // Limit already reached: a second project can't be published yet.
+        $this->actingAs($user)
+            ->postJson('/publicar/gratis', ['project_id' => $draft->id])
+            ->assertStatus(402);
+
+        $this->actingAs($user)
+            ->postJson('/publicar/despublicar', ['project_id' => $published->id])
+            ->assertOk();
+
+        // Slot freed: the other project can now be published.
+        $this->actingAs($user)
+            ->postJson('/publicar/gratis', ['project_id' => $draft->id])
+            ->assertOk();
+        $this->assertSame('published', $draft->fresh()->status);
+    }
+
+    public function test_other_user_cannot_unpublish_another_users_project(): void
+    {
+        $owner = $this->user();
+        $other = $this->user();
+        $project = $this->project($owner, ['status' => 'published', 'published_at' => now()]);
+
+        $this->actingAs($other)
+            ->postJson('/publicar/despublicar', ['project_id' => $project->id])
+            ->assertNotFound();
+
+        $this->assertSame('published', $project->fresh()->status);
+    }
+
+    public function test_unpublish_requires_authentication(): void
+    {
+        $owner   = $this->user();
+        $project = $this->project($owner, ['status' => 'published', 'published_at' => now()]);
+
+        $this->postJson('/publicar/despublicar', ['project_id' => $project->id])
+            ->assertUnauthorized();
+
+        $this->assertSame('published', $project->fresh()->status);
+    }
 }

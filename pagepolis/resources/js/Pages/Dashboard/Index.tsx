@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 interface Project {
     id: number;
@@ -110,7 +110,7 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
     );
 }
 
-function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
+function ProjectCard({ project, onDelete, onUnpublish }: { project: Project; onDelete: (p: Project) => void; onUnpublish: (p: Project) => void }) {
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
             {/* Thumbnail */}
@@ -170,6 +170,15 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                             Ver web
                         </a>
                     )}
+                    {project.status === 'published' && (
+                        <button
+                            onClick={() => onUnpublish(project)}
+                            title="Despublicar (puedes volver a publicarla cuando quieras)"
+                            className="px-3 flex items-center bg-gray-800 hover:bg-yellow-900/30 text-gray-500 hover:text-yellow-400 rounded-lg transition-colors"
+                        >
+                            <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                        </button>
+                    )}
                     <a
                         href={`/proyectos/${project.id}/zip`}
                         title="Descargar web (ZIP)"
@@ -198,6 +207,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
         if (!deleteTarget) return;
         router.delete(`/proyectos/${deleteTarget.id}`, { preserveScroll: true });
         setDeleteTarget(null);
+    };
+
+    const unpublish = (project: Project) => {
+        router.post('/publicar/despublicar', { project_id: project.id }, { preserveScroll: true });
     };
 
     const restore = (id: number) => router.post(`/proyectos/${id}/restaurar`, {}, { preserveScroll: true });
@@ -298,7 +311,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                             {projects.map((project, i) => (
                                 <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
-                                    <ProjectCard project={project} onDelete={setDeleteTarget} />
+                                    <ProjectCard project={project} onDelete={setDeleteTarget} onUnpublish={unpublish} />
                                 </Reveal>
                             ))}
                         </div>

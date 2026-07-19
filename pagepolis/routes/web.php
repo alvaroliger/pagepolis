@@ -109,6 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/publicar', [PublishController::class, 'index'])->name('publish.index');
     Route::get('/publicar/exito', [PublishController::class, 'success'])->name('publish.success');
     Route::post('/publicar/gratis', [PublishController::class, 'publishFree'])->name('publish.free');
+    Route::post('/publicar/despublicar', [PublishController::class, 'unpublish'])->name('publish.unpublish');
 
     // Dominios
     Route::post('/dominios/verificar', [DomainController::class, 'check'])->name('domains.check');

@@ -28,6 +28,15 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **Despublicar un proyecto** — antes, un cliente en el tier gratuito (tope de 3 webs
+  publicadas) que quería probar otra plantilla en su lugar solo podía borrar el proyecto
+  entero para liberar hueco. Ahora `PublishController::unpublish` (ruta
+  `POST /publicar/despublicar`) pone el proyecto en borrador sin tocar su contenido, y
+  el botón "ojo tachado" en `Dashboard/Index.tsx` lo deja hacer con un clic — reversible,
+  puede volver a publicarlo cuando quiera. Libera el hueco del límite al instante porque
+  `publishFree` solo cuenta `status = 'published'`. Tests: 4 nuevos en
+  `ProjectLifecycleTest` (dueño puede despublicar, libera hueco del límite gratuito,
+  otro usuario no puede, requiere sesión).
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -107,3 +116,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Duplicar/clonar proyecto** — no existe ninguna acción para partir de una web ya
+  terminada como base de otra (nueva sede, servicio, o para probar cambios arriesgados
+  sin tocar la que está en producción). `ProjectController` tiene `store`/`destroy`/
+  `restore`/`forceDestroy`/`exportZip` pero no `duplicate`; sería una simple copia de
+  html/css/js/name (+ " (copia)") con un botón junto al de descarga ZIP en
+  `ProjectCard` (`resources/js/Pages/Dashboard/Index.tsx`).
+- 🟢 **Editor: layout responsive en móvil** — `Editor/Index.tsx` usa un layout fijo de
+  3 columnas (panel IA `w-72` + preview + código `w-96`) dentro de `h-screen
+  overflow-hidden`, sin breakpoints; en pantalla de móvil queda inutilizable. Distinto
+  del arreglo de navegación ya en curso (`fix/mobile-authenticated-nav`), que no toca
+  el layout propio del editor.
+- 🟢 Selector de rango de fechas + exportar CSV en `/analytics` (hoy es una vista fija
+  de 30 días sin forma de comparar periodos ni descargar los datos).
+- 🟢 Marcar leads como leídos/no leídos individualmente desde la bandeja (hoy solo hay
+  el marcado automático al ver el listado, sin control manual por si el cliente quiere
+  dejar uno pendiente para más tarde).
