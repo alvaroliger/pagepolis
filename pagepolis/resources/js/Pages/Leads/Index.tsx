@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
+import { Inbox } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import EmptyState from '@/Components/EmptyState';
 
 interface Lead {
     id: number;
@@ -37,13 +39,13 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
 
             <div className="max-w-4xl mx-auto px-4 py-8">
                 {leads.length === 0 ? (
-                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-                        <div className="text-4xl mb-3">📭</div>
-                        <h2 className="text-lg font-bold text-white">Aún no tienes mensajes</h2>
-                        <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
-                            Cuando alguien rellene el formulario de contacto de tu web, su mensaje aparecerá aquí
-                            y te avisaremos por email al instante.
-                        </p>
+                    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10">
+                        <EmptyState
+                            icon={Inbox}
+                            title="Aún no tienes mensajes"
+                            description="Cuando alguien rellene el formulario de contacto de tu web, su mensaje aparecerá aquí y te avisaremos por email al instante."
+                            cta={{ label: 'Ver mis proyectos', href: '/dashboard' }}
+                        />
                     </div>
                 ) : (
                     <div className="space-y-4">

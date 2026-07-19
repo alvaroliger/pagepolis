@@ -6,6 +6,17 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Aviso operativo (2026-07-19): backlog de PRs sin fusionar muy saturado
+Hay decenas de ramas remotas y ~36 PRs abiertos sin fusionar a `master`, con bastante
+duplicación entre sí sobre los mismos temas — sobre todo variantes de geometría del hero 3D
+(varias PRs distintas para lo mismo), rendimiento del hero 3D en gama baja (varias más),
+elección "Simple/3D" en el wizard, y la galería de plantillas con filtro/insignia/preview 3D
+(9+ ramas). **Antes de coger un ítem de "Diseño / nivel visual" o de plantillas 3D, mira
+`git branch -r` y las PRs abiertas en GitHub** — es muy probable que ya esté hecho en una
+rama sin fusionar todavía. Si es así, no lo repitas: coge otro ítem. Sería muy valioso que
+Álvaro (o quien revise) fusione/depure ese backlog de PRs antes de que seguir generando más
+variantes del mismo tema deje de aportar valor.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -34,6 +45,11 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Estados vacíos con acción, no callejones sin salida** — `/mensajes` (sin leads) y
+  `/analytics` (sin proyectos) solo mostraban texto plano sin ningún enlace; ahora usan un
+  componente compartido `Components/EmptyState.tsx` (icono + título + descripción + CTA),
+  con el mismo lenguaje visual que el estado vacío ya existente en el Dashboard, y un CTA
+  real ("Ver mis proyectos" / "Explorar plantillas") en vez de dejar al cliente sin salida.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -105,5 +121,9 @@ no abras PR.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
 ## Ideas nuevas
+- 🟢 Adoptar `Components/EmptyState.tsx` (nuevo) en más sitios que hoy tienen su propio
+  estado vacío ad-hoc — p.ej. el gráfico de "Aún no hay visitas" en `/analytics` (texto
+  suelto sin CTA) o cualquier lista nueva que pueda quedar vacía (papelera, dominios…).
+  Revisar caso a caso para no duplicar CTAs cuando dos estados vacíos coinciden en pantalla.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
