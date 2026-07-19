@@ -132,6 +132,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [seoLoading, setSeoLoading] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const [showUsageTooltip, setShowUsageTooltip] = useState(false);
+    const usageTooltipRef = useRef<HTMLDivElement>(null);
     const [progress, setProgress]   = useState('');
     const [usedToday, setUsedToday] = useState(aiUsage.used);
     const [images, setImages]       = useState<File[]>([]);
@@ -179,6 +180,25 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    useEffect(() => {
+        if (!showUsageTooltip) return;
+        const close = (e: MouseEvent | KeyboardEvent) => {
+            if (e instanceof KeyboardEvent) {
+                if (e.key === 'Escape') setShowUsageTooltip(false);
+                return;
+            }
+            if (usageTooltipRef.current && !usageTooltipRef.current.contains(e.target as Node)) {
+                setShowUsageTooltip(false);
+            }
+        };
+        document.addEventListener('mousedown', close);
+        document.addEventListener('keydown', close);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('keydown', close);
+        };
+    }, [showUsageTooltip]);
 
     const markDirty = () => setDirty(true);
 
@@ -609,16 +629,18 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         {/* Contador de usos */}
                         <div className="mt-2 flex items-center justify-between">
                             <p className="text-xs text-gray-700">Ctrl+Enter para enviar</p>
-                            <div className="relative">
+                            <div className="relative" ref={usageTooltipRef}>
                                 <button
-                                    onMouseEnter={() => setShowUsageTooltip(true)}
-                                    onMouseLeave={() => setShowUsageTooltip(false)}
-                                    className={`text-xs font-semibold px-2 py-0.5 rounded-full cursor-default ${usageColor}`}
+                                    type="button"
+                                    onClick={() => setShowUsageTooltip(v => !v)}
+                                    aria-expanded={showUsageTooltip}
+                                    aria-describedby="ai-usage-tooltip"
+                                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${usageColor}`}
                                 >
                                     {usedToday}/{aiUsage.limit} hoy
                                 </button>
                                 {showUsageTooltip && (
-                                    <div className="absolute bottom-full right-0 mb-1 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-2 text-xs text-gray-300 whitespace-nowrap shadow-xl">
+                                    <div id="ai-usage-tooltip" role="status" className="absolute bottom-full right-0 mb-1 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-2 text-xs text-gray-300 whitespace-nowrap shadow-xl">
                                         Se reinicia a medianoche cada día.
                                         {!aiUsage.isSubscribed && <><br/>Mejora tu plan para más llamadas.</>}
                                     </div>

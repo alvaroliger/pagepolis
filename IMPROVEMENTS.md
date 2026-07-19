@@ -6,6 +6,35 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ IMPORTANTE: cómo comprobar qué ya está en marcha (2026-07-19)
+`git branch -r` **NO** basta para ver qué ramas ya existen en `origin`: solo lista las
+refs remotas ya rastreadas localmente, y un checkout fresco normalmente solo trae
+`origin/master`. Antes de elegir una mejora, ejecuta:
+
+```
+git ls-remote --heads origin
+```
+
+para ver TODAS las ramas remotas de verdad. En esta revisión (2026-07-19) había **~90
+ramas abiertas sin fusionar**, con hasta 10 implementaciones duplicadas de la misma idea
+(hero3D en gama baja, elección clásica/3D en el wizard, insignia 3D en la galería de
+plantillas…) porque cada ejecución anterior solo miraba `git branch -r` y no veía el
+trabajo ya en curso. Si vas a tocar un fichero concreto, comprueba además qué ramas ya
+tienen commits propios sobre ese fichero (no solo diffs de divergencia con `master`, que
+dan muchísimos falsos positivos en ramas viejas):
+
+```
+for b in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin | grep -v origin/master); do
+  n=$(git log <base>.."$b" --oneline -- <ruta/al/fichero> 2>/dev/null | wc -l)
+  [ "$n" -gt 0 ] && echo "$b ($n commits)"
+done
+```
+
+Esto es además una señal de que hace falta una **sesión de integración** (fusionar/podar
+las ~90 ramas, quedándose con la mejor versión de cada familia, como se hizo el
+2026-07-03) — es una decisión de Álvaro por el volumen y el riesgo, no algo para una
+sola ejecución de "1 mejora por rama".
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -76,12 +105,26 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
+- ✅ **Contador de usos de IA del editor accesible por teclado y táctil** — el badge
+  "X/Y hoy" (`Pages/Editor/Index.tsx`) solo revelaba su explicación con `onMouseEnter`,
+  inalcanzable sin ratón. Ahora es un botón disclosure estándar (clic/toque/Enter-Espacio
+  alternan `aria-expanded` + `aria-describedby`), con cierre al pulsar Escape o fuera del
+  tooltip. Ojo con la trampa: combinar el toggle con `onFocus`/`onMouseEnter` simultáneos
+  crea una carrera de eventos (el toque sintetiza un `mouseenter`/`focus` justo antes del
+  `click`, así que un `setState` relativo `v => !v` en el clic puede cancelar el que acaba
+  de poner `onFocus`/`onMouseEnter` en el mismo lote de React) — la solución robusta es un
+  único disparador (clic) sin combinarlo con hover/focus para el mismo estado.
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+
+## Hecho recientemente (2026-07-19)
+- Contador de usos de IA del editor accesible por teclado/táctil (ver "Calidad" arriba).
+  Suite 244/244 verde, `npm run build` OK, verificado con Playwright simulando teclado
+  (Tab+Enter+Escape), toque táctil y clic de ratón contra el editor real.
 
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
