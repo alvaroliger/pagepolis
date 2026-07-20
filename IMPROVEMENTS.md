@@ -4,7 +4,24 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
-Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
+Leyenda: 🟢 listo · 🟠 ya hay PR(s) abiertos sin revisar (no reimplementar) · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
+
+## ⚠️ Aviso (2026-07-20): 39 PRs abiertos sin revisar, varios duplicados
+`git ls-remote --heads origin` tiene 123 ramas y `list_pull_requests` 39 PRs abiertos (#44-#82) —
+ninguno fusionado desde el 2026-07-03. Muchas ramas repiten la misma idea porque `git branch -r`
+tras un clon nuevo solo muestra `origin/master` (hay que hacer `git fetch`/`git ls-remote --heads
+origin` para ver el estado real); varios runs no lo hicieron y reimplementaron lo mismo:
+- Rendimiento hero 3D en gama baja: **10 ramas** (`perf/hero3d-low-end-throttle` #45 abierto;
+  el resto sin PR, descartadas por duplicado).
+- Variantes de geometría/paleta del hero 3D: `feature/hero3d-variants` #46,
+  `feature/hero3d-geometry-variants` #57, `feature/hero3d-geometry-palette-variants` #79 (+ 2 más
+  sin PR).
+- Galería de plantillas Simple/3D (insignia/filtro/preview en vivo): **9 PRs abiertos**
+  (#44, #51, #67, #71, #75, #78 + variantes sin PR).
+- Elegir "Clásica/3D" en el wizard: `feature/wizard-page-type-choice` #49 (+ 2 ramas sin PR).
+Antes de coger un ítem 🟢 de "Diseño / nivel visual", revisa si ya tiene 🟠 al lado — significa que
+hay trabajo esperando revisión de Álvaro, no que esté libre. Si Álvaro vuelve, lo prioritario es
+revisar/fusionar/cerrar esos 39 PRs antes de que se generen más duplicados.
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
@@ -34,6 +51,18 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Marcado manual de leídos/no leídos en `/mensajes`** — antes, abrir la bandeja marcaba en
+  silencio todos los mensajes visibles como leídos, así que el "Nuevo" no servía para saber a
+  quién le faltaba responder. Ahora es manual: botón por mensaje ("Marcar leído"/"Marcar no
+  leído") + "Marcar todos como leídos"; `LeadController::index` ya no muta estado al verla.
+- 🟠 **Elección "Clásica / 3D interactiva" en el wizard** — PR abierto: `feature/wizard-page-type-choice` #49
+  (+ 2 ramas duplicadas sin PR: `feature/wizard-3d-page-choice`, `feature/wizard-explicit-page-type`).
+- 🟢 Duplicar/clonar un proyecto existente como borrador nuevo (para probar otra plantilla sin
+  perder el original) — sin PR abierto todavía.
+- 🟢 Analítica: filtro de rango de fechas + exportar a CSV (ya existe CSV de leads; falta en
+  `AnalyticsController`) — sin PR abierto todavía.
+- 🟢 Layout responsive del editor en móvil/tablet (hoy el split CodeMirror + preview asume
+  escritorio) — sin PR abierto todavía, revisar antes de empezar por si se abre uno mientras tanto.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -46,10 +75,12 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
+- 🟠 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base. PRs abiertos:
+  #46, #57, #79 (revisar y quedarse con la mejor versión, cerrar el resto).
+- 🟠 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  PR abierto: `perf/hero3d-low-end-throttle` #45.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
