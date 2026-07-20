@@ -4,7 +4,54 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
-Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
+Leyenda: 🟢 listo · 🟠 ya hay PR(s) abiertos sin revisar (no reimplementar) · 🟡 decisión de Álvaro ·
+🔵 grande · ✅ hecho
+
+## ⚠️ Antes de empezar: comprueba el trabajo en curso (este archivo en `master` va con retraso)
+
+`master` no se ha fusionado desde 2026-07-03 — hay **~40 PRs abiertos sin revisar** (aprox. #44-#83)
+y más ramas sin PR. `git branch -r` justo después de clonar **solo muestra `origin/master`**; hace
+falta `git fetch origin` (o `git ls-remote --heads origin`) para ver las ramas reales, y la lista de
+PRs abiertos (`list_pull_requests` sobre `alvaroliger/pagepolis`) para saber qué ya está resuelto —
+este mismo fichero en `master` no lo refleja porque ninguna PR se ha fusionado todavía. Varias
+ejecuciones seguidas han reimplementado la misma idea por no hacer esta comprobación primero.
+
+Ítems de esta lista que **ya tienen PR abierto** (no los repitas — si quieres mejorarlos, revisa el PR
+existente en vez de abrir uno nuevo):
+- Variantes de geometría/paleta del hero 3D → PRs #46, #57, #79.
+- Rendimiento del hero 3D en gama baja (menos figuras / desactivar en `hardwareConcurrency` bajo) →
+  PR #45 (+ varias ramas duplicadas sin PR: `perf/hero3d-low-end-*`).
+- Elegir "Clásica / 3D interactiva" en el wizard de creación → PR #49.
+- Galería de plantillas: insignia/filtro Simple↔3D → PRs #44, #51 (+ variantes: #67, #71, #75, #78).
+- Vista previa de plantilla no mostraba el efecto 3D real → PR #50 (arreglado, pendiente de fusionar).
+- Nav móvil del panel autenticado (hamburguesa) → PR #47.
+- Modales sin `role=dialog`/foco atrapado (Plantillas, Dashboard, Editor) → PR #48.
+- `confirm()` nativos en borrado irreversible (papelera, eliminar cuenta) → PR #52.
+- Gráfico de Analítica sin equivalente de teclado → PR #53.
+- Formularios de login/registro/recuperación con problemas de a11y/autofill → PR #58.
+- Chips de filtro de categoría en la galería sin estado accesible → PR #59.
+- Overlay de carga en la preview del editor mientras la IA genera → PR #60.
+- Enlace "Ver web" en el editor para proyectos publicados → PR #61.
+- Aviso cuando falla el guardado del editor en vez de fallar en silencio → PR #62.
+- Buscador en Mensajes/Dashboard (leads y proyectos) → PRs #63, #64.
+- Páginas de error 404/500 con marca propia → PR #65.
+- Guardado del editor roto al vaciar HTML/CSS/JS/nombre → PR #66.
+- Deshacer el último cambio de la IA en el editor → PR #69.
+- Checkout traducido a los 6 idiomas con precio por idioma → PR #56.
+- Tamaño de vista activo del editor (PC/Tablet/Móvil) sin estado accesible → PR #55.
+- Emoji decorativo del buzón de mensajes sin `aria-hidden` → PR #54.
+- Error 500 al abrir "Suscripción" sin ser suscriptor → PR #70.
+- Feedback de progreso del wizard durante la generación con IA (1-3 min) → PR #72.
+- Error de confirmación de contraseña sin feedback en Registro → PR #74.
+- Error real al fallar cambio de contraseña / borrado de cuenta en Perfil → PR #73.
+- Estados vacíos con CTA en Mensajes/Analítica → PR #80.
+- Contador de usos de IA del editor accesible por teclado/táctil → PR #81.
+- Despublicar un proyecto sin borrarlo → PR #82.
+- Marcado manual de leídos/no leídos en `/mensajes` → PR #83.
+- ✅ **Layout responsive del editor en móvil/tablet** — resuelto en esta misma sesión (ver más abajo).
+
+Si Álvaro vuelve, lo más valioso que puede hacer alguien con acceso de repo es revisar/fusionar/cerrar
+esos PRs antes de que seguir generando ramas produzca más duplicados.
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
@@ -34,6 +81,17 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Layout responsive del editor en móvil/tablet** — el split de 3 columnas (chat IA / vista
+  previa / código, `w-72` + `flex-1` + `w-96`) no tenía ningún breakpoint: en un móvil real las tres
+  columnas se apretujaban o desbordaban y el editor era inutilizable. Por debajo de `lg` (1024px)
+  ahora se ve un panel a pantalla completa a la vez, con una barra de pestañas ("Chat IA" / "Vista
+  previa" / "Código", esta última solo si el modo avanzado está activo) para cambiar entre ellos;
+  en `lg` y superior el layout de escritorio no cambia. Cabecera superior con `flex-wrap` para no
+  desbordar en pantallas estrechas. `resources/js/Pages/Editor/Index.tsx`.
+- 🟢 Duplicar/clonar un proyecto existente como borrador nuevo (probar otra plantilla sin perder
+  el original) — sin PR abierto todavía.
+- 🟢 Analítica: filtro de rango de fechas + exportar a CSV (ya existe CSV de leads; falta en
+  `AnalyticsController`) — sin PR abierto todavía.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -46,10 +104,12 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
+- 🟠 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base. PRs abiertos:
+  #46, #57, #79 (revisar y quedarse con la mejor versión, cerrar el resto).
+- 🟠 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  PR abierto: #45 (`perf/hero3d-low-end-throttle`).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -76,12 +136,24 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- 🟠 Revisar accesibilidad/responsive de las páginas nuevas — buena parte ya cubierta por PRs
+  abiertos (#47 nav móvil, #48 modales, #52 confirm() nativos, #53 gráfico de analítica, #54 emoji
+  decorativo, #55 viewport del editor, #58 formularios de auth, #59 chips de categoría, #81 tooltip
+  de uso de IA); revisar qué queda suelto antes de abrir uno nuevo.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+
+## Hecho recientemente (2026-07-20)
+- **Layout responsive del editor en móvil/tablet** — antes de implementar, comprobé `git fetch
+  origin` + `git branch -r` (123 ramas remotas) y `list_pull_requests` (39 PRs abiertos, #44-#83,
+  ninguno fusionado desde el 2026-07-03). Mis dos primeros intentos de esta sesión (guardia de
+  rendimiento del hero 3D en gama baja, variantes de geometría del hero 3D) resultaron ser
+  duplicados casi exactos de PRs ya abiertos (#45 y #46/#57/#79 respectivamente), así que los
+  descarté sin hacer push. Añadido el aviso de arriba con la lista completa de qué ya tiene PR,
+  para que la próxima ejecución no repita el mismo trabajo.
 
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
