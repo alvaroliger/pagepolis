@@ -6,6 +6,25 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Antes de elegir ítem: hay ~140 ramas remotas y ~47 PRs abiertos sin revisar
+El clon con el que arranca cada sesión solo trae `master` (fetch superficial), así que
+`git branch -r` recién clonado **no muestra las ramas de otras sesiones** y parece que no
+hay nada en curso cuando en realidad casi todo el backlog de abajo ya tiene una rama
+(a veces 3-6 ramas casi idénticas para la misma idea: variantes del hero 3D, rendimiento en
+gama baja, elección Simple/3D del wizard, filtro 3D de la galería…). Antes de implementar
+nada:
+1. `git fetch origin '+refs/heads/*:refs/remotes/origin/*'` (fetch completo, no solo master).
+2. Revisa los PRs abiertos con la herramienta de GitHub (`list_pull_requests`, `state: open`)
+   y compara títulos/ramas contra el ítem que ibas a coger.
+3. Si ya existe una rama/PR abierto para esa idea, **no la dupliques**: elige otro ítem o no
+   abras PR esta vez. Duplicar solo añade ruido para quien tenga que revisar y fusionar.
+Nota (2026-07-20): en esta revisión casi todo lo marcado 🟢 en "Diseño / nivel visual" y
+buena parte de "Producto"/"Calidad" ya tenía PR abierto (variantes hero3d, low-end perf,
+wizard Simple/3D, filtros/badges 3D en la galería, a11y de teclado en varias páginas,
+estados vacíos del dashboard, etc.). Si sigues viendo docenas de PRs abiertos sin fusionar,
+es probable que el verdadero cuello de botella ya no sea generar más ideas sino que alguien
+revise y fusione (o cierre duplicados) lo que ya existe.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -73,6 +92,13 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Error boundary global en React** (`Components/ErrorBoundary.tsx`, envuelve `<App>` en
+  `app.tsx`) — si un componente de página revienta al renderizar, antes se veía una pantalla
+  en blanco total y sin salida; ahora se ve una pantalla con marca, mensaje claro y botones
+  "Recargar página" / "Ir al panel" (enlaces `<a>` normales, no Inertia Link, para que
+  funcionen aunque lo que haya roto sea el propio árbol de React). Verificado provocando un
+  `throw` real en un componente de página con Playwright: sin el boundary se veía body vacío,
+  con el boundary se ve la pantalla de error y ambos botones funcionan.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -107,3 +133,10 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Test de regresión para `ErrorBoundary.tsx` (recién añadido, sin cobertura automática:
+  no hay Vitest/Jest en el proyecto todavía). Si se añade un runner de tests de React, este
+  componente es un buen primer caso: montar un hijo que lanza y comprobar que se ve el
+  fallback en vez de que la excepción se propague.
+- 🟢 Revisar si alguno de los ~47 PRs abiertos ya está listo para fusionar (tests verdes,
+  sin conflictos con master) y dejar constancia aquí de cuáles son duplicados de la misma
+  idea para que se pueda cerrar el resto sin revisar cada uno desde cero.
