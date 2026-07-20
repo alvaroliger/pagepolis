@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Guarda de rendimiento en móviles de gama baja** — `devicePerformanceTier()` en
+  `database/templates/hero3d.js` y `Components/Hero3D.tsx` mide `hardwareConcurrency`,
+  `deviceMemory` y `connection.saveData`: en gama baja (≤4 núcleos/≤4GB) baja a 3 figuras
+  y cap de DPR a 1×; en gama muy baja o modo ahorro de datos (≤2/≤2GB/saveData) desactiva
+  el hero 3D por completo (mismo fallback que "WebGL no disponible", sin romper el layout).
+  Afecta tanto a las webs generadas para clientes como al propio hero 3D de PagePolis.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -105,5 +109,16 @@ no abras PR.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
 ## Ideas nuevas
+- 🟢 **La galería de plantillas (`/plantillas`) no muestra el hero 3D en la preview** —
+  `TemplateController@index`/`show` solo hace `select('id,name,category,thumbnail,tags,
+  is_premium,uses_count,html,css')` (sin `js`), y el `Template` de `Templates/Index.tsx`
+  no tiene campo `js`, así que ni la tarjeta (`TemplatePreview`, iframe a escala 0.4) ni
+  el modal inyectan `hero3d.js`: las plantillas con hero 3D (saas, abogados, coach,
+  inmobiliaria, fotógrafo, servicios) se ven con el hero vacío/estático en la galería y
+  solo cobran vida al entrar al Editor. Cliente eligiendo plantilla no puede valorar el
+  nivel 3D antes de decidirse — impacto directo en conversión hacia las plantillas premium.
+  Arreglo: añadir `js` al `select()` del controller y al iframe `srcdoc` de la preview
+  (cuidado con no romper autoplay/perf en la vista de galería con varias tarjetas a la vez;
+  usar la misma guarda de rendimiento de gama baja ya aplicada a `hero3d.js`).
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).

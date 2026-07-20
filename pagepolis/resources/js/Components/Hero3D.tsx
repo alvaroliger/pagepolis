@@ -12,6 +12,20 @@ import { useEffect, useRef } from 'react';
 
 type Vec3 = [number, number, number];
 
+/* Nivel de rendimiento del dispositivo (ahorra batería/CPU en móviles de
+ * gama baja): 'off' desactiva el hero por completo, 'low' lo mantiene pero
+ * con menos figuras y menor resolución, 'full' es el comportamiento de
+ * siempre. Si el navegador no expone estas pistas, se asume gama alta. */
+function devicePerformanceTier(): 'off' | 'low' | 'full' {
+    const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+    const cores = nav.hardwareConcurrency || 8;
+    const mem = nav.deviceMemory || 8;
+    const saveData = !!nav.connection?.saveData;
+    if (saveData || cores <= 2 || mem <= 2) return 'off';
+    if (cores <= 4 || mem <= 4) return 'low';
+    return 'full';
+}
+
 interface Props {
     className?: string;
     /** Color base en RGB 0..1 (por defecto, violeta de marca #8b5cf6). */
@@ -135,6 +149,13 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const canvas = canvasRef.current;
         if (!canvas) return;
 
+        const tier = devicePerformanceTier();
+        if (tier === 'off') {
+            canvas.style.display = 'none';
+            return;
+        }
+        const lowPower = tier === 'low';
+
         let gl: WebGLRenderingContext | null = null;
         try {
             gl = (canvas.getContext('webgl', { alpha: true, antialias: true })
@@ -182,7 +203,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapes = Array.from({ length: lowPower ? Math.min(count, 3) : count }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +224,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

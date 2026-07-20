@@ -31,6 +31,20 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* ── Nivel de rendimiento del dispositivo (ahorra batería/CPU en móviles
+     de gama baja): 'off' desactiva el hero por completo, 'low' lo mantiene
+     pero con menos figuras y menor resolución, 'full' es el comportamiento
+     de siempre. Basado en pistas heurísticas (núcleos de CPU, RAM, modo de
+     ahorro de datos); si el navegador no las expone, se asume gama alta. ── */
+  function devicePerformanceTier() {
+    var cores = navigator.hardwareConcurrency || 8;
+    var mem = navigator.deviceMemory || 8;
+    var saveData = !!(navigator.connection && navigator.connection.saveData);
+    if (saveData || cores <= 2 || mem <= 2) return 'off';
+    if (cores <= 4 || mem <= 4) return 'low';
+    return 'full';
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -139,7 +153,7 @@
     return sh;
   }
 
-  function setupScene(canvas) {
+  function setupScene(canvas, lowPower) {
     var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
       || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
     if (!gl) { canvas.style.display = 'none'; return null; }
@@ -179,7 +193,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = lowPower ? 3 : 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -199,10 +213,16 @@
   }
 
   function initCanvas(canvas) {
+    var tier = devicePerformanceTier();
+    if (tier === 'off') {
+      canvas.style.display = 'none';
+      return;
+    }
+    var lowPower = tier === 'low';
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {
-      scene = setupScene(canvas);
+      scene = setupScene(canvas, lowPower);
     } catch (e) {
       canvas.style.display = 'none';
       return;
@@ -214,7 +234,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
