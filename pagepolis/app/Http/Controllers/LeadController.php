@@ -6,6 +6,7 @@ use App\Mail\NewLeadMail;
 use App\Models\Lead;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -68,7 +69,10 @@ class LeadController extends Controller
     }
 
     /**
-     * Bandeja de mensajes del dueño: todos los leads de sus webs.
+     * Bandeja de mensajes del dueño: todos los leads de sus webs. El estado
+     * leído/no leído ya no se toca aquí: lo decide el dueño a mano (botón por
+     * mensaje o "marcar todos como leídos"), para que pueda usar el "Nuevo"
+     * como recordatorio de a quién le falta responder.
      */
     public function index(): Response
     {
@@ -82,12 +86,6 @@ class LeadController extends Controller
             ->latest()
             ->limit(200)
             ->get();
-
-        // Only mark as read the leads that were actually fetched and shown.
-        $displayedUnreadIds = $fetched->whereNull('read_at')->pluck('id');
-        if ($displayedUnreadIds->isNotEmpty()) {
-            Lead::whereIn('id', $displayedUnreadIds)->update(['read_at' => now()]);
-        }
 
         $leads = $fetched->map(fn (Lead $l) => [
             'id'         => $l->id,
@@ -104,6 +102,33 @@ class LeadController extends Controller
             'leads'       => $leads,
             'unreadCount' => $unread,
         ]);
+    }
+
+    /**
+     * Alterna leído/no leído de un mensaje concreto. El dueño puede volver a
+     * marcarlo como "Nuevo" tras contestarlo desde fuera, o marcarlo leído sin
+     * tener que esperar a que la IA o el scroll lo hagan por él.
+     */
+    public function toggleRead(Lead $lead): RedirectResponse
+    {
+        abort_unless($lead->project?->user_id === auth()->id(), 404);
+
+        $lead->update(['read_at' => $lead->read_at === null ? now() : null]);
+
+        return redirect()->route('leads.index');
+    }
+
+    /**
+     * Marca como leídos todos los mensajes pendientes del dueño (incluidos
+     * los que no caben en los 200 mostrados), para vaciar el aviso de un golpe.
+     */
+    public function markAllRead(): RedirectResponse
+    {
+        $projectIds = auth()->user()->projects()->pluck('id');
+
+        Lead::whereIn('project_id', $projectIds)->whereNull('read_at')->update(['read_at' => now()]);
+
+        return redirect()->route('leads.index');
     }
 
     /**

@@ -87,6 +87,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Bandeja de mensajes (leads capturados de las webs publicadas)
     Route::get('/mensajes', [LeadController::class, 'index'])->name('leads.index');
     Route::get('/mensajes/exportar', [LeadController::class, 'export'])->name('leads.export');
+    Route::post('/mensajes/marcar-todos-leidos', [LeadController::class, 'markAllRead'])->name('leads.mark-all-read');
+    Route::patch('/mensajes/{lead}/leido', [LeadController::class, 'toggleRead'])->name('leads.toggle-read');
 
     // Editor
     Route::get('/editor/{project}', [EditorController::class, 'index'])->name('editor.index');

@@ -139,8 +139,10 @@ class LeadCaptureTest extends TestCase
         });
     }
 
-    public function test_owner_sees_inbox_and_leads_get_marked_read(): void
+    public function test_owner_sees_inbox_and_leads_stay_unread_until_marked(): void
     {
+        // Viewing the inbox must not silently clear the "Nuevo" badge: the
+        // owner decides what's read, so they can still tell who's pending a reply.
         $this->withoutVite();
         $project = $this->publishedProject();
         $lead = $project->leads()->create(['email' => 'c@d.com', 'message' => 'hola', 'payload' => []]);
@@ -148,7 +150,7 @@ class LeadCaptureTest extends TestCase
 
         $this->actingAs($project->user)->get('/mensajes')->assertStatus(200);
 
-        $this->assertNotNull($lead->fresh()->read_at);
+        $this->assertNull($lead->fresh()->read_at);
     }
 
     public function test_inbox_only_shows_own_leads(): void
@@ -232,12 +234,12 @@ class LeadCaptureTest extends TestCase
         $this->assertStringNotContainsString('dato privado', $body);
     }
 
-    public function test_inbox_marks_only_displayed_leads_read_when_there_are_more_than_200(): void
+    public function test_inbox_does_not_mark_leads_beyond_the_200_display_limit(): void
     {
         $this->withoutVite();
         $project = $this->publishedProject();
 
-        // Create 205 leads; the inbox displays the 200 most recent.
+        // Create 205 leads; the inbox only displays the 200 most recent.
         for ($i = 1; $i <= 205; $i++) {
             $project->leads()->create([
                 'email'   => "user{$i}@example.com",
@@ -248,16 +250,68 @@ class LeadCaptureTest extends TestCase
 
         $this->actingAs($project->user)->get('/mensajes')->assertOk();
 
-        // The 200 most recently created leads should now be read.
-        $markedRead = \App\Models\Lead::where('project_id', $project->id)
-            ->whereNotNull('read_at')
-            ->count();
-        $this->assertEquals(200, $markedRead);
+        $this->assertEquals(0, \App\Models\Lead::where('project_id', $project->id)->whereNotNull('read_at')->count());
+        $this->assertEquals(205, \App\Models\Lead::where('project_id', $project->id)->whereNull('read_at')->count());
+    }
 
-        // The 5 oldest leads were not displayed and must remain unread.
-        $stillUnread = \App\Models\Lead::where('project_id', $project->id)
-            ->whereNull('read_at')
-            ->count();
-        $this->assertEquals(5, $stillUnread);
+    // ── Marcar leído/no leído manualmente ───────────────────────────────
+
+    public function test_owner_can_toggle_a_lead_between_read_and_unread(): void
+    {
+        $project = $this->publishedProject();
+        $lead = $project->leads()->create(['email' => 'c@d.com', 'message' => 'hola', 'payload' => []]);
+
+        $this->actingAs($project->user)
+            ->patch("/mensajes/{$lead->id}/leido")
+            ->assertRedirect('/mensajes');
+        $this->assertNotNull($lead->fresh()->read_at);
+
+        $this->actingAs($project->user)
+            ->patch("/mensajes/{$lead->id}/leido")
+            ->assertRedirect('/mensajes');
+        $this->assertNull($lead->fresh()->read_at);
+    }
+
+    public function test_toggle_read_requires_auth(): void
+    {
+        $project = $this->publishedProject();
+        $lead = $project->leads()->create(['email' => 'c@d.com', 'message' => 'hola', 'payload' => []]);
+
+        $this->patch("/mensajes/{$lead->id}/leido")->assertRedirect('/login');
+        $this->assertNull($lead->fresh()->read_at);
+    }
+
+    public function test_toggle_read_rejects_other_users_lead(): void
+    {
+        $project = $this->publishedProject();
+        $lead = $project->leads()->create(['email' => 'c@d.com', 'message' => 'hola', 'payload' => []]);
+        $otherUser = User::factory()->create(['email_verified_at' => now()]);
+
+        $this->actingAs($otherUser)
+            ->patch("/mensajes/{$lead->id}/leido")
+            ->assertStatus(404);
+        $this->assertNull($lead->fresh()->read_at);
+    }
+
+    public function test_mark_all_read_clears_unread_count_without_affecting_other_users(): void
+    {
+        $project = $this->publishedProject();
+        $leadA1 = $project->leads()->create(['email' => 'a1@d.com', 'message' => 'hola', 'payload' => []]);
+        $leadA2 = $project->leads()->create(['email' => 'a2@d.com', 'message' => 'hola', 'payload' => []]);
+
+        $otherUser = User::factory()->create(['email_verified_at' => now()]);
+        $otherProject = Project::create([
+            'user_id' => $otherUser->id, 'name' => 'Otra web',
+            'html' => '', 'css' => '', 'js' => '', 'status' => 'published', 'slug' => 'otra-web-y',
+        ]);
+        $leadB = $otherProject->leads()->create(['email' => 'b@d.com', 'message' => 'hola', 'payload' => []]);
+
+        $this->actingAs($project->user)
+            ->post('/mensajes/marcar-todos-leidos')
+            ->assertRedirect('/mensajes');
+
+        $this->assertNotNull($leadA1->fresh()->read_at);
+        $this->assertNotNull($leadA2->fresh()->read_at);
+        $this->assertNull($leadB->fresh()->read_at, "Marking all as read must not touch another user's leads");
     }
 }
