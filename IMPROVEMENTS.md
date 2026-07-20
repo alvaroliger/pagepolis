@@ -46,8 +46,19 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
+- ✅ **La vista previa (modal) de la galería de plantillas ahora muestra el hero 3D real**
+  — `TemplateController::index` no seleccionaba la columna `js`, así que el modal de
+  "Vista previa" de `Templates/Index.tsx` renderizaba las 7 plantillas con hero3d/tilt-3d
+  sin el motor (canvas vacío/estático), justo donde el cliente decide qué plantilla
+  elegir. El thumbnail en miniatura de la tarjeta se deja intencionadamente solo con
+  html+css (sin `js`) para no lanzar hasta 12 contextos WebGL simultáneos en el grid.
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- 🟢 Etiqueta/filtro "3D" visible en la galería de plantillas (`Templates/Index.tsx`) para
+  que el cliente pueda filtrar directamente por plantillas con hero 3D — hoy esa
+  información existe solo implícitamente en el html de cada plantilla, no hay tag ni
+  filtro dedicado (ver hallazgo de exploración: 7 de 12 plantillas ya usan hero3d/tilt-3d
+  pero ninguna lleva tag "3D" en `tags`).
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
