@@ -11,12 +11,18 @@ export default function LanguageSelector() {
     const current = SUPPORTED_LANGS.find(l => l.code === i18n.language) ?? SUPPORTED_LANGS[0];
 
     useEffect(() => {
+        if (!open) return;
         const handler = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
         };
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
         document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('mousedown', handler);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [open]);
 
     const select = (code: string) => {
         i18n.changeLanguage(code);
@@ -28,6 +34,9 @@ export default function LanguageSelector() {
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(o => !o)}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                aria-label="Seleccionar idioma"
                 className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-gray-800"
             >
                 <Flag code={current.code} size={20} />
@@ -38,10 +47,12 @@ export default function LanguageSelector() {
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-50">
+                <div role="menu" aria-label="Idiomas" className="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-700 rounded-xl shadow-xl overflow-hidden z-50">
                     {SUPPORTED_LANGS.map(lang => (
                         <button
                             key={lang.code}
+                            role="menuitem"
+                            aria-current={lang.code === i18n.language ? 'true' : undefined}
                             onClick={() => select(lang.code)}
                             className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-800 transition-colors text-left ${lang.code === i18n.language ? 'text-violet-300 bg-violet-950/30' : 'text-gray-300'}`}
                         >
