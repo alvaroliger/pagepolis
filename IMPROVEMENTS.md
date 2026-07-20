@@ -34,6 +34,11 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Duplicar proyecto desde el Dashboard** — botón "Duplicar" junto a descargar/papelera en
+  cada tarjeta (`ProjectController::duplicate`, ruta `POST /proyectos/{project}/duplicar`).
+  Copia html/css/js/seo_meta/plantilla, nace siempre en borrador (sin publicar ni dominio) con
+  slug propio, y respeta el límite de proyectos del plan gratuito. Deja probar un rediseño (p.
+  ej. convertir a una variante 3D) sin arriesgar la web en producción del cliente.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -104,6 +109,26 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Nota de coordinación (2026-07-20)
+Al empezar esta sesión había **44 PRs abiertas** (#44–#87) y **131 ramas remotas** sin fusionar —
+muchas duplicadas entre sí (p. ej. 8 ramas distintas de "hero3d en gama baja", 4+ de "badge/filtro
+3D en la galería de plantillas", 3+ de "variantes de geometría del hero 3D"). `git branch -r` en
+`master` no basta para detectarlo si esas ramas no se han fusionado nunca: hace falta
+**`git fetch origin` primero** y revisar tanto ramas como PRs abiertas (no solo el log de `master`)
+antes de elegir ítem, o se repite trabajo ya resuelto en alguna rama sin fusionar. Álvaro debería
+revisar y fusionar/cerrar ese backlog de PRs cuanto antes para que el árbol de ramas no siga
+creciendo sin control. Mientras tanto, cualquier ítem del backlog de abajo puede que YA tenga una
+PR abierta con ese nombre o similar — comprobar antes de duplicar.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Renombrar un proyecto directamente desde el Dashboard (hoy solo se puede cambiar el nombre
+  abriendo el editor) — doble-click o icono de lápiz junto al título de la tarjeta.
+- 🟢 Buscador/orden en el Dashboard cuando hay muchos proyectos (ya cubierto quizás por alguna PR
+  abierta tipo `dashboard-project-search`/`dashboard-project-sort` — comprobar antes).
+- 🟢 Tras "Duplicar", mostrar un toast/confirmación breve en vez de saltar directo al editor de la
+  copia — algunos clientes quizá prefieran quedarse en el Dashboard para reorganizar antes de
+  editar; valorar con datos de uso reales antes de cambiarlo.
+- 🟡 Revisar y fusionar (o cerrar si están obsoletas/duplicadas) las 44 PRs abiertas — decisión de
+  Álvaro, no una tarea de interfaz.

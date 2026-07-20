@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Eye, Download, Copy, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 interface Project {
     id: number;
@@ -111,6 +111,16 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
 }
 
 function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
+    const [duplicating, setDuplicating] = useState(false);
+
+    const duplicate = () => {
+        if (duplicating) return;
+        setDuplicating(true);
+        router.post(`/proyectos/${project.id}/duplicar`, {}, {
+            onFinish: () => setDuplicating(false),
+        });
+    };
+
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
             {/* Thumbnail */}
@@ -170,6 +180,14 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                             Ver web
                         </a>
                     )}
+                    <button
+                        onClick={duplicate}
+                        disabled={duplicating}
+                        title="Duplicar (crea una copia en borrador para probar cambios sin tocar esta web)"
+                        className="px-3 flex items-center bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+                    >
+                        <Copy className="w-4 h-4" strokeWidth={1.75} />
+                    </button>
                     <a
                         href={`/proyectos/${project.id}/zip`}
                         title="Descargar web (ZIP)"

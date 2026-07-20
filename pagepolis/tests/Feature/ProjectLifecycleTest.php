@@ -116,6 +116,51 @@ class ProjectLifecycleTest extends TestCase
         $this->assertSoftDeleted('projects', ['id' => $project->id]);
     }
 
+    // ── duplicate ────────────────────────────────────────────────────────
+
+    public function test_owner_can_duplicate_project(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['html' => '<h1>Original</h1>', 'css' => 'h1{color:blue}']);
+
+        $this->actingAs($user)
+            ->post("/proyectos/{$project->id}/duplicar")
+            ->assertRedirect();
+
+        $this->assertSame(2, $user->projects()->count());
+
+        $copy = $user->projects()->where('id', '!=', $project->id)->firstOrFail();
+        $this->assertSame('Mi web (copia)', $copy->name);
+        $this->assertSame('<h1>Original</h1>', $copy->html);
+        $this->assertSame('h1{color:blue}', $copy->css);
+        $this->assertSame('draft', $copy->status);
+        $this->assertNotSame($project->slug, $copy->slug);
+    }
+
+    public function test_other_user_cannot_duplicate_project(): void
+    {
+        $owner = $this->user();
+        $other = $this->user();
+        $project = $this->project($owner);
+
+        $this->actingAs($other)
+            ->post("/proyectos/{$project->id}/duplicar")
+            ->assertForbidden();
+
+        $this->assertSame(1, $owner->projects()->count());
+    }
+
+    public function test_duplicate_requires_authentication(): void
+    {
+        $owner   = $this->user();
+        $project = $this->project($owner);
+
+        $this->post("/proyectos/{$project->id}/duplicar")
+            ->assertRedirect('/login');
+
+        $this->assertSame(1, $owner->projects()->count());
+    }
+
     // ── free publish ────────────────────────────────────────────────────
 
     public function test_other_user_cannot_publish_free_on_another_users_project(): void
