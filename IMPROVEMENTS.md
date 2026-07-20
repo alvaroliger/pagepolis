@@ -73,6 +73,14 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Mensajes flash visibles + botón que no se queda colgado** — `HandleInertiaRequests`
+  comparte `flash.error`/`flash.message` desde hace tiempo (p.ej. el límite de proyectos
+  del plan gratuito en `ProjectController::store`) pero ningún componente los leía: un
+  cliente que agotaba su límite y pulsaba "Usar plantilla" se quedaba sin explicación y,
+  además, el botón se quedaba en "Creando proyecto..." para siempre (`onError` no se
+  dispara en un redirect-con-flash, solo en un 422). Añadido `Components/FlashBanner.tsx`
+  (leído desde `AuthenticatedLayout`, visible en toda la app de cliente) y cambiado
+  `onError` → `onFinish` en `Templates/Index.tsx` para que el botón siempre se reactive.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -104,6 +112,27 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Nota de coordinación (2026-07-20)
+El repo tiene ~140 ramas remotas y ~40+ PRs abiertos sin fusionar: hay ejecuciones
+paralelas de este mismo agente picando el mismo ítem varias veces (ej.: 7 ramas para
+"variantes hero 3D", ~10 para "perf hero 3D gama baja", ~10 para "badge/filtro 3D en
+galería de plantillas", 3 para "elección Simple|3D en el wizard"). **Antes de picking un
+ítem, ejecuta `git fetch origin` (no solo `git branch -r`, que solo muestra lo ya
+fetcheado) y revisa PRs abiertos por tema** para no duplicar trabajo ya en marcha.
+Álvaro debería revisar y fusionar/cerrar el backlog de PRs cuando pueda; mientras tanto,
+prioriza ítems SIN ninguna rama/PR existente.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **SEO básico ausente en páginas públicas**: no hay `<meta name="description">`,
+  canonical ni hreflang en ninguna página (verificado por grep) y `SitemapController`
+  solo emite 3 URLs estáticas sin variantes de idioma. Empezar por `Landing.tsx` +
+  `SitemapController` para no abarcar demasiado en un solo PR.
+- 🟢 A11y de `PurgeModal` (Dashboard/Index.tsx) y `DeleteAccountModal` (Profile/Edit.tsx):
+  el PR #52 (abierto) ya señala esto como seguimiento pendiente propio, sin rama que lo
+  cubra todavía.
+- 🟢 El input de nombre de proyecto en el wizard de creación (`Create/Index.tsx`) no
+  tiene límite visual de caracteres coherente con el backend (a diferencia de
+  `Templates/Index.tsx`, ya corregido) — revisar inputs de nombre en el resto de flujos
+  de creación por si falta el mismo `maxLength`.

@@ -53,7 +53,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
             name: projectName,
             template_id: templateId,
         }, {
-            onError: () => setCreating(null),
+            // onFinish (no solo onError) porque un fallo de negocio (p.ej. límite
+            // de proyectos del plan gratuito) vuelve como redirect normal con
+            // flash, no como error 422: onError nunca se dispararía y el botón
+            // se quedaría en "Creando proyecto..." para siempre.
+            onFinish: () => setCreating(null),
         });
     };
 
@@ -73,6 +77,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         type="text"
                         value={name}
                         onChange={e => setName(e.target.value)}
+                        maxLength={100}
                         placeholder="Nombre de tu proyecto (ej: Mi restaurante)"
                         className="flex-1 max-w-md bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-500"
                     />

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, PropsWithChildren, ReactNode } from 'react
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PagepolisLogo from '@/Components/PagepolisLogo';
+import FlashBanner from '@/Components/FlashBanner';
 
 interface AuthLayoutProps extends PropsWithChildren {
     header?: ReactNode;
@@ -119,6 +120,8 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                     </div>
                 </div>
             </nav>
+
+            <FlashBanner />
 
             {header && (
                 <header className="bg-gray-900/60 border-b border-gray-800">
