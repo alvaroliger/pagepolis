@@ -46,10 +46,17 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- 🟡 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base. **Ya hay
+  una rama/PR abierta para esto** (`feature/hero3d-shape-palette-variants`, sin mergear
+  a fecha 2026-07-20): no reimplementar, revisar y mergear esa rama primero.
+- ✅ **Rendimiento del hero 3D en gama baja/media** — `devicePerfTier()` en `hero3d.js`
+  usa `navigator.hardwareConcurrency` (única señal fiable sin permisos) para clasificar
+  el dispositivo: gama baja (1-2 núcleos) desactiva el hero 3D por completo (ni siquiera
+  crea el contexto WebGL, así se ahorra el coste de inicialización); gama media (3-4
+  núcleos) mantiene el efecto pero con menos figuras flotantes (3-4 en vez de 6-8) y
+  resolución de render más baja (DPR tope 1.25 en vez de 1.75, menos píxeles que sombrear
+  por frame). Gama alta o navegadores sin la API mantienen el comportamiento de siempre.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +114,10 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Aplicar el mismo criterio de `devicePerfTier()` (gama baja/media por
+  `hardwareConcurrency`) al hero 3D React de la propia app (`Hero3D.tsx`) — hoy solo está
+  en el motor de las plantillas (`database/templates/hero3d.js`); la landing/dashboard de
+  Pagepolis tiene el mismo coste en móviles de gama baja y no lo evita.
+- 🟢 Además de `hardwareConcurrency`, considerar `navigator.connection.saveData` (Data
+  Saver activado) como señal adicional para desactivar el hero 3D — barato de comprobar,
+  respeta explícitamente la preferencia del usuario de gastar menos datos/batería.

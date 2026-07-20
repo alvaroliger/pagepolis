@@ -6,7 +6,9 @@
    contenedor con position:relative (p.ej. .hero). Se colorea solo con
    --brand (o --brand-2) del sistema de diseño, así que encaja con cualquier
    plantilla. Si WebGL no está disponible, o el usuario prefiere menos
-   movimiento, se degrada solo sin romper nada. */
+   movimiento, se degrada solo sin romper nada. En gama baja (hardwareConcurrency
+   1-2 núcleos) se desactiva por completo; en gama media (3-4) baja la
+   resolución y el nº de figuras — ver devicePerfTier(). */
 (function () {
   'use strict';
 
@@ -29,6 +31,21 @@
   function brandColor() {
     var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
     return colorToRgb(raw || '#7c3aed');
+  }
+
+  /* ── Nivel de rendimiento del dispositivo (aproximado con hardwareConcurrency,
+     única señal fiable sin permisos ni librerías): 'low' en gama muy baja
+     (1-2 núcleos, típico de móviles antiguos/económicos) desactiva el hero 3D
+     del todo para no gastar batería/CPU en dibujar algo que apenas se notará
+     fluido; 'mid' (3-4 núcleos) mantiene el efecto pero con menos figuras y
+     menor resolución de render. Sin la API (navegadores antiguos) se asume
+     'high' y no se toca nada del comportamiento previo. ── */
+  function devicePerfTier() {
+    var hwc = (typeof navigator !== 'undefined') ? navigator.hardwareConcurrency : null;
+    if (typeof hwc !== 'number' || hwc <= 0) return 'high';
+    if (hwc <= 2) return 'low';
+    if (hwc <= 4) return 'mid';
+    return 'high';
   }
 
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
@@ -179,7 +196,8 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var perfTier = devicePerfTier();
+    var count = perfTier === 'mid' ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -199,6 +217,7 @@
   }
 
   function initCanvas(canvas) {
+    if (devicePerfTier() === 'low') { canvas.style.display = 'none'; return; }
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {
@@ -212,9 +231,10 @@
     var gl = scene.gl;
     var pointer = { x: 0, y: 0 }, pointerTarget = { x: 0, y: 0 };
     var running = false, rafId = null, t0 = null;
+    var maxDpr = devicePerfTier() === 'mid' ? 1.25 : 1.75;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
