@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles, AlertTriangle } from 'lucide-react';
 
 interface Project {
     id: number;
@@ -12,6 +12,7 @@ interface Project {
     updated_at: string;
     views_30d: number;
     domain: string | null;
+    domain_status: string | null;
     live_url: string | null;
     preview_url: string;
 }
@@ -111,6 +112,8 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
 }
 
 function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
+    const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
             {/* Thumbnail */}
@@ -129,7 +132,15 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                     </span>
                 </div>
 
-                {project.domain && (
+                {project.domain_status === 'failed' ? (
+                    <div className="mb-2 flex items-start gap-1.5 text-xs text-red-400 bg-red-950/30 border border-red-900/40 rounded-lg px-2 py-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
+                        <span>
+                            No pudimos activar <strong className="font-semibold text-red-300">{project.domain}</strong>.{' '}
+                            <a href={`mailto:${supportEmail}`} className="underline hover:text-red-300">Contactar soporte</a>
+                        </span>
+                    </div>
+                ) : project.domain && (
                     <p className="text-xs text-gray-500 mb-2 truncate" title={project.domain}>
                         {project.domain}
                     </p>

@@ -6,6 +6,23 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Nota operativa (2026-07-20): 41 PRs abiertas sin fusionar, con duplicados
+Antes de implementar nada, comprueba el estado real con `list_pull_requests` (state=open,
+Github MCP) — **no te fíes solo de `git branch -r`**, que tras un clon fresco de este
+entorno solo muestra `origin/master` aunque haya decenas de ramas remotas. A fecha de hoy
+hay ~41 PRs abiertas (#44-#84) desde el 2026-07-03, ninguna fusionada todavía, con bastante
+duplicación entre sí. Grupos ya cubiertos por al menos una PR (no reimplementar, revisar/
+fusionar esas primero):
+- **Rendimiento del hero 3D en gama baja**: PR #45 (`perf/hero3d-low-end-throttle`).
+- **Variantes de geometría/paleta del hero 3D**: PRs #46, #57, #79 (tres implementaciones
+  distintas del mismo ítem).
+- **Galería de plantillas: filtro/insignia Simple vs 3D**: PRs #44, #51, #67, #78.
+- **Vista previa con el efecto 3D real en la galería**: PRs #50, #71, #75.
+- **Elección "Clásica" / "3D interactiva" en el wizard**: PR #49.
+- Resto de PRs (#47, #48, #52-56, #58-66, #68-70, #72-74, #76, #77, #80-84): un ítem
+  distinto cada una (a11y, estados de carga/vacíos/error, dashboard, editor, checkout
+  i18n, etc.) — sin duplicados detectados entre ellas a fecha de hoy.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -34,6 +51,16 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **El fallo al activar un dominio de pago ya no es silencioso** — `PurchaseDomain`
+  (registro + Cloudflare + nginx tras el pago) solo registraba el error en el log si algo
+  fallaba; el `Domain` se quedaba en `status=pending` para siempre y el proyecto seguía
+  como "Borrador" sin ninguna pista de qué había pasado, pese a que el cliente ya había
+  pagado. Ahora el job marca `status=failed` en el catch, `DashboardController` expone
+  `domain_status`, y `ProjectCard` (Dashboard) muestra un aviso rojo explicando qué pasó
+  con enlace a soporte (`mailto:`) en vez de dejar la tarjeta como un borrador cualquiera.
+  4 tests nuevos (`PurchaseDomainJobTest`): falla Cloudflare → `failed`, falla nginx →
+  `failed`, éxito → sigue marcando `active` y despliega (regresión), y el Dashboard
+  expone `domain_status` correctamente.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -46,10 +73,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
+- 🟡 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — **ya hay 3 PRs abiertas para esto (#46, #57, #79)**, revisar/
+  fusionar una de ellas en vez de reimplementar.
+- 🟡 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  **Ya hay una PR abierta para esto (#45, `perf/hero3d-low-end-throttle`)**, revisar/
+  fusionar en vez de reimplementar.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +137,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Mismo fallo silencioso en `DeploySite` para el re-despliegue tras editar** (no en el
+  aprovisionamiento inicial, ya arreglado). `App\Jobs\DeploySite::handle()` (usado por
+  `Project::deployToLiveDomain()` cuando editas una web ya publicada en dominio propio)
+  tiene el mismo patrón: catch → `Log::error` + `$this->fail($e)`, sin tocar el estado.
+  Si falla, el proyecto sigue marcado "Publicado" en el Dashboard pero el contenido en
+  vivo se queda desactualizado con el cambio que el cliente acaba de hacer, sin ningún
+  aviso. Añadir un campo tipo `deploy_failed_at` en `Project` (o reusar `domain_status`)
+  y mostrarlo en el Dashboard/Editor.
+- 🟢 **Panel de SEO editable en el editor** — `AiController::seo` genera y guarda
+  `title`/`description`/`keywords`/`og_*`/`schema` (se inyectan en el `<head>` del sitio
+  publicado vía `SiteController`), pero el editor (`Pages/Editor/Index.tsx`) solo muestra
+  un botón "SEO activo/Generar SEO"; el cliente nunca ve ni puede corregir lo que la IA
+  escribió para su ficha de Google/redes. Con lo que vende el producto ("ayuda al SEO
+  local"), publicar metadatos erróneos sin forma de arreglarlos a mano es un hueco real.
+  Añadir un panel/modal con esos campos editables, reutilizando el guardado existente
+  (`EditorController::save`, añadiendo `seo_meta` a la validación).

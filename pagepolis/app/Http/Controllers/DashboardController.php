@@ -28,20 +28,21 @@ class DashboardController extends Controller
             ->pluck('t', 'project_id');
 
         $mapped = $projects->map(fn ($p) => [
-            'id'          => $p->id,
-            'name'        => $p->name,
-            'status'      => $p->status,
-            'slug'        => $p->slug,
-            'updated_at'  => $p->updated_at->diffForHumans(),
-            'views_30d'   => (int) ($views30[$p->id] ?? 0),
-            'domain'      => $p->domain?->domain,
-            'live_url'    => match ($p->domain?->type) {
+            'id'            => $p->id,
+            'name'          => $p->name,
+            'status'        => $p->status,
+            'slug'          => $p->slug,
+            'updated_at'    => $p->updated_at->diffForHumans(),
+            'views_30d'     => (int) ($views30[$p->id] ?? 0),
+            'domain'        => $p->domain?->domain,
+            'domain_status' => $p->domain?->status,
+            'live_url'      => match ($p->domain?->type) {
                 'custom'    => 'https://' . $p->domain->domain,
                 'subdomain' => 'https://' . $p->domain->domain,
                 'path'      => $baseUrl . '/s/' . $p->slug,
                 default     => null,
             },
-            'preview_url' => route('projects.preview', $p->id),
+            'preview_url'   => route('projects.preview', $p->id),
         ]);
 
         // Papelera: proyectos eliminados (soft delete) que se pueden restaurar.
