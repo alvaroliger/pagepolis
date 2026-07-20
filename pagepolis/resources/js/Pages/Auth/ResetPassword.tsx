@@ -1,14 +1,20 @@
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import GuestLayout from '@/Layouts/GuestLayout';
 
 export default function ResetPassword({ token, email }: { token: string; email: string }) {
+    const [confirmTouched, setConfirmTouched] = useState(false);
+
     const { data, setData, post, processing, errors } = useForm({
         token,
         email,
         password: '',
         password_confirmation: '',
     });
+
+    const passwordsMismatch = confirmTouched
+        && data.password_confirmation.length > 0
+        && data.password !== data.password_confirmation;
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -49,8 +55,14 @@ export default function ResetPassword({ token, email }: { token: string; email: 
                         type="password"
                         value={data.password_confirmation}
                         onChange={e => setData('password_confirmation', e.target.value)}
+                        onBlur={() => setConfirmTouched(true)}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                     />
+                    {(passwordsMismatch || errors.password_confirmation) && (
+                        <p className="mt-1 text-sm text-red-400">
+                            {errors.password_confirmation || 'Las contraseñas no coinciden.'}
+                        </p>
+                    )}
                 </div>
 
                 <button

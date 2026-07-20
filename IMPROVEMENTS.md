@@ -4,6 +4,14 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
+⚠️ **Antes de elegir ítem, comprueba duplicados de verdad**: `git branch -r` sin más solo
+muestra las ramas remotas ya conocidas localmente — con un clon fresco puede verse solo
+`origin/master`. Ejecuta `git fetch origin --prune` primero (a 2026-07-20 hay ~130 ramas
+remotas y ~45+ PRs abiertos, con mucha duplicación — p.ej. 13+ ramas distintas para
+"rendimiento del hero 3D en gama baja"). Si hace falta, lista los PRs abiertos
+(`list_pull_requests`, extrayendo solo número/rama/título para no reventar el contexto) y
+cruza contra el ítem que vayas a coger antes de implementar.
+
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
@@ -73,6 +81,13 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Feedback de contraseñas que no coinciden en "Nueva contraseña"** (recuperación de
+  contraseña) — `resources/js/Pages/Auth/ResetPassword.tsx` no mostraba ningún error en el
+  campo "Confirmar contraseña": ni `errors.password_confirmation` del backend ni una
+  comprobación en cliente (a diferencia de email/password, que sí tenían su bloque de
+  error). Ahora, igual que ya se corrigió en `Register.tsx`, se muestra "Las contraseñas
+  no coinciden." al salir del campo si no coinciden, y desaparece al corregirlo. Mismo
+  patrón pendiente en `Profile/Edit.tsx` (cambio de contraseña) — ver ítem nuevo abajo.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -107,3 +122,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Mismo fix de confirmación de contraseña en `Profile/Edit.tsx`** (sección "Cambiar
+  contraseña", líneas ~100-121): sin comprobación de coincidencia en cliente ni bloque de
+  error para `password_confirmation`. Mismo patrón que `Register.tsx`/`ResetPassword.tsx`.
+- 🟢 **`Editor/Index.tsx` `addImages()` descarta archivos en silencio** — si el usuario
+  adjunta un archivo que no es imagen, o supera el límite de 4 imágenes, no pasa nada
+  visible (se filtran/recortan sin aviso), aunque `react-hot-toast` ya está importado y en
+  uso en el mismo fichero para otros casos. Añadir un toast que lo explique.
+- 🟢 Revisar accesibilidad/responsive de las páginas nuevas (heredado; sigue abierto —
+  cuidado: ya hay varias ramas `fix/*-a11y*` en vuelo, comprobar antes de duplicar).
