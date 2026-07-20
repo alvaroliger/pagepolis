@@ -57,6 +57,14 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Elección "Simple | 3D" en la galería de plantillas** — columna `is_3d` en
+  `templates` (migración + `Template::$fillable`/`$casts`), marcada en el manifest de
+  `TemplateSeeder` para las 7 plantillas que ya usan `hero3d`/`tilt-3d` (servicios,
+  gimnasio, inmobiliaria, abogados, fotógrafo, saas, coach). En `Templates/Index.tsx`
+  ahora hay un selector segmentado "Todas | Simple | ✨ 3D" antes del filtro de
+  categoría, y una insignia "✨ 3D" en la tarjeta (junto al badge PRO) — el cliente ve
+  de un vistazo qué plantillas traen motion/3D antes de elegir. 3 tests nuevos
+  (`TemplateControllerTest`), suite 247/247 verde, build OK.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -104,6 +112,23 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-20)
+- ✅ Elección "Simple | 3D" en la galería de plantillas (`Templates/Index.tsx`) — ver
+  entrada en "Diseño / nivel visual" más arriba.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Llevar el filtro "Simple | 3D" también al wizard de `/crear` (creación por IA)**:
+  hoy ese flujo no muestra plantillas ni pregunta simple/3D, solo genera desde cero;
+  añadir un selector de estilo de página ahí para que el cliente elija el tipo de
+  página también cuando crea con IA, no solo al partir de una plantilla.
+- 🟢 Aplicar el filtro "Simple | 3D" además de a las 7 plantillas existentes con
+  `hero3d`/`tilt-3d`: cuando se generen plantillas nuevas, marcar `is_3d` en el
+  manifest desde el principio para que el filtro no quede desactualizado.
+- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja sigue abierto (ver más
+  arriba, en "Diseño / nivel visual") — con el filtro "Simple | 3D" ya visible, un
+  cliente con un móvil modesto puede directamente elegir "Simple" y evitar el coste
+  de FPS/batería sin que la app tenga que autodetectarlo.
+- 🟢 Contador de plantillas por tipo junto al selector "Todas | Simple | 3D" (ej. "3D (7)")
+  para que el cliente sepa cuántas opciones hay en cada grupo antes de tocarlo.

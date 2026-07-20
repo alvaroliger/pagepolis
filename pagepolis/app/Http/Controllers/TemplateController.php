@@ -11,7 +11,7 @@ class TemplateController extends Controller
     public function index(): Response
     {
         $templates = Template::where('is_active', true)
-            ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count', 'html', 'css')
+            ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'is_3d', 'uses_count', 'html', 'css')
             ->orderByDesc('uses_count')
             ->get();
 

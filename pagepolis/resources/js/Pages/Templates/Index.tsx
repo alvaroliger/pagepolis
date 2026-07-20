@@ -13,10 +13,13 @@ interface Template {
     thumbnail: string | null;
     tags: string[] | null;
     is_premium: boolean;
+    is_3d: boolean;
     uses_count: number;
     html: string;
     css: string;
 }
+
+type TypeFilter = 'todos' | 'simple' | '3d';
 
 interface Props {
     templates: Template[];
@@ -39,11 +42,14 @@ function TemplatePreview({ html, css }: { html: string; css: string }) {
 
 export default function TemplatesIndex({ templates, categories }: Props) {
     const [filter, setFilter] = useState('Todos');
+    const [typeFilter, setTypeFilter] = useState<TypeFilter>('todos');
     const [creating, setCreating] = useState<number | null>(null);
     const [name, setName] = useState('');
     const [previewId, setPreviewId] = useState<number | null>(null);
 
-    const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
+    const filtered = templates
+        .filter(t => filter === 'Todos' || t.category === filter)
+        .filter(t => typeFilter === 'todos' || (typeFilter === '3d' ? t.is_3d : !t.is_3d));
     const previewTemplate = templates.find(t => t.id === previewId);
 
     const useTemplate = (templateId: number) => {
@@ -79,6 +85,30 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     <p className="text-xs text-gray-500">Opcional — puedes cambiarlo luego</p>
                 </div>
 
+                {/* Simple vs 3D */}
+                <div className="mb-5">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Tipo de página</p>
+                    <div className="inline-flex bg-gray-800 border border-gray-700 rounded-full p-1 gap-1">
+                        {([
+                            { value: 'todos', label: 'Todas' },
+                            { value: 'simple', label: 'Simple' },
+                            { value: '3d', label: '✨ 3D' },
+                        ] as { value: TypeFilter; label: string }[]).map(opt => (
+                            <button
+                                key={opt.value}
+                                onClick={() => setTypeFilter(opt.value)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                                    typeFilter === opt.value
+                                        ? 'bg-violet-600 text-white'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Filtros */}
                 <div className="flex gap-2 flex-wrap mb-8">
                     {['Todos', ...categories].map(cat => (
@@ -109,11 +139,18 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 onClick={() => setPreviewId(template.id)}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
-                                {template.is_premium && (
-                                    <span className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full z-10">
-                                        PRO
-                                    </span>
-                                )}
+                                <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+                                    {template.is_premium && (
+                                        <span className="bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                                            PRO
+                                        </span>
+                                    )}
+                                    {template.is_3d && (
+                                        <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                            ✨ 3D
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
