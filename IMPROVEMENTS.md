@@ -76,7 +76,16 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **A11y de la galería de plantillas** — la miniatura de "Vista previa" era un `<div
+  onClick>` (invisible para teclado/lectores de pantalla, único punto de entrada al modal
+  de vista previa); ahora es un `<button>` real con `aria-label`, foco visible y sin cambiar
+  el aspecto visual. El modal de vista previa ahora cierra con Escape (antes solo con clic
+  en el fondo o en la ×, que además ya tiene `aria-label`). El botón del selector de idioma
+  también tenía nombre accesible nulo en móvil (el texto se oculta bajo `sm:`, y el icono de
+  bandera lleva `aria-hidden`) — añadido `aria-label`/`aria-expanded`/`aria-haspopup`.
+  `resources/js/Pages/Templates/Index.tsx`, `resources/js/Components/LanguageSelector.tsx`.
+- 🟢 Seguir el resto de la accesibilidad/responsive de páginas nuevas (esto cubre solo la
+  galería de plantillas y el selector de idioma; quedan pendientes otras páginas).
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -103,6 +112,28 @@ no abras PR.
 ## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
+
+## ⚠️ Aviso de coordinación (2026-07-20) — ramas/PRs duplicados
+`git branch -r` justo después de clonar solo muestra `origin/master`; hace falta
+`git fetch origin` (o `git ls-remote --heads origin`) para ver las ~140 ramas remotas
+reales. Sin ese paso, sesiones sucesivas han estado reimplementando la misma mejora sin
+saberlo: a fecha de hoy hay **43 PRs abiertos sin fusionar** (#44–#86) y **14+ ramas**
+distintas para "rendimiento del hero 3D en gama baja" (`feature/hero3d-low-end-*`,
+`perf/hero3d-low-end-*`, `perf/hero3d-low-power-*`…), más otras 5 para "variantes de
+geometría/paleta del hero 3D" y 20+ para "galería Simple/3D". Ninguna está fusionada a
+master todavía. Antes de coger un ítem de "Diseño / nivel visual", comprobar primero con
+`git fetch origin && git branch -r` y `list_pull_requests` que no exista ya cubierto.
+Esta sesión estuvo a punto de añadir una rama más a ese clúster (rendimiento del hero3d
+en gama baja) y la abandonó sin hacer push al descubrirlo a tiempo; implementó en su
+lugar el ítem de accesibilidad de la galería de plantillas de arriba.
+
+- 🟢 **Bug real encontrado durante la verificación de este PR (fuera de alcance, sin
+  tocar)**: `/plantillas` no lleva middleware `auth` (cualquier visitante recibe 200), pero
+  `Templates/Index.tsx` usa `AuthenticatedLayout`, que asume `auth.user` no nulo → un
+  visitante no autenticado que entra directamente a `/plantillas` se encuentra con una
+  página en blanco (`TypeError: Cannot read properties of null (reading 'role')` en
+  `AuthenticatedLayout.tsx`, reproducido con Playwright). O se protege la ruta con `auth`,
+  o `AuthenticatedLayout`/`Templates/Index.tsx` deben tolerar `auth.user == null`.
 
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).

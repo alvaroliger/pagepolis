@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
@@ -45,6 +45,15 @@ export default function TemplatesIndex({ templates, categories }: Props) {
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
     const previewTemplate = templates.find(t => t.id === previewId);
+
+    useEffect(() => {
+        if (previewId === null) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setPreviewId(null);
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [previewId]);
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -104,9 +113,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-700/50 transition-all hover:-translate-y-1 group"
                         >
                             {/* Preview thumbnail */}
-                            <div
-                                className="h-44 overflow-hidden relative cursor-pointer bg-white"
+                            <button
+                                type="button"
                                 onClick={() => setPreviewId(template.id)}
+                                aria-label={`Vista previa de ${template.name}`}
+                                className="h-44 w-full overflow-hidden relative cursor-pointer bg-white block text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-inset"
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
                                 {template.is_premium && (
@@ -119,7 +130,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                         Vista previa
                                     </span>
                                 </div>
-                            </div>
+                            </button>
 
                             <div className="p-4">
                                 <div className="flex justify-between items-start mb-1">
@@ -174,7 +185,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 >
                                     Usar esta plantilla →
                                 </button>
-                                <button onClick={() => setPreviewId(null)} className="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                                <button onClick={() => setPreviewId(null)} aria-label="Cerrar vista previa" className="text-gray-500 hover:text-gray-700 text-xl font-bold">
                                     ×
                                 </button>
                             </div>
