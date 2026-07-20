@@ -48,8 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditar rendimiento del hero 3D en móviles de gama baja** — `perfTier()` en
+  `hero3d.js` (y su equivalente en `Hero3D.tsx`) mide `navigator.hardwareConcurrency` /
+  `deviceMemory`: gama baja (≤2 núcleos o ≤1GB RAM) desactiva el 3D y se degrada al fondo
+  CSS estático sin gastar batería en crear un contexto WebGL; gama media (≤4 núcleos o
+  ≤4GB) mantiene el 3D pero con la mitad de figuras, sin antialiasing y con densidad de
+  píxeles limitada a 1x. Gama alta sin cambios.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +111,17 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Badge "3D" en la galería de plantillas** (`resources/js/Pages/Templates/Index.tsx`) —
+  marcar visualmente qué plantillas llevan hero 3D (las que ya tienen `hero3d-canvas` en
+  `TemplateSeeder`) para que el cliente sepa qué está eligiendo antes de entrar en el wizard,
+  no solo al ver el preview.
+- 🟢 **Elección explícita Simple | 3D en el paso de plantilla del wizard** (`Create/Index.tsx`)
+  — filtro/toggle dedicado (no solo categoría de negocio) para que el cliente decida el nivel
+  visual primero y luego filtre por rubro; sienta la base de la sección A de la misión.
+- 🟢 Aplicar `perfTier()` (gama baja/media/alta) también a las animaciones `framer-motion`
+  de `Components/Motion.tsx` — en gama baja, `Reveal`/`FadeIn` deberían saltar directamente
+  al estado final sin computar el spring, igual que ya hace `prefers-reduced-motion`.
+- 🟡 Medir FPS real in-situ (no solo heurística estática de cores/memoria) con un frame
+  budget check en los primeros segundos del hero3d y desactivar si cae por debajo de ~24fps
+  — más preciso que el hardwareConcurrency/deviceMemory, pero necesita decidir el coste de
+  la muestra inicial (unos frames "gratis" en dispositivos que sí lo pueden hacer).
