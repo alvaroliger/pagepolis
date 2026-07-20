@@ -77,6 +77,11 @@ no abras PR.
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
 - 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ✅ **`LanguageSelector` accesible** — el desplegable de idioma del header público (visible
+  para cualquier visitante, en los 6 idiomas) no tenía semántica de menú (sin
+  `aria-haspopup`/`aria-expanded`, sin `role="menu"`/`"menuitem"`, sin `aria-current` en el
+  idioma activo, sin cierre con Escape). Se replicó el patrón ya usado en el menú de cuenta
+  de `AuthenticatedLayout.tsx`.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -104,6 +109,18 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-20)
+- `LanguageSelector.tsx` accesible por teclado/lector de pantalla (`aria-haspopup`,
+  `aria-expanded`, `role="menu"`/`"menuitem"`, `aria-current`, cierre con Escape), mismo
+  patrón que el menú de cuenta de `AuthenticatedLayout.tsx`. Suite 244/244 verde,
+  `npm run build` OK.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 El footer de `Landing.tsx` (líneas ~384-405) no enlaza a `/terminos` ni `/privacidad`
+  (las páginas ya existen y `Register.tsx` sí las enlaza en el checkbox de alta) — un
+  visitante no puede llegar a los legales desde la home.
+- 🟢 El input de nombre de proyecto en `Pages/Templates/Index.tsx` (líneas ~71-80) no tiene
+  `<label>` ni `aria-label`, solo `placeholder` — añadir label accesible como en el resto de
+  formularios de la app.
