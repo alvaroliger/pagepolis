@@ -48,8 +48,10 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en gama baja** — `isLowPowerDevice()` (`hardwareConcurrency
+  <= 4` o `deviceMemory <= 2`) en `hero3d.js` (webs de clientes) y `Hero3D.tsx` (la propia
+  app): menos icosaedros (3-4 en vez de 6-8) y `devicePixelRatio` limitado a 1 en vez de
+  1.75. Cuida FPS/batería sin desactivar el efecto.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -104,6 +106,23 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-21)
+- Rendimiento del hero 3D en móviles de gama baja: `isLowPowerDevice()` reduce nº de
+  figuras y `devicePixelRatio` en `hero3d.js` (webs generadas) y `Hero3D.tsx` (landing/
+  dashboard) cuando `hardwareConcurrency <= 4` o `deviceMemory <= 2`. Suite 244/244 verde,
+  `npm run build` OK.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Variantes de paleta/geometría del hero 3D (sigue pendiente, ver arriba): además de
+  icosaedro, probar un octaedro o dodecaedro low-poly alternando por plantilla/proyecto
+  para que dos webs "tech" no se vean clonadas.
+- 🟢 Selector "Simple | 3D" visible en el paso de plantillas del wizard de creación (hoy la
+  IA decide sola si añade el hero 3D según el rubro): dejar que el cliente elija
+  explícitamente el nivel de motion de su web, con preview en vivo de ambas variantes antes
+  de generar.
+- 🟢 Estado vacío del listado de proyectos/dashboard cuando el cliente aún no ha publicado
+  ninguna web: ilustración/CTA claro hacia "crear mi primera web" en vez de una tabla vacía.
+- 🟢 Auditoría de accesibilidad (contraste, foco visible, orden de tabulación) en el editor
+  y en el wizard multi-paso — son las pantallas donde el cliente pasa más tiempo.
