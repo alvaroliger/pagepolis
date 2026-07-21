@@ -31,6 +31,15 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Gama baja: pocos núcleos o poca RAM (deviceMemory, cuando el navegador lo
+     expone). En estos casos se reduce el nº de figuras y la resolución para
+     cuidar FPS y batería sin desactivar el efecto por completo. */
+  function isLowPowerDevice() {
+    var cores = navigator.hardwareConcurrency || 8;
+    var mem = navigator.deviceMemory;
+    return cores <= 4 || (typeof mem === 'number' && mem <= 2);
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -178,8 +187,9 @@
     var uProj = gl.getUniformLocation(program, 'uProj');
     var uColor = gl.getUniformLocation(program, 'uColor');
 
+    var lowPower = isLowPowerDevice();
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = lowPower ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -195,7 +205,7 @@
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count, lowPower: lowPower };
   }
 
   function initCanvas(canvas) {
@@ -214,7 +224,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, scene.lowPower ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

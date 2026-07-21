@@ -118,6 +118,15 @@ void main(){
   gl_FragColor = vec4(col, 0.85);
 }`;
 
+/* Gama baja: pocos núcleos o poca RAM (deviceMemory, cuando el navegador lo
+   expone). En estos casos se reduce el nº de figuras y la resolución para
+   cuidar FPS y batería sin desactivar el efecto por completo. */
+function isLowPowerDevice(): boolean {
+    const cores = navigator.hardwareConcurrency || 8;
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    return cores <= 4 || (typeof mem === 'number' && mem <= 2);
+}
+
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
     const sh = gl.createShader(type)!;
     gl.shaderSource(sh, src);
@@ -182,7 +191,9 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const lowPower = isLowPowerDevice();
+        const effectiveCount = lowPower ? Math.min(count, 4) : count;
+        const shapes = Array.from({ length: effectiveCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +214,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
