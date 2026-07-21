@@ -6,6 +6,16 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+⚠️ **Antes de elegir ítem, revisa las PRs abiertas de GitHub, no solo `git branch -r`.**
+`git branch -r` en este repo solo devuelve `origin/master`: las ramas de trabajo en curso
+de sesiones anteriores no aparecen ahí, solo como PRs abiertas (herramienta MCP de GitHub:
+`list_pull_requests`/`search_pull_requests`, no solo git). A 2026-07-21 hay más de 50 PRs
+abiertas sin fusionar acumuladas desde 2026-07-03, con duplicados reales de la misma idea
+implementada 2-3 veces (variantes de geometría del hero 3D, guarda de rendimiento en gama
+baja, distintivo/filtro 3D en la galería…). Si no listas las PRs abiertas primero, es fácil
+reimplementar algo que ya existe sin fusionar — pasó en esta misma sesión (ver "hecho
+recientemente" más abajo).
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -104,6 +114,27 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-21)
+- **Editor: título/descripción/palabras clave SEO visibles y editables** (PR #96) — el botón
+  "SEO" abre un panel con los tres campos (antes solo había una insignia binaria "SEO
+  activo" y el cliente no podía ver ni corregir lo que la IA había escrito, pese a que es
+  justo el texto que Google y las tarjetas de enlace muestran). Autosave reutilizado,
+  `EditorController::save` fusiona con `seo_meta` existente sin perder `og_title`/schema.
+  Intento previo en la misma sesión (guarda de rendimiento del hero 3D en gama baja)
+  descartado sin PR al descubrir que ya existían las PRs #45 y #90 con esa misma mejora.
+
 ## Ideas nuevas
+- 🟢 **Favicon + imagen social (`og:image`) por proyecto** — `SiteController::show` y
+  `NginxService::buildFullHtml` (dominio propio) no emiten ningún `<link rel="icon">` ni
+  `og:image`/`twitter:image`; toda web publicada por un cliente muestra el icono en blanco
+  del navegador y una tarjeta sin imagen al compartir el enlace en WhatsApp/redes. No hay
+  columna ni campo para esto (`seo_meta` no lo contempla). Requiere: subida de imagen simple
+  (ver patrón de `AiController::store` para adjuntos), guardarla en `seo_meta` o columna
+  nueva, y añadir las etiquetas en los dos sitios que construyen el `<head>` (¡ojo!: hay un
+  tercer sitio, `ProjectController::preview`, pero es la vista previa interna del editor
+  con `noindex, nofollow` — no necesita favicon/og:image).
+- 🟢 Indicador de fortaleza de contraseña en `Auth/Register.tsx` (hoy solo hay `minLength={8}`
+  y el error del servidor; una barra de fortaleza simple en cliente, sin dependencias
+  nuevas, reduce altas con contraseñas débiles).
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
