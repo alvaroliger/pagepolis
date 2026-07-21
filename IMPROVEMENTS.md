@@ -48,8 +48,10 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditado rendimiento del hero 3D en móviles de gama baja** — `deviceTier()` en
+  `hero3d.js` y `Hero3D.tsx` mira `hardwareConcurrency`/`deviceMemory`/`saveData`: gama
+  baja → menos figuras y DPR tope 1; gama muy baja → WebGL desactivado del todo, cae al
+  degradado CSS de `.hero` (evita jank/batería en los visitantes de los clientes).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -104,6 +106,30 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-21)
+- Auditoría de rendimiento del hero 3D en gama baja: `deviceTier()` (cores/RAM/data-saver)
+  en `hero3d.js` y `Hero3D.tsx` → menos figuras + DPR 1 en gama baja, WebGL desactivado
+  del todo en gama muy baja (cae al degradado CSS ya existente). Suite 244/244 verde,
+  `npm run build` OK.
+
 ## Ideas nuevas
+- 🔵 **Elección "Simple | 3D" en el wizard de creación** — antes de elegir plantilla,
+  que el cliente elija el tipo de página; solo se le muestran plantillas 3D si elige esa
+  opción. Sienta la base para una galería de plantillas 3D dedicada (hoy el hero 3D es
+  un añadido dentro de plantillas existentes, no una categoría propia).
+- 🟢 **Preview en vivo con animación real** en la galería de plantillas (hoy la miniatura
+  es estática) — al menos para las plantillas con hero 3D, mostrar el `<canvas>` animado
+  en el modal de vista previa (ya arreglado el tamaño del iframe) para que se note la
+  diferencia "3D" antes de elegir.
+- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- 🟢 **Parallax de scroll en secciones no-hero** (más allá del hero 3D) — desplazamiento
+  sutil de fondo/imágenes al hacer scroll en secciones de servicios/planes, reforzando
+  la sensación "3D/depth" en el resto de la página, no solo en el hero.
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Estados vacíos con más guía** en el dashboard (leads, mensajes, analíticas) cuando
+  el cliente aún no tiene datos — CTA claro sobre qué hacer a continuación, no solo un
+  mensaje "no hay nada aquí".
+- 🟢 **Auditoría de accesibilidad del editor** (CodeMirror + panel de vista previa):
+  foco visible, `aria-label` en los botones de icono, contraste en modo oscuro si existe.
