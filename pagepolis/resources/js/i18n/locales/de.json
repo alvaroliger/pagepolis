@@ -7,6 +7,16 @@
     "login": "Anmelden",
     "start": "Kostenlos starten"
   },
+  "authNav": {
+    "dashboard": "Dashboard",
+    "analytics": "Statistiken",
+    "messages": "Nachrichten",
+    "templates": "Vorlagen",
+    "admin": "Admin",
+    "profile": "Mein Profil",
+    "subscription": "Abonnement",
+    "logout": "Abmelden"
+  },
   "tagline": "KI-gestützte Websites",
   "hero": {
     "badge": "Betrieben von Claude AI · Generierung in unter 10 Sekunden",

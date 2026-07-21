@@ -7,6 +7,16 @@
     "login": "Log in",
     "start": "Get started free"
   },
+  "authNav": {
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "messages": "Messages",
+    "templates": "Templates",
+    "admin": "Admin",
+    "profile": "My profile",
+    "subscription": "Subscription",
+    "logout": "Log out"
+  },
   "tagline": "AI-powered websites",
   "hero": {
     "badge": "Powered by Claude AI · Generated in under 10 seconds",

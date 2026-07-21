@@ -7,6 +7,16 @@
     "login": "Accedi",
     "start": "Inizia gratis"
   },
+  "authNav": {
+    "dashboard": "Dashboard",
+    "analytics": "Statistiche",
+    "messages": "Messaggi",
+    "templates": "Modelli",
+    "admin": "Admin",
+    "profile": "Il mio profilo",
+    "subscription": "Abbonamento",
+    "logout": "Esci"
+  },
   "tagline": "Siti web con IA",
   "hero": {
     "badge": "Alimentato da Claude AI · Generato in meno di 10 secondi",

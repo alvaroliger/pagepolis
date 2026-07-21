@@ -7,6 +7,16 @@
     "login": "Entrar",
     "start": "Começar grátis"
   },
+  "authNav": {
+    "dashboard": "Dashboard",
+    "analytics": "Estatísticas",
+    "messages": "Mensagens",
+    "templates": "Modelos",
+    "admin": "Admin",
+    "profile": "Meu perfil",
+    "subscription": "Assinatura",
+    "logout": "Sair"
+  },
   "tagline": "Sites web com IA",
   "hero": {
     "badge": "Powered by Claude AI · Gerado em menos de 10 segundos",

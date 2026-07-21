@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, PropsWithChildren, ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import PagepolisLogo from '@/Components/PagepolisLogo';
+import LanguageSelector from '@/Components/LanguageSelector';
 
 interface AuthLayoutProps extends PropsWithChildren {
     header?: ReactNode;
@@ -22,6 +24,7 @@ function NavLink({ href, active, children, className = '' }: PropsWithChildren<{
 }
 
 export default function AuthenticatedLayout({ header, children }: AuthLayoutProps) {
+    const { t } = useTranslation();
     const page = usePage<{ auth: { user: { name: string; email: string; role: string } }; leadsUnread?: number }>();
     const auth = page.props.auth;
     const leadsUnread = page.props.leadsUnread ?? 0;
@@ -59,23 +62,26 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                 </span>
                             </Link>
                             <div className="hidden md:flex items-center gap-6">
-                                <NavLink href="/dashboard" active={isActive('/dashboard')}>Dashboard</NavLink>
-                                <NavLink href="/analytics" active={isActive('/analytics')}>Analítica</NavLink>
+                                <NavLink href="/dashboard" active={isActive('/dashboard')}>{t('authNav.dashboard')}</NavLink>
+                                <NavLink href="/analytics" active={isActive('/analytics')}>{t('authNav.analytics')}</NavLink>
                                 <NavLink href="/mensajes" active={isActive('/mensajes')} className="flex items-center gap-1.5">
-                                    Mensajes
+                                    {t('authNav.messages')}
                                     {leadsUnread > 0 && (
                                         <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
                                             {leadsUnread}
                                         </span>
                                     )}
                                 </NavLink>
-                                <NavLink href="/plantillas" active={isActive('/plantillas')}>Plantillas</NavLink>
+                                <NavLink href="/plantillas" active={isActive('/plantillas')}>{t('authNav.templates')}</NavLink>
                                 {auth.user.role === 'admin' && (
-                                    <NavLink href="/admin" active={isActive('/admin')}>Admin</NavLink>
+                                    <NavLink href="/admin" active={isActive('/admin')}>{t('authNav.admin')}</NavLink>
                                 )}
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
+                            <div className="hidden sm:block">
+                                <LanguageSelector />
+                            </div>
                             <span className="text-sm text-gray-400 hidden sm:block">{auth.user.name}</span>
                             <div className="relative" ref={menuRef}>
                                 <button
@@ -97,10 +103,10 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                             role="menu"
                                         >
                                             <Link href="/perfil" role="menuitem" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors">
-                                                Mi perfil
+                                                {t('authNav.profile')}
                                             </Link>
                                             <Link href="/facturacion/portal" role="menuitem" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors">
-                                                Suscripción
+                                                {t('authNav.subscription')}
                                             </Link>
                                             <Link
                                                 href="/logout"
@@ -109,7 +115,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                                 role="menuitem"
                                                 className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors"
                                             >
-                                                Cerrar sesión
+                                                {t('authNav.logout')}
                                             </Link>
                                         </motion.div>
                                     )}
