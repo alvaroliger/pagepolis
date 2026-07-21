@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
-import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
+import { Link2, Globe, Sparkles, Rocket, Check, X, Loader2 } from 'lucide-react';
 
 interface Props {
     project: { id: number; name: string; slug: string } | null;
@@ -24,8 +24,36 @@ export default function PublishIndex({ project, baseDomain }: Props) {
     const [error, setError]         = useState('');
     const [published, setPublished] = useState<string | null>(null);
     const [provisioning, setProvisioning] = useState<string | null>(null);
+    const [domainStatus, setDomainStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+    const [domainStatusMsg, setDomainStatusMsg] = useState('');
+    const domainCheckId = useRef(0);
 
     const freeUrl = project ? `${window.location.origin}/s/${project.slug}` : '';
+
+    // Comprueba en vivo si el dominio propio está libre antes de que el cliente
+    // intente reservarlo — evita descubrir que estaba cogido tras un round-trip completo.
+    useEffect(() => {
+        if (tier !== 'custom') return;
+        if (!customDomain.includes('.')) {
+            setDomainStatus('idle');
+            return;
+        }
+        setDomainStatus('checking');
+        const requestId = ++domainCheckId.current;
+        const timeout = setTimeout(async () => {
+            try {
+                const res = await axios.post('/dominios/verificar', { domain: customDomain });
+                if (domainCheckId.current !== requestId) return;
+                setDomainStatus(res.data.available ? 'available' : 'taken');
+                setDomainStatusMsg('');
+            } catch (e: any) {
+                if (domainCheckId.current !== requestId) return;
+                setDomainStatus('invalid');
+                setDomainStatusMsg(e.response?.data?.errors?.domain?.[0] ?? e.response?.data?.message ?? 'Dominio no válido.');
+            }
+        }, 500);
+        return () => clearTimeout(timeout);
+    }, [customDomain, tier]);
 
     const publishFree = async () => {
         if (!project) return;
@@ -250,19 +278,48 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                         <span className="text-gray-500 text-sm">.{baseDomain}</span>
                                     </div>
                                 ) : (
-                                    <input
-                                        type="text"
-                                        value={customDomain}
-                                        onChange={e => setCustomDomain(e.target.value.toLowerCase())}
-                                        placeholder="minegocio.com"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 mb-4"
-                                    />
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={customDomain}
+                                            onChange={e => setCustomDomain(e.target.value.toLowerCase())}
+                                            placeholder="minegocio.com"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                                        />
+                                        <div className="min-h-[1.5rem] mb-4 mt-1.5">
+                                            {domainStatus === 'checking' && (
+                                                <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2} /> Comprobando disponibilidad…
+                                                </p>
+                                            )}
+                                            {domainStatus === 'available' && (
+                                                <p className="text-xs text-emerald-400 flex items-center gap-1.5">
+                                                    <Check className="w-3.5 h-3.5" strokeWidth={2.5} /> Disponible
+                                                </p>
+                                            )}
+                                            {domainStatus === 'taken' && (
+                                                <p className="text-xs text-red-400 flex items-center gap-1.5">
+                                                    <X className="w-3.5 h-3.5" strokeWidth={2.5} /> Este dominio ya está registrado
+                                                </p>
+                                            )}
+                                            {domainStatus === 'invalid' && (
+                                                <p className="text-xs text-red-400 flex items-center gap-1.5">
+                                                    <X className="w-3.5 h-3.5" strokeWidth={2.5} /> {domainStatusMsg}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
 
                                 {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
                                 <button
                                     onClick={project ? reserveDomain : () => setStep(2)}
-                                    disabled={loading || (tier === 'subdomain' ? !subdomain : !customDomain)}
+                                    disabled={
+                                        loading ||
+                                        (tier === 'subdomain'
+                                            ? !subdomain
+                                            : !customDomain || domainStatus === 'taken' || domainStatus === 'invalid')
+                                    }
                                     className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-colors"
                                 >
                                     {loading ? 'Reservando…' : 'Continuar →'}

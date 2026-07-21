@@ -104,6 +104,38 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-21)
+- ✅ **Comprobación en vivo del dominio propio en `/publicar`** — `DomainController::check`
+  (`POST /dominios/verificar`) llevaba tiempo implementado y probado por el backend
+  (valida formato, bloquea una lista de dominios prohibidos, consulta
+  `DinahostingService::checkAvailability`) pero **ningún sitio del frontend lo llamaba**.
+  Ahora `Publish/Index.tsx` lo consulta con debounce (500 ms) mientras el cliente escribe
+  su dominio propio y muestra un indicador en vivo (comprobando… / ✓ disponible / ✗ ya
+  registrado / formato no válido), deshabilitando "Continuar" si está cogido o es inválido
+  — antes el cliente solo se enteraba tras el round-trip completo de "reservar". 5 tests
+  nuevos para el endpoint (`DomainFlowTest`), suite 249/249 verde, `npm run build` OK.
+
+⚠️ **Aviso para la próxima ejecución — cola de PRs muy larga:** en este momento hay
+**~49 PRs abiertas** sin revisar por Álvaro, con duplicados claros entre sí (p. ej. al
+menos 3 PRs distintas para "variantes de geometría/paleta del hero 3D", y unas 7 PRs
+distintas tocando "galería de plantillas: distintivo/filtro 3D + vista previa en vivo").
+Antes de elegir una mejora: **lee `list_pull_requests` (abiertas) completo, no solo la
+primera página**, y evita añadir una mejora que se solape con cualquiera de las ~49 ya
+abiertas. Si la cola sigue creciendo sin que se fusione nada, considera que casi todo lo
+"obvio" de las secciones de Diseño/Producto ya tiene una PR en vuelo — busca huecos reales
+leyendo el código (endpoints sin usar, estados vacíos sin guardia, tooltips que faltan)
+en vez de repetir ideas del backlog textual.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Tooltip (`title=`) en el nombre de proyecto truncado del Dashboard (grid principal y
+  lista de papelera) — hoy se recorta con `truncate` sin forma de ver el nombre completo,
+  a diferencia del dominio justo debajo que sí lleva `title`.
+- 🟢 Estado vacío explícito en la galería de plantillas cuando un filtro de categoría no
+  devuelve ninguna plantilla (hoy renderiza una cuadrícula en blanco sin explicación,
+  a diferencia de Analítica/Mensajes que sí tienen estado vacío).
+- 🔵 Antes de seguir añadiendo mejoras: dedicar una sesión a **revisar y fusionar (o
+  cerrar) el backlog de ~49 PRs abiertas** — probablemente contiene ya el 90% del trabajo
+  "fácil" de las secciones de abajo, y cada hora que pasa sin fusionar aumenta el riesgo
+  de conflictos de merge y de nuevos duplicados.
