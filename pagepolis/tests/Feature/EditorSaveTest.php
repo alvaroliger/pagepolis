@@ -92,6 +92,67 @@ class EditorSaveTest extends TestCase
         $this->assertSame('var x = 1;', $fresh->js);
     }
 
+    public function test_owner_can_edit_seo_fields_and_it_merges_with_existing_meta(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user, [
+            'seo_meta' => ['og_title' => 'Título OG generado por IA', 'schema' => ['@type' => 'LocalBusiness']],
+        ]);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", [
+                'seo_meta' => [
+                    'title'       => 'Mi peluquería en Madrid',
+                    'description' => 'Cortes, tintes y tratamientos a domicilio.',
+                    'keywords'    => 'peluquería, Madrid, tinte',
+                ],
+            ])
+            ->assertOk();
+
+        $meta = $project->fresh()->seo_meta;
+        $this->assertSame('Mi peluquería en Madrid', $meta['title']);
+        $this->assertSame('Cortes, tintes y tratamientos a domicilio.', $meta['description']);
+        $this->assertSame('peluquería, Madrid, tinte', $meta['keywords']);
+        // Los campos que ya venían de la IA no se pierden al guardar los editados a mano.
+        $this->assertSame('Título OG generado por IA', $meta['og_title']);
+        $this->assertSame(['@type' => 'LocalBusiness'], $meta['schema']);
+    }
+
+    public function test_clearing_a_seo_field_removes_it_instead_of_saving_empty_string(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user, [
+            'seo_meta' => ['title' => 'Viejo título', 'description' => 'Vieja descripción'],
+        ]);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", [
+                'seo_meta' => ['title' => '', 'description' => 'Vieja descripción'],
+            ])
+            ->assertOk();
+
+        $meta = $project->fresh()->seo_meta;
+        $this->assertArrayNotHasKey('title', $meta);
+        $this->assertSame('Vieja descripción', $meta['description']);
+    }
+
+    public function test_seo_title_exceeding_max_length_is_rejected(): void
+    {
+        Queue::fake();
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->postJson("/editor/{$project->id}/guardar", [
+                'seo_meta' => ['title' => str_repeat('a', 61)],
+            ])
+            ->assertUnprocessable();
+
+        $this->assertNull($project->fresh()->seo_meta);
+    }
+
     public function test_other_user_cannot_save_project(): void
     {
         Queue::fake();

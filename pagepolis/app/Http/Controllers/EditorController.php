@@ -48,9 +48,25 @@ class EditorController extends Controller
             'html' => 'sometimes|string|max:2097152',
             'css'  => 'sometimes|string|max:524288',
             'js'   => 'sometimes|string|max:524288',
+            'seo_meta'             => 'sometimes|nullable|array',
+            'seo_meta.title'       => 'sometimes|nullable|string|max:60',
+            'seo_meta.description' => 'sometimes|nullable|string|max:155',
+            'seo_meta.keywords'    => 'sometimes|nullable|string|max:200',
         ]);
 
-        $project->update($request->only(['name', 'html', 'css', 'js']));
+        $attrs = $request->only(['name', 'html', 'css', 'js']);
+
+        // El cliente puede corregir a mano el título/descripción/palabras clave
+        // que la IA generó (o escribirlos sin usar la IA). Se fusiona con lo que
+        // ya hubiera en seo_meta para no perder og_title/og_description/schema.
+        if ($request->filled('seo_meta')) {
+            $attrs['seo_meta'] = array_filter(array_merge(
+                $project->seo_meta ?? [],
+                $request->input('seo_meta')
+            ));
+        }
+
+        $project->update($attrs);
 
         // Si está en un dominio propio activo, refleja los cambios en internet.
         $project->deployToLiveDomain();

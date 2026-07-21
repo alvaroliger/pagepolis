@@ -130,6 +130,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [messages, setMessages]   = useState<ChatMessage[]>(project.ai_history ?? []);
     const [seoMeta, setSeoMeta]     = useState(project.seo_meta);
     const [seoLoading, setSeoLoading] = useState(false);
+    const [seoPanelOpen, setSeoPanelOpen] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const [showUsageTooltip, setShowUsageTooltip] = useState(false);
     const [progress, setProgress]   = useState('');
@@ -181,6 +182,11 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     }, [messages]);
 
     const markDirty = () => setDirty(true);
+
+    const updateSeoMeta = (patch: Partial<NonNullable<Project['seo_meta']>>) => {
+        setSeoMeta(m => ({ ...(m ?? {}), ...patch }));
+        markDirty();
+    };
 
     const handleHtmlChange = (v: string) => { setHtml(v); markDirty(); };
     const handleCssChange  = (v: string) => { setCss(v);  markDirty(); };
@@ -244,6 +250,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             const res = await axios.post('/ai/seo', { project_id: project.id });
             if (res.data.success) {
                 setSeoMeta(res.data.meta);
+                setSeoPanelOpen(true);
                 toast.success('SEO generado y guardado');
             }
         } catch (err: any) {
@@ -256,7 +263,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const save = async () => {
         setSaving(true);
         try {
-            await axios.post(`/editor/${project.id}/guardar`, { name, html, css, js });
+            await axios.post(`/editor/${project.id}/guardar`, { name, html, css, js, seo_meta: seoMeta });
             setSaved(true);
             setDirty(false);
             setTimeout(() => setSaved(false), 2500);
@@ -273,7 +280,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         const timer = window.setTimeout(save, 2500);
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [html, css, js, name, dirty, saving, aiLoading]);
+    }, [html, css, js, name, seoMeta, dirty, saving, aiLoading]);
 
     const requestModeSwitch = (newMode: AiMode) => {
         if (newMode === aiMode) return;
@@ -380,18 +387,71 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     {dirty && <span className="text-xs text-yellow-500 flex-shrink-0">Sin guardar</span>}
                 </div>
                 <div className="flex items-center gap-2">
-                    <button
-                        onClick={generateSeo}
-                        disabled={seoLoading || !html}
-                        title="Genera título, descripción y datos SEO automáticamente"
-                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
-                            seoMeta
-                                ? 'bg-green-900/40 text-green-400 border border-green-800/50'
-                                : 'bg-gray-800 text-gray-400 hover:text-white border border-gray-700'
-                        }`}
-                    >
-                        {seoLoading ? 'Generando…' : seoMeta ? 'SEO activo' : 'Generar SEO'}
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setSeoPanelOpen(o => !o)}
+                            title="Título, descripción y palabras clave para buscadores y redes sociales"
+                            className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                                seoMeta
+                                    ? 'bg-green-900/40 text-green-400 border border-green-800/50'
+                                    : 'bg-gray-800 text-gray-400 hover:text-white border border-gray-700'
+                            }`}
+                        >
+                            {seoMeta ? 'SEO ✓' : 'SEO'}
+                        </button>
+                        {seoPanelOpen && (
+                            <div className="absolute right-0 top-full mt-2 w-80 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-4 z-30 text-left">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-sm font-semibold text-white">SEO de esta página</span>
+                                    <button
+                                        onClick={() => setSeoPanelOpen(false)}
+                                        aria-label="Cerrar panel de SEO"
+                                        className="text-gray-500 hover:text-white text-sm leading-none"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={generateSeo}
+                                    disabled={seoLoading || !html}
+                                    className="w-full mb-3 text-xs font-semibold px-3 py-1.5 rounded-lg bg-violet-900/40 text-violet-300 border border-violet-800/50 hover:bg-violet-900/60 transition-colors disabled:opacity-50"
+                                >
+                                    {seoLoading ? 'Generando…' : 'Generar con IA'}
+                                </button>
+                                <label className="block text-xs text-gray-400 mb-1">
+                                    Título ({(seoMeta?.title ?? '').length}/60)
+                                </label>
+                                <input
+                                    value={seoMeta?.title ?? ''}
+                                    onChange={e => updateSeoMeta({ title: e.target.value.slice(0, 60) })}
+                                    maxLength={60}
+                                    placeholder={name}
+                                    className="w-full mb-2 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-sm text-white focus:outline-none focus:border-violet-600"
+                                />
+                                <label className="block text-xs text-gray-400 mb-1">
+                                    Descripción ({(seoMeta?.description ?? '').length}/155)
+                                </label>
+                                <textarea
+                                    value={seoMeta?.description ?? ''}
+                                    onChange={e => updateSeoMeta({ description: e.target.value.slice(0, 155) })}
+                                    maxLength={155}
+                                    rows={3}
+                                    className="w-full mb-2 bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-sm text-white focus:outline-none focus:border-violet-600 resize-none"
+                                />
+                                <label className="block text-xs text-gray-400 mb-1">Palabras clave</label>
+                                <input
+                                    value={seoMeta?.keywords ?? ''}
+                                    onChange={e => updateSeoMeta({ keywords: e.target.value.slice(0, 200) })}
+                                    maxLength={200}
+                                    placeholder="peluquería, Madrid, tinte…"
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-2.5 py-1.5 text-sm text-white focus:outline-none focus:border-violet-600"
+                                />
+                                <p className="text-xs text-gray-500 mt-3">
+                                    Así aparece tu web en Google y al compartir el enlace.
+                                </p>
+                            </div>
+                        )}
+                    </div>
                     <div className="flex gap-1 bg-gray-800 rounded-lg p-1">
                         {([
                             { id: 'desktop', label: 'PC' },
