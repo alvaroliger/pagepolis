@@ -36,6 +36,15 @@ no abras PR.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Formularios de contacto accesibles en las plantillas** — los 8 formularios de
+  contacto de las plantillas seed (`abogados`, `belleza`, `cafeteria`, `clinica`,
+  `fotografo`, `inmobiliaria`, `restaurante`, `servicios`) dependían solo de `placeholder`
+  para indicar cada campo (sin `<label>`), lo que rompe WCAG 1.3.1/3.3.2: el texto
+  desaparece al escribir y no se expone de forma fiable a lectores de pantalla — y es
+  justo el formulario que alimenta la captura de leads. Se añadió `<label class="sr-only"
+  for="...">` (nueva utilidad `.sr-only` en `base.css`, sin cambiar el aspecto visual) +
+  `id` en cada input/textarea. También se actualizó la convención del prompt de
+  `AnthropicService` para que las webs generadas por IA incluyan esos mismos labels.
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
@@ -107,3 +116,16 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 La web publicada (`SiteController::show`, ruta `/s/{slug}`) usa `firstOrFail()`: un
+  slug inexistente o despublicado da el 404 genérico de Laravel, no la marca de Pagepolis
+  (distinto del 404/500 de la propia app, que ya tiene PR abierta). Vale la pena una
+  página 404 de "sitio no encontrado" con la marca, para que un enlace roto a una web de
+  cliente no dé una impresión pobre.
+- 🟢 Los formularios de contacto de las webs publicadas solo tienen validación nativa del
+  navegador (`required`, `type="email"`); un mensaje inline más claro si falla el envío
+  al backend (`fetch` a `/s/{slug}/lead`) más allá del `alert()` actual mejoraría la
+  conversión de leads en conexiones lentas o con bloqueadores de scripts.
+- 🟢 Nota de coordinación (2026-07-21): antes de implementar, revisa SIEMPRE las PRs
+  abiertas en GitHub (no solo `git branch -r`, que no las lista) — a estas alturas hay
+  ~30 PRs abiertas cubriendo casi todo lo obvio del dashboard/editor/wizard/galería.
+  Busca huecos genuinos leyendo código, no solo títulos de este backlog.
