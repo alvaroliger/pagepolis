@@ -44,13 +44,18 @@ const statusLabels: Record<string, string> = {
     deleted:   'Eliminado',
 };
 
-function OnboardingChecklist({ hasProject, hasPublished, hasDomain }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean }) {
+function OnboardingChecklist({ hasProject, hasPublished, hasDomain, firstProjectId }: { hasProject: boolean; hasPublished: boolean; hasDomain: boolean; firstProjectId?: number }) {
     if (hasProject && hasPublished && hasDomain) return null;
+
+    // Sin project_id, /publicar no sabe qué proyecto publicar: el paso de dominio se
+    // salta en silencio y un usuario puede llegar a pagar sin que se reserve dominio.
+    // Si aún no hay proyecto, se manda a crearlo primero en vez de a /publicar a secas.
+    const publishHref = firstProjectId ? `/publicar?project_id=${firstProjectId}` : '/crear';
 
     const steps = [
         { done: hasProject,   label: 'Crea tu primera web',       href: '/crear' },
-        { done: hasPublished, label: 'Publica tu web',             href: '/publicar' },
-        { done: hasDomain,    label: 'Conecta tu dominio propio',  href: '/publicar' },
+        { done: hasPublished, label: 'Publica tu web',             href: publishHref },
+        { done: hasDomain,    label: 'Conecta tu dominio propio',  href: publishHref },
     ];
     const doneCount = steps.filter(s => s.done).length;
 
@@ -244,6 +249,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     hasProject={projects.length > 0}
                     hasPublished={onboarding.published}
                     hasDomain={onboarding.domain}
+                    firstProjectId={projects[0]?.id}
                 />
 
                 {inGracePeriod && (
@@ -259,7 +265,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     <div className="mb-6 p-4 bg-violet-900/20 border border-violet-700/40 rounded-xl text-sm text-gray-300">
                         <strong className="text-white">Publica gratis en pagepolis.com/s/tu-web.</strong>{' '}
                         Mejora a un plan de pago para usar tu propio dominio y quitar la marca.{' '}
-                        <Link href="/publicar" className="text-violet-400 underline font-semibold hover:text-violet-300">
+                        <Link href={projects[0] ? `/publicar?project_id=${projects[0].id}` : '/crear'} className="text-violet-400 underline font-semibold hover:text-violet-300">
                             Ver planes
                         </Link>
                     </div>

@@ -630,13 +630,13 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                             <div className="mt-2 p-2 bg-amber-900/20 border border-amber-800/40 rounded-lg text-xs text-amber-300/90 leading-relaxed">
                                 Has agotado tus cambios con <strong>IA</strong> de hoy. Los cambios sencillos (colores, fuente, WhatsApp, ocultar secciones…) <strong>siguen siendo gratis</strong>.{' '}
                                 {!aiUsage.isSubscribed && (
-                                    <a href="/publicar" className="underline text-violet-300">Mejora tu plan</a>
+                                    <a href={`/publicar?project_id=${project.id}`} className="underline text-violet-300">Mejora tu plan</a>
                                 )}
                             </div>
                         )}
 
                         {!aiUsage.isSubscribed && usedToday < aiUsage.limit && (
-                            <a href="/publicar" className="mt-2 block text-center text-xs text-gray-600 hover:text-violet-400 transition-colors">
+                            <a href={`/publicar?project_id=${project.id}`} className="mt-2 block text-center text-xs text-gray-600 hover:text-violet-400 transition-colors">
                                 Activar plan para más cambios con IA
                             </a>
                         )}
