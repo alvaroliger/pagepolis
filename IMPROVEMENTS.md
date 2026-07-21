@@ -28,6 +28,11 @@ no abras PR.
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
 
 ## Producto
+- ✅ **Confirmación visual al guardar en /perfil** — "Datos personales" y "Cambiar
+  contraseña" no daban ningún aviso de éxito (el banner de estado existente nunca se
+  activaba porque ningún controlador flasheaba `status`); ahora ambos formularios
+  confirman con un mensaje verde igual que el resto de la app
+  (`ProfileController`, `PasswordController`, `Profile/Edit.tsx`).
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
@@ -83,6 +88,17 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-21)
+- Confirmación visual al guardar "Datos personales" y "Cambiar contraseña" en /perfil
+  (antes no había ningún aviso de éxito en ninguno de los dos formularios).
+- ⚠️ Nota para la próxima pasada: el repo tiene actualmente ~50 PRs abiertas de auto-mejora
+  sin fusionar todavía, cubriendo ya la gran mayoría de ítems 🟢 obvios de este backlog
+  (variantes/throttle del hero 3D, badges y filtros 3D en la galería, i18n del checkout,
+  a11y de editor/dashboard/formularios, papelera/duplicar/buscar en Dashboard, elección
+  Clásica/3D en el wizard, modales sin `confirm()` nativo, etc.). Antes de elegir ítem,
+  revisa `list_pull_requests` (state=open) para no duplicar — muchos de esos PRs, una vez
+  fusionados, dejarán obsoletas las líneas ✅/🟢 correspondientes de este archivo.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +123,14 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Insignia "PRO" en la galería de plantillas sin ningún control real** — `Templates/Index.tsx`
+  muestra un badge "PRO" en plantillas `is_premium`, pero `useTemplate()` postea directo a
+  `/proyectos` y ni `TemplateController` ni `ProjectController` comprueban el plan del usuario;
+  cualquier cuenta gratuita puede usarla igual. O se retira el badge (si de verdad es gratis)
+  o se añade el gating + un aviso de upgrade en el modal — confirmar primero cuál es la
+  intención real de producto antes de tocarlo.
+- 🟡 **Placeholders sin rellenar en Legal/Privacy.tsx y Legal/Terms.tsx** (`[NOMBRE O RAZÓN
+  SOCIAL]`, `[NIF/DNI]`, `[DIRECCIÓN]`) se sirven tal cual a cualquier visitante — requiere que
+  Álvaro facilite los datos fiscales reales; el agente no debe inventarlos.
+- 🟢 Exportar a CSV las visitas de Analítica (`Analytics/Index.tsx`), igual que ya existe para
+  leads — útil para clientes que quieren llevar el dato a otra herramienta.
