@@ -57,6 +57,16 @@ no abras PR.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Vista previa de plantillas ahora muestra el hero 3D real** — el modal "Vista previa"
+  de la galería (`Templates/Index.tsx`) solo cargaba `html`+`css` en el iframe, nunca `js`
+  (`engine.js`+`hero3d.js`); las 6 plantillas con hero 3D (saas, abogados, coach,
+  inmobiliaria, fotógrafo, servicios) se veían con el `<canvas>` vacío justo en el momento
+  en que el cliente decide qué plantilla usar. `TemplateController::index` ahora selecciona
+  también `js` y el iframe del modal lo inyecta igual que hace el editor
+  (`buildPreviewHtml`), así el cliente ve las figuras 3D animadas antes de elegir. Las
+  miniaturas de la rejilla se dejan sin `js` a propósito (varios `<canvas>` WebGL animados
+  a la vez en una rejilla de 12 tarjetas sería un coste de batería/FPS injustificado para
+  algo que no se ve — el canvas queda simplemente transparente, no roto).
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it
@@ -107,3 +117,6 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Badge/tag "3D" visible en las tarjetas de la galería de plantillas (`Templates/Index.tsx`)
+  para las 6 plantillas con hero 3D — hoy solo se descubre al abrir el modal de vista
+  previa; un badge en la tarjeta ayuda a filtrar/decidir sin necesidad de abrir cada una.
