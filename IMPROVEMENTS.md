@@ -36,6 +36,13 @@ no abras PR.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Galería de plantillas: la vista previa (miniatura y modal) no cargaba el `js` de la
+  plantilla** — `TemplateController` no lo seleccionaba y `Templates/Index.tsx` no lo
+  inyectaba en el `srcDoc` del iframe (el editor sí lo hace en `Editor/Index.tsx`). Efecto
+  real: el hero 3D (canvas WebGL), el `tilt-3d` y el resto de interactividad de
+  `engine.js`/`hero3d.js` se veían planos/estáticos justo en el sitio donde el cliente
+  compara y elige plantilla — el peor lugar para perder el argumento "nivel agencia
+  premium". Ahora ambas vistas previas incluyen el `js` de la plantilla.
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
@@ -107,3 +114,14 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 En la miniatura de la galería de plantillas (`TemplatePreview`), el hero 3D anima solo
+  con `requestAnimationFrame` propio (sin ratón, por `pointer-events-none`) — bien para el
+  grid, pero podría valer la pena un `IntersectionObserver` que pause el `rAF` cuando la
+  tarjeta no es visible (scroll largo con muchas plantillas 3D a la vez = varios canvas
+  WebGL corriendo en paralelo sin necesidad).
+- 🟢 Añadir 1-2 plantillas base explícitamente "3D" en el wizard de creación (no solo
+  heroes 3D dentro de plantillas existentes) con una elección clara "Simple | 3D" antes de
+  elegir plantilla, tal como pide el foco de la semana — hoy la distinción 3D/clásica es
+  implícita por plantilla, no una decisión explícita del cliente en el flujo de creación.
+- 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
+  y el paso de plantillas del wizard — ayuda a vender el nivel de diseño. (heredado)
