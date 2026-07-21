@@ -118,6 +118,22 @@ void main(){
   gl_FragColor = vec4(col, 0.85);
 }`;
 
+/* Gama baja: pocos núcleos de CPU suele ir de la mano de GPU débil y batería
+   pequeña. Con 3-4 núcleos reducimos figuras y resolución; con 1-2, mejor no
+   arrancar WebGL y dejar el fondo del layout tal cual. */
+function cpuCores(): number | null {
+    const c = (navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency;
+    return typeof c === 'number' && c > 0 ? c : null;
+}
+function isLowEnd(): boolean {
+    const c = cpuCores();
+    return c !== null && c <= 4;
+}
+function isVeryLowEnd(): boolean {
+    const c = cpuCores();
+    return c !== null && c <= 2;
+}
+
 function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLShader {
     const sh = gl.createShader(type)!;
     gl.shaderSource(sh, src);
@@ -134,6 +150,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        if (isVeryLowEnd()) { canvas.style.display = 'none'; return; }
+        const lowEnd = isLowEnd();
 
         let gl: WebGLRenderingContext | null = null;
         try {
@@ -182,7 +200,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapes = Array.from({ length: lowEnd ? Math.min(count, 3) : count }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +221,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, lowEnd ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

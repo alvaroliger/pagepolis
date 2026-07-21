@@ -48,8 +48,11 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Rendimiento del hero 3D en móviles de gama baja** — `hero3d.js` (plantillas
+  generadas) y `Hero3D.tsx` (la propia app) detectan `navigator.hardwareConcurrency`:
+  con ≤4 núcleos se reduce el nº de figuras (a 3) y se limita el devicePixelRatio a 1
+  (menos fill-rate, menos batería); con ≤2 núcleos el canvas WebGL ni se inicializa
+  (el hero cae al fondo con degradado de `base.css`, sin perder el diseño).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +110,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Elección explícita "Clásica | 3D" en `Templates/Index.tsx`** — hoy la galería
+  (`resources/js/Pages/Templates/Index.tsx`) solo filtra por categoría de negocio; no
+  hay forma de que el cliente elija "quiero una web con hero 3D" o vea de un vistazo
+  qué plantillas lo llevan. Añadir un filtro/badge "3D" (usar `tags`, ya existe en el
+  modelo `Template`) y quizá una vista previa que rote/incline al hover para las que sí
+  lo tienen — es el paso que falta para que el track "Simple | 3D" del wizard sea real
+  y no solo interno a `hero3d.js`.
+- 🟢 2-3 paletas/geometrías alternativas para el hero 3D (ver `buildIcosahedron()` en
+  `hero3d.js` y `Hero3D.tsx`) para que no todas las webs "tech" generadas se vean con
+  la misma figura — sigue pendiente del backlog anterior.
+- 🟢 Aplicar el mismo guard de gama baja (`hardwareConcurrency`) a las animaciones
+  framer-motion de `Motion.tsx` si en el futuro se añaden más efectos costosos ahí;
+  de momento `prefers-reduced-motion` ya las cubre, pero CPU baja + móvil es un caso
+  distinto que el hero 3D ya maneja (`Hero3D.tsx`) y que Motion.tsx aún no considera.
+- 🟢 Skeleton/loading state consistente para las tarjetas de `Templates/Index.tsx`
+  mientras cargan las miniaturas (hoy no hay placeholder, solo aparecen de golpe).

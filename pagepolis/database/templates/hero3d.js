@@ -31,6 +31,22 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Gama baja: pocos núcleos de CPU suele ir de la mano de GPU débil y batería
+     pequeña. Con 3-4 núcleos reducimos figuras y resolución; con 1-2, mejor
+     no arrancar WebGL y dejar el fondo con degradado (base.css). */
+  function cpuCores() {
+    var c = navigator.hardwareConcurrency;
+    return typeof c === 'number' && c > 0 ? c : null;
+  }
+  function isLowEnd() {
+    var c = cpuCores();
+    return c !== null && c <= 4;
+  }
+  function isVeryLowEnd() {
+    var c = cpuCores();
+    return c !== null && c <= 2;
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -179,7 +195,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = isLowEnd() ? 3 : 6 + Math.round(Math.random() * 2);
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -199,6 +215,7 @@
   }
 
   function initCanvas(canvas) {
+    if (isVeryLowEnd()) { canvas.style.display = 'none'; return; }
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {
@@ -214,7 +231,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, isLowEnd() ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
