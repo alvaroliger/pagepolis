@@ -48,8 +48,14 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ⏳ Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
+  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo
+  — **ya implementado en la rama `feature/hero3d-low-end-device-perf` (PR abierto, aún sin
+  mergear a master)**: no reimplementar, solo hace falta revisar/mergear ese PR.
+- ✅ **Wizard: elegir explícitamente hero clásico o 3D** en vez de que decida solo la IA
+  — 5º paso en `Create/Index.tsx` ("Que decida la IA" / "Clásico" / "3D interactivo") que
+  viaja como `hero_style` hasta `ProjectController::buildPrompt()`, donde sobrescribe con
+  una instrucción explícita el criterio por categoría de `AnthropicService`.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -83,6 +89,14 @@ no abras PR.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-21)
+- Wizard de creación con IA: nuevo paso explícito "Que decida la IA / Clásico / 3D
+  interactivo" para el hero de la portada (`Create/Index.tsx` + `ProjectController`), en
+  vez de dejarlo por completo al criterio implícito por categoría de negocio del prompt
+  de `AnthropicService`. Por defecto sigue siendo "que decida la IA" (mismo comportamiento
+  de siempre) — el cliente solo lo toca si quiere forzar uno u otro. 3 tests nuevos
+  (247/247 verdes), `npm run build` OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
@@ -107,3 +121,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 **Mini-preview en vivo del paso "hero clásico vs 3D"** del wizard (`Create/Index.tsx`)
+  — hoy solo son 3 botones con texto; un pequeño `<canvas>` con el motor `Hero3D.tsx` de
+  fondo (o un screenshot estático) al lado de la opción "3D interactivo" ayudaría a que el
+  cliente entienda qué está eligiendo antes de esperar 1-3 min a la generación.
+- 🟢 **Persistir `hero_style` en el proyecto** (columna nullable en `projects`, o dentro de
+  `ai_history`) para poder mostrarlo/editarlo después en el editor sin tener que releer el
+  HTML generado — hoy la elección del wizard solo vive de forma transitoria en el prompt
+  enviado a la IA.
+- 🟢 Enlace cruzado entre la galería de plantillas (`Pages/Templates/Index.tsx`) y el
+  wizard de creación con IA (`Pages/Create/Index.tsx`) — hoy son dos flujos desconectados;
+  un cliente que llega a uno no descubre fácilmente el otro.
+- 🟢 Auditar accesibilidad/responsive de `Create/Index.tsx` y `Templates/Index.tsx`
+  (contraste de los botones de estilo/hero, foco visible con teclado, tamaño táctil en
+  móvil de las tarjetas de plantilla).
+- 🟢 Revisar/mergear el PR de `feature/hero3d-low-end-device-perf` (guardia de rendimiento
+  del hero 3D en gama baja) — ver nota en "Diseño / nivel visual" más arriba.
