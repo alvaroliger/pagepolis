@@ -16,6 +16,7 @@ interface Template {
     uses_count: number;
     html: string;
     css: string;
+    js: string;
 }
 
 interface Props {
@@ -45,6 +46,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
 
     const filtered = filter === 'Todos' ? templates : templates.filter(t => t.category === filter);
     const previewTemplate = templates.find(t => t.id === previewId);
+    const is3D = (t: Template) => t.html.includes('hero3d-canvas');
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -114,6 +116,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                         PRO
                                     </span>
                                 )}
+                                {is3D(template) && (
+                                    <span className="absolute top-2 left-2 bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-full z-10">
+                                        ✨ 3D
+                                    </span>
+                                )}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-semibold bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
                                         Vista previa
@@ -180,7 +187,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             </div>
                         </div>
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${PREVIEW_GUARD}<\/script></body></html>`}
+                            srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${previewTemplate.css}</style></head><body>${previewTemplate.html}<script>${previewTemplate.js}<\/script><script>${PREVIEW_GUARD}<\/script></body></html>`}
                             sandbox="allow-scripts"
                             className="flex-1 w-full border-0 min-h-0"
                             title={previewTemplate.name}
