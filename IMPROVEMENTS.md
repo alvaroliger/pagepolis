@@ -48,6 +48,12 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
+- ✅ **Vista previa real de plantillas** — el modal "Vista previa" de la galería ahora
+  incluye el JS de la plantilla (antes solo html+css), así que el hero 3D WebGL, el
+  tilt de tarjetas, el FAQ desplegable y el resto de interactividad se ven exactamente
+  igual que en la web publicada. Insignia "✨ 3D" en las 6 plantillas con hero 3D para
+  identificarlas de un vistazo en la galería, sin necesidad de abrir el preview
+  (`TemplateController`, `Templates/Index.tsx`).
 - 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
   nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
@@ -107,3 +113,19 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Filtro "✨ Solo 3D" en la galería de plantillas (`Templates/Index.tsx`), ahora que
+  las tarjetas ya llevan la insignia 3D — mismo patrón que el filtro de categorías
+  existente, para que un cliente que quiere una web "efecto agencia" las encuentre
+  sin tener que abrir cada preview.
+- 🟢 La tarjeta de la galería (miniatura pequeña) sigue siendo estática (sin JS) por
+  rendimiento — sería razonable, tras auditar FPS/batería (ítem ya en backlog), activar
+  el hero 3D solo en la tarjeta que el usuario tiene el ratón encima (`:hover`), no en
+  las 12 a la vez.
+- 🟢 El wizard de creación por IA (`Pages/Create/Index.tsx`) no ofrece ninguna elección
+  de plantilla ni de "Simple vs 3D" — todo lo decide el backend. Añadir un paso (o
+  checkbox) "quiero un hero 3D interactivo" que se pase a `AnthropicService` para que
+  la IA elija entre plantilla base clásica o una de las 6 con hero 3D — hoy es la única
+  vía (galería manual) para acceder a una plantilla 3D.
+- 🟡 Plantillas 100% nuevas pensadas para 3D desde cero (no las 6 heros reutilizados)
+  — p.ej. producto en 3D real (react-three-fiber) para tienda/inmobiliaria — decisión
+  de alcance/coste de Álvaro antes de construir.
