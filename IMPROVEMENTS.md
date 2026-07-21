@@ -6,6 +6,28 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ AVISO DE COORDINACIÓN (2026-07-21, leer antes de elegir ítem)
+El repo tiene **~150 ramas remotas** y **~50+ PRs abiertas sin fusionar**. `git branch -r`
+por sí solo puede no reflejarlas todas si el remoto no está completamente fetcheado
+(pasó en esta sesión: `git branch -r` mostró solo `master` hasta ejecutar
+`git fetch origin --prune`). Antes de elegir ítem, en este orden:
+1. `git fetch origin --prune && git branch -r` (fetch explícito primero, no fiarse de la
+   caché local).
+2. Revisar las PRs abiertas del repo por título con las tools de GitHub
+   (`list_pull_requests`/`search_pull_requests`, paginando — hay más de 50), no solo el log
+   de `master`. La sección "✅ hecho" de este archivo solo refleja lo fusionado a `master`;
+   una idea puede estar ✅ pendiente-de-fusión en 3-5 ramas distintas sin que este archivo
+   lo muestre.
+3. Ejemplo real de esta sesión: "rendimiento del hero 3D en gama baja" tiene **al menos 7
+   ramas/PRs** ya implementándolo casi idéntico (`perf/hero3d-low-end-throttle`,
+   `perf/hero3d-low-end-device-tier`, `perf/hero3d-low-end-devices`,
+   `perf/hero3d-low-end-mobile`, `perf/hero3d-low-end-power-devices`,
+   `feat/hero3d-low-end-device-perf`, PR #45, PR #90…). Si vas a tocar ese ítem, no lo
+   hagas sin fusionar antes al menos una de esas ramas.
+4. Si tras revisar sigue habiendo dudas de solape, prioriza un ítem con searches de código
+   real (grep del feature/endpoint/componente en cuestión) en vez de fiarte solo del título
+   del backlog.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -34,6 +56,12 @@ no abras PR.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Enlace de vista previa en las tarjetas de proyecto sin publicar** — `DashboardController`
+  ya calculaba `preview_url` (ruta `projects.preview`) para cada proyecto, pero
+  `ProjectCard` nunca lo usaba: un borrador solo se podía ver abriendo el editor completo
+  (bundle de CodeMirror + chat IA). Ahora hay un botón icono "Vista previa" (ojo) junto a
+  "Publicar" que abre `preview_url` en pestaña nueva. Cambio solo de frontend (el dato ya
+  lo mandaba el backend), sin tests nuevos necesarios.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
@@ -47,9 +75,11 @@ no abras PR.
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base. ⚠️ Ya hay
+  varias ramas/PRs abiertas para esto (#46, #57, #79 y más) — fusionar una antes de tocarlo.
+- ⚠️ Auditar rendimiento del hero 3D en móviles de gama baja — **NO coger este ítem**: ya
+  hay ≥7 ramas/PRs casi idénticas sin fusionar (ver aviso de coordinación arriba). Fusionar
+  una de ellas antes de que este ítem cuente como pendiente otra vez.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +137,13 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Gráfico de visitas diarias en Analítica (`resources/js/Pages/Analytics/Index.tsx`) —
+  el tooltip con la cifra exacta por día solo aparece con `group-hover`, así que en
+  móvil/tablet (donde no hay hover) nunca se ve el número, solo la altura relativa de la
+  barra. Añadir `onClick`/`onTouchStart` para fijar el tooltip, o mostrar el número siempre
+  que haya espacio. (Distinto del ítem de accesibilidad por teclado del mismo gráfico, que
+  ya tiene PR: aquí el problema es táctil, no de foco/lector de pantalla.)
+- 🟡 Insignia "PRO" en `resources/js/Pages/Templates/Index.tsx` sin gating real: cualquier
+  usuario autenticado puede crear un proyecto desde una plantilla marcada `is_premium` sin
+  que `ProjectController@store` lo compruebe — la insignia promete una restricción que no
+  existe. Marcado 🟡 porque implica decidir el mensaje/upsell de bloqueo, no solo el fix técnico.
