@@ -106,6 +106,51 @@ class SmokeTest extends TestCase
         Queue::assertPushed(GenerateWebsiteJob::class);
     }
 
+    /** El wizard deja elegir explícitamente hero 3D en vez de dejarlo a criterio de la IA. */
+    public function test_wizard_hero_style_3d_reaches_the_ai_prompt(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'hero_style'    => '3d',
+        ])->assertOk()->assertJson(['success' => true]);
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function (GenerateWebsiteJob $job) {
+            return str_contains($job->input, 'hero3d-canvas') && str_contains($job->input, 'SIEMPRE');
+        });
+    }
+
+    /** Y también el opuesto: forzar hero clásico, sin canvas 3D. */
+    public function test_wizard_hero_style_classic_reaches_the_ai_prompt(): void
+    {
+        Queue::fake();
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Estudio SaaS',
+            'description'   => 'Software de gestión para pymes.',
+            'hero_style'    => 'classic',
+        ])->assertOk()->assertJson(['success' => true]);
+
+        Queue::assertPushed(GenerateWebsiteJob::class, function (GenerateWebsiteJob $job) {
+            return str_contains($job->input, 'NO incluyas ningún <canvas> 3D');
+        });
+    }
+
+    public function test_wizard_rejects_invalid_hero_style(): void
+    {
+        $user = $this->user();
+
+        $this->actingAs($user)->postJson('/crear-con-ia', [
+            'business_name' => 'Panadería La Espiga',
+            'description'   => 'Pan artesano y bollería en Sevilla.',
+            'hero_style'    => 'invalido',
+        ])->assertStatus(422);
+    }
+
     public function test_generate_endpoint_queues_job(): void
     {
         Queue::fake();

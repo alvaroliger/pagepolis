@@ -8,12 +8,15 @@ import { FadeIn } from '@/Components/Motion';
 const STYLES  = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
 const DESC_MAX = 1000;
 
+type HeroStyle = 'auto' | 'classic' | '3d';
+
 export default function CreateWizard() {
     const [businessName, setBusinessName] = useState('');
     const [description, setDescription]   = useState('');
     const [sells, setSells]               = useState(false);
     const [whatsapp, setWhatsapp]         = useState('');
     const [style, setStyle]               = useState('Moderno');
+    const [heroStyle, setHeroStyle]       = useState<HeroStyle>('auto');
     const [location, setLocation]         = useState('');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
@@ -43,6 +46,7 @@ export default function CreateWizard() {
                 whatsapp: sells ? whatsapp : null,
                 style,
                 location,
+                hero_style: heroStyle === 'auto' ? null : heroStyle,
             });
             if (data.success) {
                 router.visit(data.redirect);   // el editor muestra el progreso
@@ -57,7 +61,7 @@ export default function CreateWizard() {
         <AuthenticatedLayout header={
             <div>
                 <h1 className="text-2xl font-bold text-white">Crea tu web con IA</h1>
-                <p className="text-gray-400 text-sm mt-1">Responde 4 preguntas y la inteligencia artificial construye tu web entera.</p>
+                <p className="text-gray-400 text-sm mt-1">Responde 5 preguntas y la inteligencia artificial construye tu web entera.</p>
             </div>
         }>
             <Head title="Crear web con IA" />
@@ -159,6 +163,37 @@ export default function CreateWizard() {
                                 placeholder="Ej: Sevilla"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-600"
                             />
+                        </div>
+                    </div>
+
+                    {/* 5. Tipo de hero: clásico vs 3D */}
+                    <div>
+                        <label className="block text-sm font-semibold text-white mb-2">5. ¿Qué estilo de hero prefieres para la portada?</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setHeroStyle('auto')}
+                                className={`text-left p-3.5 rounded-xl border transition ${heroStyle === 'auto' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                            >
+                                <span className="block text-sm font-semibold">🤖 Que decida la IA</span>
+                                <span className={`block text-xs mt-1 ${heroStyle === 'auto' ? 'text-violet-100' : 'text-gray-500'}`}>Recomendado según tu tipo de negocio</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setHeroStyle('classic')}
+                                className={`text-left p-3.5 rounded-xl border transition ${heroStyle === 'classic' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                            >
+                                <span className="block text-sm font-semibold">🖼️ Clásico</span>
+                                <span className={`block text-xs mt-1 ${heroStyle === 'classic' ? 'text-violet-100' : 'text-gray-500'}`}>Foto o imagen potente como protagonista</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setHeroStyle('3d')}
+                                className={`text-left p-3.5 rounded-xl border transition ${heroStyle === '3d' ? 'bg-violet-600 border-violet-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'}`}
+                            >
+                                <span className="block text-sm font-semibold">✨ 3D interactivo</span>
+                                <span className={`block text-xs mt-1 ${heroStyle === '3d' ? 'text-violet-100' : 'text-gray-500'}`}>Figuras WebGL animadas, nivel agencia premium</span>
+                            </button>
                         </div>
                     </div>
 

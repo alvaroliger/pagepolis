@@ -26,6 +26,7 @@ class ProjectController extends Controller
             'whatsapp'      => 'nullable|string|max:30',
             'style'         => 'nullable|string|max:40',
             'location'      => 'nullable|string|max:80',
+            'hero_style'    => 'nullable|in:classic,3d',
         ]);
 
         $user = auth()->user();
@@ -77,6 +78,11 @@ class ProjectController extends Controller
         }
         if (!empty($d['style'])) {
             $p .= "Estilo visual preferido: {$d['style']}.\n";
+        }
+        if (($d['hero_style'] ?? null) === '3d') {
+            $p .= "IMPORTANTE: el cliente ha elegido explícitamente un hero 3D interactivo. Usa SIEMPRE en la sección principal un <canvas class=\"hero3d-canvas\" data-hero3d aria-hidden=\"true\">, sea cual sea el rubro del negocio.\n";
+        } elseif (($d['hero_style'] ?? null) === 'classic') {
+            $p .= "IMPORTANTE: el cliente ha elegido explícitamente un hero clásico. NO incluyas ningún <canvas> 3D/WebGL en el hero: usa una imagen o foto potente como protagonista.\n";
         }
 
         return trim($p);
