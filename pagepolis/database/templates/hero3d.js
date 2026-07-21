@@ -31,6 +31,18 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* ── Nivel de gama del dispositivo (CPU/RAM) para no reventar FPS/batería
+     en móviles modestos. hardwareConcurrency y deviceMemory son señales
+     imperfectas pero suficientes: 'veryLow' desactiva el hero3D del todo,
+     'low' lo mantiene pero con menos figuras, sin antialias y a 1x DPR. ── */
+  function deviceTier() {
+    var cores = navigator.hardwareConcurrency || 8;
+    var mem = navigator.deviceMemory; // undefined en iOS/Firefox: se ignora
+    if (cores <= 2 || (mem !== undefined && mem <= 2)) return 'veryLow';
+    if (cores <= 4 || (mem !== undefined && mem <= 4)) return 'low';
+    return 'normal';
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -139,9 +151,9 @@
     return sh;
   }
 
-  function setupScene(canvas) {
-    var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
-      || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
+  function setupScene(canvas, tier) {
+    var ctxOpts = { alpha: true, antialias: tier !== 'low' };
+    var gl = canvas.getContext('webgl', ctxOpts) || canvas.getContext('experimental-webgl', ctxOpts);
     if (!gl) { canvas.style.display = 'none'; return null; }
 
     var program = gl.createProgram();
@@ -179,7 +191,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = tier === 'low' ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -200,9 +212,11 @@
 
   function initCanvas(canvas) {
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var tier = deviceTier();
+    if (tier === 'veryLow') { canvas.style.display = 'none'; return; }
     var scene;
     try {
-      scene = setupScene(canvas);
+      scene = setupScene(canvas, tier);
     } catch (e) {
       canvas.style.display = 'none';
       return;
@@ -214,7 +228,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, tier === 'low' ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

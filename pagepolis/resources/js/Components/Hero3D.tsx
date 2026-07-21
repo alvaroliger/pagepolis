@@ -128,6 +128,19 @@ function compile(gl: WebGLRenderingContext, type: number, src: string): WebGLSha
     return sh;
 }
 
+/* Nivel de gama del dispositivo (CPU/RAM), igual criterio que
+ * database/templates/hero3d.js: 'veryLow' desactiva el hero3D del todo,
+ * 'low' lo mantiene con menos figuras, sin antialias y a 1x DPR. */
+type DeviceTier = 'veryLow' | 'low' | 'normal';
+
+function deviceTier(): DeviceTier {
+    const cores = navigator.hardwareConcurrency || 8;
+    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if (cores <= 2 || (mem !== undefined && mem <= 2)) return 'veryLow';
+    if (cores <= 4 || (mem !== undefined && mem <= 4)) return 'low';
+    return 'normal';
+}
+
 export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], count = 7 }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -135,10 +148,14 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const canvas = canvasRef.current;
         if (!canvas) return;
 
+        const tier = deviceTier();
+        if (tier === 'veryLow') { canvas.style.display = 'none'; return; }
+
         let gl: WebGLRenderingContext | null = null;
         try {
-            gl = (canvas.getContext('webgl', { alpha: true, antialias: true })
-                || canvas.getContext('experimental-webgl', { alpha: true, antialias: true })) as WebGLRenderingContext | null;
+            const ctxOpts = { alpha: true, antialias: tier !== 'low' };
+            gl = (canvas.getContext('webgl', ctxOpts)
+                || canvas.getContext('experimental-webgl', ctxOpts)) as WebGLRenderingContext | null;
         } catch { /* sin WebGL */ }
         if (!gl) { canvas.style.display = 'none'; return; }
 
@@ -182,7 +199,8 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
         const uProj = gl.getUniformLocation(program, 'uProj');
         const uColor = gl.getUniformLocation(program, 'uColor');
 
-        const shapes = Array.from({ length: count }, () => ({
+        const shapeCount = tier === 'low' ? Math.min(count, 4) : count;
+        const shapes = Array.from({ length: shapeCount }, () => ({
             x: (Math.random() * 2 - 1) * 3.6,
             y: (Math.random() * 2 - 1) * 2.2,
             z: -6 - Math.random() * 9,
@@ -203,7 +221,7 @@ export default function Hero3D({ className = '', color = [0.545, 0.361, 0.965], 
 
         function resize() {
             const g = gl!;
-            const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+            const dpr = Math.min(window.devicePixelRatio || 1, tier === 'low' ? 1 : 1.75);
             const w = canvas!.clientWidth || canvas!.parentElement?.clientWidth || 300;
             const h = canvas!.clientHeight || canvas!.parentElement?.clientHeight || 300;
             const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));

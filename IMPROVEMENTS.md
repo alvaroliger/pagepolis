@@ -48,8 +48,11 @@ no abras PR.
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
 - 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
   "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ✅ **Auditar rendimiento del hero 3D en móviles de gama baja** — `deviceTier()` en
+  `hero3d.js` y `Hero3D.tsx` mide `navigator.hardwareConcurrency`/`deviceMemory`: gama muy
+  baja (≤2 núcleos o ≤2 GB) desactiva el canvas WebGL del todo antes de crearlo, gama baja
+  (≤4 núcleos o ≤4 GB) reduce figuras (6-8→3-4), quita antialias y limita el DPR a 1x en
+  vez de 1.75x. Mismo criterio en ambos motores (plantillas generadas + la propia app).
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -107,3 +110,12 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Elección "Simple | 3D" explícita en el wizard de creación de sitio — hoy el hero 3D
+  se decide solo por el prompt/tipo de negocio en `AnthropicService`; dar al cliente un
+  selector visible (con preview de cada opción) en el paso de plantilla del wizard.
+- 🟢 Extender el criterio de `deviceTier()` (ya en `hero3d.js`/`Hero3D.tsx`) a `tilt-3d`:
+  en gama baja, desactivar o suavizar el listener de `mousemove` que calcula la
+  inclinación de las tarjetas (recalcula transform en cada evento; en un móvil de gama
+  baja con muchas tarjetas `tilt-3d` en pantalla puede notarse igual que el hero).
+- 🟢 Skeleton/estado de carga dedicado para la vista previa de plantillas del wizard
+  (el iframe tarda en pintar tras el fix del modal diminuto; hoy no hay placeholder).
