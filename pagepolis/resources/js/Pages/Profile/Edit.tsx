@@ -60,6 +60,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             <input
                                 value={data.name}
                                 onChange={e => setData('name', e.target.value)}
+                                autoComplete="name"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                             />
                             {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
@@ -70,6 +71,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                                 type="email"
                                 value={data.email}
                                 onChange={e => setData('email', e.target.value)}
+                                autoComplete="email"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                             />
                             {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
@@ -80,6 +82,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                                 type="tel"
                                 value={data.whatsapp_phone}
                                 onChange={e => setData('whatsapp_phone', e.target.value)}
+                                autoComplete="tel"
                                 placeholder="+34 612 345 678"
                                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                             />
@@ -110,6 +113,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                                     type="password"
                                     value={pwData[field]}
                                     onChange={e => setPwData(field, e.target.value)}
+                                    autoComplete={field === 'current_password' ? 'current-password' : 'new-password'}
                                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
                                 />
                                 {pwErrors[field] && <p className="mt-1 text-sm text-red-400">{pwErrors[field]}</p>}
@@ -145,6 +149,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                             type="password"
                             value={delData.password}
                             onChange={e => setDelData('password', e.target.value)}
+                            autoComplete="current-password"
                             placeholder="Confirma tu contraseña"
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500"
                         />

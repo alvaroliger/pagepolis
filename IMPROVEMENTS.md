@@ -6,6 +6,14 @@ verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no toc
 
 Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
 
+## ⚠️ Antes de elegir ítem: revisa las PRs abiertas, no solo `git branch -r`
+`git branch -r` sin un `git fetch origin --prune` previo NO muestra todas las ramas remotas
+(hay decenas). Varias sesiones han reimplementado trabajo ya hecho por no comprobarlo.
+Antes de tocar código: `mcp__github__list_pull_requests` (owner=alvaroliger,
+repo=pagepolis, state=open, perPage=100) y lee título + `head.ref` de **todas** las PRs
+abiertas (a fecha 2026-07-21 había 54, numeradas #44-#98). Descarta cualquier ítem cuyo
+tema ya esté cubierto por una de ellas, aunque el título esté en otras palabras.
+
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
 general a ingresos:
@@ -73,6 +81,9 @@ no abras PR.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- 🟢 Formularios sin `autoComplete`/asociación label-input fuera de auth (revisar
+  `Publish/Index.tsx`, `Billing/*` y el wizard) — `Profile/Edit.tsx` ya arreglado (PR #98),
+  usa esa convención (`autoComplete="name"/"email"/"tel"/"current-password"/"new-password"`).
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
@@ -104,6 +115,19 @@ no abras PR.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## Hecho recientemente (2026-07-21)
+- Autocompletado del navegador corregido en `/perfil` (Datos personales, Cambiar
+  contraseña, Eliminar cuenta): sin `autoComplete`, los gestores de contraseñas podían
+  rellenar mal los tres campos de contraseña consecutivos. PR #98.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟢 Auditar `autoComplete`/asociación de labels en el resto de formularios fuera de auth y
+  perfil (publicación de dominio, billing, wizard) — ver ítem en "Calidad" arriba.
+- 🟢 El backlog de "Diseño / nivel visual" (variantes hero 3D, throttle gama baja, selector
+  Simple/3D en wizard y galería) ya tiene PR abierta para cada ítem — revisa la lista de PRs
+  abiertas antes de tocar `hero3d.js`/`Hero3D.tsx`/galería de plantillas: casi todo el track
+  A ya está en vuelo, así que la próxima mejora "clara" de ese área puede requerir explorar
+  el código real (no solo el backlog) para encontrar un hueco genuino, como se hizo para
+  encontrar el ítem de `/perfil` de arriba.
