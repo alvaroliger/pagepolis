@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
 import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
@@ -142,9 +142,17 @@ export default function PublishIndex({ project, baseDomain }: Props) {
             <Head title="Publicar" />
 
             <div className="max-w-2xl mx-auto px-4 py-10">
-                {project && (
+                {project ? (
                     <div className="mb-6 p-3 bg-violet-900/20 border border-violet-800/30 rounded-xl text-sm text-gray-300">
                         Publicando: <strong className="text-white">{project.name}</strong>
+                    </div>
+                ) : (
+                    <div className="mb-6 p-3 bg-yellow-900/20 border border-yellow-800/30 rounded-xl text-sm text-yellow-300">
+                        No hay ningún proyecto seleccionado.{' '}
+                        <Link href="/dashboard" className="underline font-semibold hover:text-yellow-200">
+                            Vuelve al panel
+                        </Link>{' '}
+                        y elige "Publicar" desde tu web.
                     </div>
                 )}
 
@@ -261,8 +269,8 @@ export default function PublishIndex({ project, baseDomain }: Props) {
 
                                 {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
                                 <button
-                                    onClick={project ? reserveDomain : () => setStep(2)}
-                                    disabled={loading || (tier === 'subdomain' ? !subdomain : !customDomain)}
+                                    onClick={reserveDomain}
+                                    disabled={loading || !project || (tier === 'subdomain' ? !subdomain : !customDomain)}
                                     className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-colors"
                                 >
                                     {loading ? 'Reservando…' : 'Continuar →'}

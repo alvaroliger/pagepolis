@@ -4,7 +4,19 @@ Roadmap vivo del agente de auto-mejora. La app Laravel está en **`pagepolis/`**
 Regla: coge **1** ítem no bloqueado de mayor valor, impleméntalo en una **rama nueva**, deja los tests
 verdes (`cd pagepolis && php artisan test`), abre **PR**. **No desplegar, no tocar `main`.**
 
-Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho
+Leyenda: 🟢 listo · 🟡 decisión de Álvaro · 🔵 grande · ✅ hecho · ⏳ ya tiene PR(s) abierta(s) sin fusionar
+
+## ⚠️ Aviso de coordinación (2026-07-21)
+Hay **48 PRs abiertas** (#44–#91) sin fusionar desde la integración del 2026-07-03 —
+ninguna sesión desde entonces las ha mergeado. Varias mejoras están duplicadas 3-4
+veces (p.ej. variantes de geometría del hero 3D: #46, #57, #79, y una 4ª rama
+`feature/hero3d-shape-variants` sin PR asociada; filtro/badge 3D de la galería de
+plantillas: #44, #51, #67, #71, #75, #78, #89). `git branch -r` **no** basta para
+detectar esto — el remoto local puede no tener esas ramas fetcheadas. **Antes de
+elegir ítem, consulta las PRs abiertas del repo (API/MCP de GitHub, no solo git
+log/branch -r)** para no repetir trabajo ya enviado. Este documento marca `✅` solo
+lo que está en `master`; lo que ya tiene PR abierta pero sigue sin fusionar no se
+marca aquí para no dar una falsa sensación de "hecho".
 
 ## 🎯 FOCO DE LA SEMANA (encargo de Álvaro, 2026-07-03 → 2026-07-10)
 Álvaro está desconectado esta semana. Prioriza en este orden, por encima del sesgo
@@ -26,6 +38,19 @@ no abras PR.
 - 🔵 **Blog SEO** (motor de tráfico orgánico; cada artículo es un embudo).
 - 🟡 Claim "X% más barato / traspasa tu web" — solo cuando exista la cifra/feature (no inventar).
 - ✅ Secuencia de email post-registro (bienvenida + nudge de publicación programado).
+- ✅ **Fix: el flujo de publicación podía cobrar sin entregar dominio** — el checklist de
+  onboarding ("Publica tu web" / "Conecta tu dominio propio") y el banner "Ver planes" del
+  Dashboard enlazaban a `/publicar` **sin `project_id`**. Sin proyecto, el botón
+  "Continuar →" de `Publish/Index.tsx` saltaba en silencio al paso de pago sin llamar a
+  `reserveDomain()`, así que nunca se creaba el `Domain` "pending" que el webhook de
+  Stripe (`HandleStripeWebhook::provisionPendingDomain`) necesita para provisionar tras el
+  cobro — el cliente podía acabar pagando una suscripción sin que se le comprara ni
+  desplegara ningún dominio. Arreglado: los enlaces del Dashboard y los dos avisos de
+  cuota de IA agotada del Editor (`Editor/Index.tsx`, que ya sabía el `project.id` — solo
+  no lo pasaba en el enlace) ahora incluyen `project_id`, y el botón "Continuar →" de
+  `Publish/Index.tsx` queda deshabilitado (con aviso) si no hay proyecto en vez de saltar
+  el paso. 3 tests nuevos (`PublishControllerTest`) fijan el contrato del que depende el
+  front.
 
 ## Producto
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
@@ -46,10 +71,13 @@ no abras PR.
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
   tienda, cafetería, belleza y clínica se dejan a propósito sin figuras 3D (heroes con
   foto/producto como protagonista; ya tienen el mesh-gradient sutil de `base.css`).
-- 🟢 Variantes del hero 3D (2-3 geometrías/paletas distintas) para que no todas las webs
-  "tech" se vean idénticas — ver `buildIcosahedron()` en `hero3d.js` como base.
-- 🟢 Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) y bajar el
-  nº de figuras o desactivarlo automáticamente si `navigator.hardwareConcurrency` es bajo.
+- ⏳ Variantes del hero 3D (2-3 geometrías/paletas distintas) — **ya tiene PRs abiertas
+  sin fusionar** (#46 `hero3d-variants`, #57 `hero3d-geometry-variants`, #79
+  `hero3d-geometry-palette-variants`): no reimplementar hasta que Álvaro fusione una y
+  cierre las demás.
+- ⏳ Auditar rendimiento del hero 3D en móviles de gama baja (FPS, batería) — **ya tiene
+  PRs abiertas** (#45 `perf/hero3d-low-end-throttle`, #90
+  `feature/hero3d-low-end-device-guard`): no reimplementar.
 - 🟡 Vídeo/GIF comparativo "antes (plantilla clásica) / después (hero 3D)" para la landing
   y el paso de plantillas del wizard — ayuda a vender el nivel de diseño.
 - ✅ **Criterio "agencia premium" en la propia app** — hero 3D WebGL propio portado a React
@@ -76,7 +104,9 @@ no abras PR.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
-- 🟢 Revisar accesibilidad/responsive de las páginas nuevas.
+- ⏳ Revisar accesibilidad/responsive de las páginas nuevas — **ya cubierto por varias
+  PRs abiertas** (#48, #52, #53, #54, #55, #58, #59, #81, #84, #87): revisar el estado
+  de esas PRs antes de abrir una más sobre el mismo tema.
 - ✅ **Prompt caching de Anthropic** — el bloque `system` va ahora con `cache_control:
   ephemeral` en `AnthropicService::requestText` (lecturas de caché a ~10% del precio;
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
@@ -107,3 +137,15 @@ no abras PR.
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
+- 🟡 **Fusionar/cerrar el backlog de 48 PRs abiertas** — decisión de Álvaro, no de una
+  sesión de auto-mejora: hay trabajo terminado y verificado (tests + build en verde en
+  cada una) acumulando 18 días sin llegar a producción. Cuantas más se acumulen, más
+  conflictos de merge y más difícil la integración (ver el aviso de coordinación arriba).
+- 🟢 En `DomainController::reserve` / `PublishController`, considerar validar de forma
+  más explícita que siempre hay un `project` antes de dejar avanzar el flujo de pago
+  (defensa adicional a la ya añadida en `Publish/Index.tsx`) — por ejemplo, que
+  `goToCheckout` rechace si no hay un dominio reservado en sesión/backend, no solo el
+  front. Relacionado con el fix de `project_id` perdido de esta sesión.
+- ✅ Comprobado (esta sesión): los emails transaccionales no enlazan a `/publicar`
+  directamente (`nudge-publish.blade.php` enlaza a `/dashboard`), así que no repiten el
+  bug de `project_id` perdido arreglado arriba.
