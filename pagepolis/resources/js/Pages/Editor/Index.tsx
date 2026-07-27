@@ -42,6 +42,7 @@ interface Project {
     css: string;
     js: string;
     ai_history: ChatMessage[];
+    can_undo: boolean;
     seo_meta: { title?: string; description?: string; keywords?: string } | null;
     status: string;
     ai_status?: string | null;
@@ -147,6 +148,8 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [usedToday, setUsedToday] = useState(aiUsage.used);
     const [images, setImages]       = useState<File[]>([]);
     const [simpleMode, setSimpleMode] = useState(true);   // el usuario no ve código por defecto
+    const [canUndo, setCanUndo]     = useState(project.can_undo);
+    const [undoing, setUndoing]     = useState(false);
 
     const iframeRef  = useRef<HTMLIFrameElement>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
@@ -219,6 +222,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                 if (data.status === 'ready') {
                     setHtml(data.html); setCss(data.css); setJs(data.js ?? '');
                     setDirty(true);
+                    setCanUndo(data.type === 'update');
                     setMessages(prev => [...prev, {
                         role: 'assistant',
                         content: data.description ?? 'Listo.',
@@ -337,6 +341,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                 // Cambio resuelto en local, al instante y SIN gastar IA.
                 setHtml(res.data.html); setCss(res.data.css); setJs(res.data.js ?? '');
                 setDirty(true);
+                if ((res.data.changed ?? []).length > 0) setCanUndo(true);
                 setMessages(prev => [...prev, {
                     role: 'assistant',
                     content: res.data.description ?? 'Hecho.',
@@ -357,6 +362,28 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             setAiLoading(false);
             setProgress('');
         }
+    };
+
+    const undoLastAiChange = () => {
+        if (!canUndo || undoing) return;
+        setConfirmModal({
+            message: 'Se restaurará la web a como estaba antes del último cambio de la IA. Los cambios hechos después (manuales o de la IA) se perderán. ¿Continuar?',
+            onConfirm: async () => {
+                setConfirmModal(null);
+                setUndoing(true);
+                try {
+                    const { data } = await axios.post('/ai/deshacer', { project_id: project.id });
+                    setHtml(data.html); setCss(data.css); setJs(data.js ?? '');
+                    setCanUndo(false);
+                    setDirty(true);
+                    toast.success('Cambio deshecho');
+                } catch (err: any) {
+                    toast.error(err.response?.data?.error ?? 'No se pudo deshacer. Inténtalo de nuevo.');
+                } finally {
+                    setUndoing(false);
+                }
+            },
+        });
     };
 
     const currentValue = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
@@ -396,6 +423,16 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
+                    {canUndo && (
+                        <button
+                            onClick={undoLastAiChange}
+                            disabled={undoing || aiLoading}
+                            title="Deshace el último cambio de la IA sobre esta web"
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:text-white border border-gray-700 transition-colors disabled:opacity-50"
+                        >
+                            {undoing ? 'Deshaciendo…' : '↩ Deshacer'}
+                        </button>
+                    )}
                     <button
                         onClick={generateSeo}
                         disabled={seoLoading || !html}

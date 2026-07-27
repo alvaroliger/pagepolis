@@ -66,7 +66,9 @@ class AiController extends Controller
         if (!$request->hasFile('images')) {
             $local = $router->handle($project, $request->instruction);
             if ($local !== null) {
-                $project->update([
+                $hasChange = !empty($local['changed']);
+
+                $project->update(array_merge([
                     'html'       => $local['html'],
                     'css'        => $local['css'],
                     'js'         => $local['js'],
@@ -74,10 +76,16 @@ class AiController extends Controller
                         ['role' => 'user', 'content' => $request->instruction, 'created_at' => now()->toISOString(), 'type' => 'update'],
                         ['role' => 'assistant', 'content' => $local['description'], 'created_at' => now()->toISOString(), 'type' => 'update', 'changed' => $local['changed'], 'instant' => true],
                     ]),
-                ]);
+                    // Snapshot para poder deshacer, solo cuando realmente cambia algo
+                    // (un mensaje de ayuda o una pregunta aclaratoria no cuenta).
+                ], $hasChange ? [
+                    'previous_html' => $project->html,
+                    'previous_css'  => $project->css,
+                    'previous_js'   => $project->js,
+                ] : []));
 
                 // Si cambió algo y está en dominio propio, refléjalo en internet.
-                if (!empty($local['changed'])) {
+                if ($hasChange) {
                     $project->deployToLiveDomain();
                 }
 
@@ -108,6 +116,40 @@ class AiController extends Controller
         GenerateWebsiteJob::dispatch($project->id, $user->id, 'update', $request->instruction, $this->storeImages($request));
 
         return response()->json(['success' => true, 'status' => 'generating']);
+    }
+
+    /**
+     * Deshace el último cambio de la IA (chat o instantáneo) sobre el proyecto,
+     * restaurando el HTML/CSS/JS de justo antes de aplicarlo. Gratis e ilimitado:
+     * no llama a la IA, solo restaura el snapshot guardado en `update()`.
+     */
+    public function undo(Request $request): JsonResponse
+    {
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+        ]);
+
+        $project = Project::where('id', $request->project_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        if ($project->ai_status === 'generating') {
+            return response()->json(['error' => 'Espera a que termine el cambio en curso antes de deshacer.'], 409);
+        }
+
+        if (!$project->canUndoAiChange()) {
+            return response()->json(['error' => 'No hay ningún cambio de la IA que deshacer.'], 422);
+        }
+
+        $project->undoAiChange();
+        $project->deployToLiveDomain();
+
+        return response()->json([
+            'success' => true,
+            'html'    => $project->html ?? '',
+            'css'     => $project->css ?? '',
+            'js'      => $project->js ?? '',
+        ]);
     }
 
     /**

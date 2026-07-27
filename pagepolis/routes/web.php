@@ -99,6 +99,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Sin ai.ratelimit: el controlador solo cuenta cuota si cae en la IA (los
     // cambios resueltos en local por IntentRouter son gratis e ilimitados).
     Route::post('/ai/actualizar', [AiController::class, 'update'])->name('ai.update');
+    // Deshacer no llama a la IA (solo restaura un snapshot local): sin rate-limit.
+    Route::post('/ai/deshacer', [AiController::class, 'undo'])->name('ai.undo');
     Route::post('/ai/seo', [AiController::class, 'seo'])
         ->middleware('ai.ratelimit')
         ->name('ai.seo');
