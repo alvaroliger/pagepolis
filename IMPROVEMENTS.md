@@ -226,6 +226,14 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   `Hero3D.tsx`): menos figuras, `devicePixelRatio` tope en 1x, sin antialiasing. Suite
   244/244 verde, build OK.
 
+## Hecho recientemente (2026-07-18)
+- Variantes de geometría/paleta para el hero 3D (`hero3d.js`): icosaedro, octaedro y cubo,
+  cada uno con su color (`--brand`/`--brand-2`) y balance de luz propio, elegidos de forma
+  determinista por sitio (hash de host) para que las webs "tech" dejen de verse clonadas.
+  Verificado en Playwright headless (WebGL vía swiftshader): las tres variantes renderizan
+  sin errores de consola y son visualmente distintas (capturas comparadas manualmente);
+  fallback `prefers-reduced-motion` comprobado igual. Suite 244/244 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la

@@ -26,12 +26,44 @@
         return [parseFloat(m[0]) / 255, parseFloat(m[1]) / 255, parseFloat(m[2]) / 255];
       }
     } catch (e) {}
-    return [0.486, 0.231, 0.929];
+    return null;
   }
 
-  function brandColor() {
-    var raw = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
-    return colorToRgb(raw || '#7c3aed');
+  function themeColor(varName, fallbackVarName) {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    var rgb = raw ? colorToRgb(raw) : null;
+    if (rgb) return rgb;
+    if (fallbackVarName) return themeColor(fallbackVarName, null);
+    return colorToRgb('#7c3aed') || [0.486, 0.231, 0.929];
+  }
+
+  /* ── Selección determinista de variante (geometría + paleta + shading) por
+     sitio, para que dos webs con el mismo motor no se vean idénticas. Se
+     deriva del host (o del título si no hay host, p.ej. previsualización en
+     blob:), así que una misma web siempre muestra la misma variante entre
+     visitas mientras que webs distintas tienden a diferir. ── */
+  function hashString(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = (h * 31 + str.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h);
+  }
+
+  var VARIANTS = [
+    { geometry: 'icosahedron', colorVar: '--brand',   colorFallback: null,      diffuseBase: 0.32, rimAmount: 0.55 },
+    { geometry: 'octahedron',  colorVar: '--brand-2', colorFallback: '--brand', diffuseBase: 0.24, rimAmount: 0.78 },
+    { geometry: 'cube',        colorVar: '--brand',   colorFallback: null,      diffuseBase: 0.4,  rimAmount: 0.4 }
+  ];
+
+  function pickVariant(canvas) {
+    var forced = canvas.getAttribute('data-hero3d-variant');
+    var idx = forced !== null ? parseInt(forced, 10) : NaN;
+    if (isNaN(idx) || idx < 0 || idx >= VARIANTS.length) {
+      var seed = (window.location && (window.location.hostname + window.location.pathname)) || document.title || 'pagepolis';
+      idx = hashString(seed) % VARIANTS.length;
+    }
+    return VARIANTS[idx];
   }
 
   /* Gama baja: pocos núcleos, poca RAM o modo "ahorro de datos" activado.
@@ -164,11 +196,13 @@
     'precision mediump float;',
     'varying vec3 vNormal;',
     'uniform vec3 uColor;',
+    'uniform float uDiffuseBase;',
+    'uniform float uRimAmount;',
     'void main(){',
     '  vec3 n = normalize(vNormal);',
     '  float diff = max(dot(n, normalize(vec3(0.4, 0.7, 0.6))), 0.0);',
     '  float rim = pow(1.0 - max(dot(n, vec3(0.0, 0.0, 1.0)), 0.0), 2.2);',
-    '  vec3 col = uColor * (0.32 + 0.68 * diff) + rim * uColor * 0.55;',
+    '  vec3 col = uColor * (uDiffuseBase + (1.0 - uDiffuseBase) * diff) + rim * uColor * uRimAmount;',
     '  gl_FragColor = vec4(col, 0.85);',
     '}'
   ].join('\n');
@@ -223,6 +257,8 @@
     var uView = gl.getUniformLocation(program, 'uView');
     var uProj = gl.getUniformLocation(program, 'uProj');
     var uColor = gl.getUniformLocation(program, 'uColor');
+    var uDiffuseBase = gl.getUniformLocation(program, 'uDiffuseBase');
+    var uRimAmount = gl.getUniformLocation(program, 'uRimAmount');
 
     var color = brandColor();
     var count = lowEnd ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
@@ -249,7 +285,7 @@
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {
-      scene = setupScene(canvas);
+      scene = setupScene(canvas, pickVariant(canvas));
     } catch (e) {
       canvas.style.display = 'none';
       return;
