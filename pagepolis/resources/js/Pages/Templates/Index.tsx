@@ -55,6 +55,15 @@ export default function TemplatesIndex({ templates, categories }: Props) {
     const previewTemplate = templates.find(t => t.id === previewId);
     const closePreview = () => setPreviewId(null);
 
+    useEffect(() => {
+        if (previewId === null) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setPreviewId(null);
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [previewId]);
+
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
         setCreating(templateId);
@@ -190,7 +199,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                         Vista previa
                                     </span>
                                 </div>
-                            </div>
+                            </button>
 
                             <div className="p-4">
                                 <div className="flex justify-between items-start mb-1">
@@ -251,7 +260,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                                 >
                                     Usar esta plantilla →
                                 </button>
-                                <button onClick={() => setPreviewId(null)} className="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                                <button onClick={() => setPreviewId(null)} aria-label="Cerrar vista previa" className="text-gray-500 hover:text-gray-700 text-xl font-bold">
                                     ×
                                 </button>
                             </div>

@@ -28,6 +28,9 @@ export default function LanguageSelector() {
         <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(o => !o)}
+                aria-label={current.label}
+                aria-haspopup="true"
+                aria-expanded={open}
                 className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-gray-800"
             >
                 <Flag code={current.code} size={20} />
