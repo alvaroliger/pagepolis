@@ -98,11 +98,52 @@ export default function Terms() {
 
             <LegalSection n={10} title="Disponibilidad y limitación de responsabilidad">
                 <p>
-                    El Servicio se presta “tal cual” y “según disponibilidad”. En la medida permitida
-                    por la ley, no seremos responsables de daños indirectos, pérdida de beneficios o
-                    de datos derivados del uso o imposibilidad de uso del Servicio. Realizamos
-                    esfuerzos razonables para mantener copias de seguridad, pero te recomendamos
-                    exportar y conservar tu contenido.
+                    El Servicio se presta “tal cual” y “según disponibilidad”, sin garantías de
+                    ningún tipo, expresas o implícitas, incluidas las de comerciabilidad, idoneidad
+                    para un fin concreto o funcionamiento ininterrumpido y libre de errores.
+                </p>
+                <p>
+                    En la máxima medida permitida por la ley, no seremos responsables de:
+                </p>
+                <ul className="list-disc pl-5 space-y-1">
+                    <li>
+                        Daños indirectos, lucro cesante, pérdida de datos, de negocio, de clientes o
+                        de reputación derivados del uso o de la imposibilidad de uso del Servicio.
+                    </li>
+                    <li>
+                        <strong>Incidentes de seguridad</strong> —accesos no autorizados, intrusiones,
+                        <em> hackeos</em>, robo o filtración de datos, suplantación, fraude o
+                        denegación de servicio— que afecten a tu cuenta, a tus webs publicadas o a
+                        los datos de tus visitantes, <strong>aunque no los hubiéramos detectado ni te
+                        hubiéramos avisado</strong>, o el aviso no te hubiera llegado o llegara tarde.
+                    </li>
+                    <li>
+                        Contenido que publiques, código que edites o modificaciones que introduzcas,
+                        así como del uso que hagan terceros de tus webs publicadas.
+                    </li>
+                    <li>
+                        Fallos, cambios o suspensiones de <strong>terceros</strong> de los que depende el
+                        Servicio (alojamiento, registradores de dominios, DNS, correo, pasarela de
+                        pago o proveedores de modelos de IA).
+                    </li>
+                    <li>Interrupciones o pérdidas por causas de fuerza mayor o ajenas a nuestro control razonable.</li>
+                </ul>
+                <p>
+                    Realizamos esfuerzos razonables para proteger el Servicio y mantener copias de
+                    seguridad, pero <strong>ningún sistema es completamente seguro</strong>: te recomendamos
+                    usar contraseñas robustas, mantener tus datos de contacto al día y exportar y
+                    conservar tu contenido periódicamente.
+                </p>
+                <p>
+                    <strong>Tope de responsabilidad:</strong> si pese a lo anterior se declarase alguna
+                    responsabilidad, quedará limitada de forma agregada al importe efectivamente
+                    abonado por ti por el Servicio durante los tres (3) meses anteriores al hecho que
+                    la origine.
+                </p>
+                <p>
+                    Nada en estos Términos excluye responsabilidades que no puedan excluirse
+                    legalmente (dolo o culpa grave, daños personales, ni los derechos imperativos que
+                    la normativa reconozca a los consumidores).
                 </p>
             </LegalSection>
 
