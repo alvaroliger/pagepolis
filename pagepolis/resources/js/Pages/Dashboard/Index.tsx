@@ -5,6 +5,15 @@ import { Reveal, FadeIn } from '@/Components/Motion';
 import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useModalA11y } from '@/hooks/useModalA11y';
 
+// Cierra con Escape (mismo patrón que el menú de avatar de AuthenticatedLayout).
+function useEscapeToClose(onClose: () => void) {
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [onClose]);
+}
+
 interface Project {
     id: number;
     name: string;
@@ -126,6 +135,32 @@ function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onCon
     );
 }
 
+// A diferencia de "mover a la papelera" (reversible), esto borra el proyecto
+// para siempre — merece la misma advertencia clara que ya tiene la papelera,
+// no un confirm() nativo del navegador.
+function PurgeModal({ name, onConfirm, onCancel }: { name: string; onConfirm: () => void; onCancel: () => void }) {
+    useEscapeToClose(onCancel);
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+            <FadeIn y={12} className="bg-gray-900 border border-red-900/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                <h3 className="text-white font-semibold mb-2">Eliminar definitivamente</h3>
+                <p className="text-gray-400 text-sm mb-5">
+                    ¿Seguro que quieres borrar <strong className="text-white">"{name}"</strong> para siempre?
+                    <span className="block mt-2 text-red-400">Esta acción no se puede deshacer.</span>
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={onCancel} className="flex-1 border border-gray-700 text-gray-300 hover:text-white py-2 rounded-lg text-sm transition-colors">
+                        Cancelar
+                    </button>
+                    <button onClick={onConfirm} className="flex-1 bg-red-700 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                        Borrar para siempre
+                    </button>
+                </div>
+            </FadeIn>
+        </div>
+    );
+}
+
 function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
@@ -208,6 +243,7 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
 
 export default function Dashboard({ projects, trashed, isSubscribed, inGracePeriod, onboarding }: Props) {
     const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+    const [purgeTarget, setPurgeTarget] = useState<TrashedProject | null>(null);
     const [showTrash, setShowTrash] = useState(false);
 
     const confirmDelete = () => {
@@ -217,9 +253,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
     };
 
     const restore = (id: number) => router.post(`/proyectos/${id}/restaurar`, {}, { preserveScroll: true });
-    const purge = (id: number) => {
-        if (!confirm('¿Eliminar definitivamente? Esta acción no se puede deshacer.')) return;
-        router.delete(`/proyectos/${id}/eliminar-definitivo`, { preserveScroll: true });
+    const confirmPurge = () => {
+        if (!purgeTarget) return;
+        router.delete(`/proyectos/${purgeTarget.id}/eliminar-definitivo`, { preserveScroll: true });
+        setPurgeTarget(null);
     };
 
     const totalViews = projects.reduce((sum, p) => sum + (p.views_30d || 0), 0);
@@ -251,6 +288,14 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     project={deleteTarget}
                     onConfirm={confirmDelete}
                     onCancel={() => setDeleteTarget(null)}
+                />
+            )}
+
+            {purgeTarget && (
+                <PurgeModal
+                    name={purgeTarget.name}
+                    onConfirm={confirmPurge}
+                    onCancel={() => setPurgeTarget(null)}
                 />
             )}
 
@@ -350,7 +395,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                                                 Restaurar
                                             </button>
                                             <button
-                                                onClick={() => purge(t.id)}
+                                                onClick={() => setPurgeTarget(t)}
                                                 className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-red-900/40 text-gray-500 hover:text-red-400 transition-colors"
                                             >
                                                 Borrar definitivo

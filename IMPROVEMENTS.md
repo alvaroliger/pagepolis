@@ -142,6 +142,12 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
 ## Calidad
+- ✅ **Diálogos de borrado destructivo consistentes con el resto de la app** — "Borrar
+  definitivo" (papelera del Dashboard) y "Eliminar mi cuenta" (Perfil) usaban `confirm()`
+  nativo del navegador (sin estilo, inconsistente con el resto de la UI y peor en móvil),
+  mientras que la acción reversible ("mover a la papelera") ya tenía un modal propio. Ahora
+  ambas acciones irreversibles usan el mismo patrón de modal (`Dashboard/Index.tsx`,
+  `Profile/Edit.tsx`), con aviso en rojo y cierre con Escape.
 - ✅ **Tests AdminController** (12 tests: suspend, extendGrace, reactivate + access control).
 - ✅ Cobertura ampliada masivamente: 244 tests (billing/webhooks, admin, WhatsApp, analytics,
   leads/CSV, ciclo de vida de proyectos, password reset, sitemap, suspensión…).
