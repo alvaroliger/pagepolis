@@ -43,17 +43,25 @@ export default function AnalyticsIndex({ series, totals, projects }: Props) {
                         </p>
                     ) : (
                         <div className="flex items-end gap-1 h-40">
-                            {series.map(d => (
-                                <div key={d.date} className="flex-1 group relative flex flex-col justify-end h-full">
-                                    <div
-                                        className="bg-violet-600/70 group-hover:bg-violet-500 rounded-t transition-colors"
-                                        style={{ height: `${Math.max(2, (d.count / max) * 100)}%` }}
-                                    />
-                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                                        {d.count} · {new Date(d.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                                    </div>
-                                </div>
-                            ))}
+                            {series.map(d => {
+                                const dayLabel = new Date(d.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                                return (
+                                    <button
+                                        key={d.date}
+                                        type="button"
+                                        aria-label={`${d.count} visitas el ${dayLabel}`}
+                                        className="flex-1 group relative flex flex-col justify-end h-full bg-transparent border-0 p-0 cursor-default rounded-t focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+                                    >
+                                        <div
+                                            className="bg-violet-600/70 group-hover:bg-violet-500 group-focus-visible:bg-violet-500 rounded-t transition-colors"
+                                            style={{ height: `${Math.max(2, (d.count / max) * 100)}%` }}
+                                        />
+                                        <div className="absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:block group-focus-visible:block bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                                            {d.count} · {dayLabel}
+                                        </div>
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
