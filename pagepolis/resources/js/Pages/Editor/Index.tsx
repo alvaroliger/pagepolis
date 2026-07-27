@@ -271,6 +271,8 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             setSaved(true);
             setDirty(false);
             setTimeout(() => setSaved(false), 2500);
+        } catch {
+            toast.error('No se pudo guardar. Revisa tu conexión — lo reintentaremos en unos segundos.');
         } finally {
             setSaving(false);
         }
