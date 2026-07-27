@@ -402,7 +402,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                     >
                         {seoLoading ? 'Generando…' : seoMeta ? 'SEO activo' : 'Generar SEO'}
                     </button>
-                    <div className="flex gap-1 bg-gray-800 rounded-lg p-1">
+                    <div className="flex gap-1 bg-gray-800 rounded-lg p-1" role="group" aria-label="Tamaño de la vista previa">
                         {([
                             { id: 'desktop', label: 'PC' },
                             { id: 'tablet',  label: 'Tablet' },
@@ -411,6 +411,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                             <button
                                 key={m.id}
                                 onClick={() => setViewMode(m.id)}
+                                aria-pressed={viewMode === m.id}
                                 className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${viewMode === m.id ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}
                             >
                                 {m.label}
