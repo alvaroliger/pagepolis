@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Head } from '@inertiajs/react';
+import { Inbox } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import EmptyState from '@/Components/EmptyState';
 
 interface Lead {
     id: number;

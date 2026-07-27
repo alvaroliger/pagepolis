@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
+import { Sparkles } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import EmptyState from '@/Components/EmptyState';
 
 interface DayPoint { date: string; count: number; }
 interface ProjectStat { id: number; name: string; status: string; views_total: number; views_30d: number; }
@@ -70,7 +72,14 @@ export default function AnalyticsIndex({ series, totals, projects }: Props) {
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
                     <h2 className="text-sm font-semibold text-gray-400 px-6 pt-6 pb-3">Por proyecto</h2>
                     {projects.length === 0 ? (
-                        <p className="text-sm text-gray-600 px-6 pb-6">Todavía no tienes proyectos.</p>
+                        <div className="px-6 pb-8 pt-2">
+                            <EmptyState
+                                icon={Sparkles}
+                                title="Aún no tienes proyectos"
+                                description="Crea tu primera web para empezar a ver sus visitas aquí."
+                                cta={{ label: 'Explorar plantillas', href: '/plantillas' }}
+                            />
+                        </div>
                     ) : (
                         <div className="divide-y divide-gray-800">
                             {projects.map(p => (
