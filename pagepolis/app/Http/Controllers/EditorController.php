@@ -51,13 +51,28 @@ class EditorController extends Controller
         $this->authorize('update', $project);
 
         $request->validate([
-            'name' => 'sometimes|string|max:100',
-            'html' => 'sometimes|string|max:2097152',
-            'css'  => 'sometimes|string|max:524288',
-            'js'   => 'sometimes|string|max:524288',
+            'name' => 'sometimes|nullable|string|max:100',
+            'html' => 'sometimes|nullable|string|max:2097152',
+            'css'  => 'sometimes|nullable|string|max:524288',
+            'js'   => 'sometimes|nullable|string|max:524288',
         ]);
 
-        $project->update($request->only(['name', 'html', 'css', 'js']));
+        // ConvertEmptyStringsToNull convierte un campo vacío ("") en null antes de
+        // llegar aquí: si un cliente borra todo el HTML/CSS/JS en el editor avanzado
+        // y guarda, debe persistirse como cadena vacía (no null, que el resto del
+        // código no espera). El nombre nunca puede quedar vacío en BD, así que un
+        // nombre vacío se ignora y se conserva el anterior en vez de romper el guardado.
+        $data = $request->only(['name', 'html', 'css', 'js']);
+        foreach (['html', 'css', 'js'] as $field) {
+            if (array_key_exists($field, $data) && $data[$field] === null) {
+                $data[$field] = '';
+            }
+        }
+        if (array_key_exists('name', $data) && $data['name'] === null) {
+            unset($data['name']);
+        }
+
+        $project->update($data);
 
         // Si está en un dominio propio activo, refleja los cambios en internet.
         $project->deployToLiveDomain();

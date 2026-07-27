@@ -391,6 +391,9 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         className="bg-transparent text-white font-semibold text-base focus:outline-none border-b border-transparent focus:border-gray-600 px-1 min-w-0"
                     />
                     {dirty && <span className="text-xs text-yellow-500 flex-shrink-0">Sin guardar</span>}
+                    <span role="status" className="sr-only">
+                        {saving ? 'Guardando cambios…' : saved ? 'Cambios guardados' : dirty ? 'Cambios sin guardar' : ''}
+                    </span>
                 </div>
                 <div className="flex items-center gap-2">
                     <button

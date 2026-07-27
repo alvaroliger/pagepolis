@@ -178,6 +178,10 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   ahorra en reintentos, ráfagas de ediciones del mismo usuario y usuarios concurrentes).
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
+- ✅ **Estado de guardado del editor anunciado a lectores de pantalla** — el indicador
+  "Guardando…"/"Guardado"/"Sin guardar" de `Editor/Index.tsx` solo existía como texto
+  visual dentro del botón; ahora hay un `<span role="status" className="sr-only">` que
+  anuncia los mismos cambios de estado sin alterar nada visual.
 
 ## Hecho recientemente (2026-07-12)
 - Throttle del hero 3D en dispositivos de gama baja (`isLowEndDevice()` en `hero3d.js` y
