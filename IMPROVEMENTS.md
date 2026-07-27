@@ -146,6 +146,11 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   `readStream` convierte los tokens cacheados a equivalentes de tarifa normal
   (escritura ×1,25, lectura ×0,10) para que `AiBudgetGuard` siga contando bien.
 
+## Hecho recientemente (2026-07-12)
+- Throttle del hero 3D en dispositivos de gama baja (`isLowEndDevice()` en `hero3d.js` y
+  `Hero3D.tsx`): menos figuras, `devicePixelRatio` tope en 1x, sin antialiasing. Suite
+  244/244 verde, build OK.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la

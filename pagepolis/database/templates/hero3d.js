@@ -31,6 +31,22 @@
     return colorToRgb(raw || '#7c3aed');
   }
 
+  /* Gama baja: pocos núcleos, poca RAM o modo "ahorro de datos" activado.
+     En esos casos se reduce el nº de figuras y la resolución en vez de
+     desactivar el hero (así se conserva el efecto "premium" sin freír la
+     batería/FPS en móviles modestos). */
+  function isLowEndDevice() {
+    try {
+      var cores = navigator.hardwareConcurrency;
+      if (typeof cores === 'number' && cores > 0 && cores <= 4) return true;
+      var mem = navigator.deviceMemory;
+      if (typeof mem === 'number' && mem > 0 && mem <= 4) return true;
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && conn.saveData) return true;
+    } catch (e) {}
+    return false;
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -140,8 +156,9 @@
   }
 
   function setupScene(canvas) {
-    var gl = canvas.getContext('webgl', { alpha: true, antialias: true })
-      || canvas.getContext('experimental-webgl', { alpha: true, antialias: true });
+    var lowEnd = isLowEndDevice();
+    var gl = canvas.getContext('webgl', { alpha: true, antialias: !lowEnd })
+      || canvas.getContext('experimental-webgl', { alpha: true, antialias: !lowEnd });
     if (!gl) { canvas.style.display = 'none'; return null; }
 
     var program = gl.createProgram();
@@ -179,7 +196,7 @@
     var uColor = gl.getUniformLocation(program, 'uColor');
 
     var color = brandColor();
-    var count = 6 + Math.round(Math.random() * 2);
+    var count = lowEnd ? (3 + Math.round(Math.random())) : (6 + Math.round(Math.random() * 2));
     var shapes = [];
     for (var i = 0; i < count; i++) {
       shapes.push({
@@ -195,7 +212,7 @@
       });
     }
 
-    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count };
+    return { gl: gl, program: program, uModel: uModel, uView: uView, uProj: uProj, uColor: uColor, color: color, shapes: shapes, vertexCount: geo.count, lowEnd: lowEnd };
   }
 
   function initCanvas(canvas) {
@@ -214,7 +231,7 @@
     var running = false, rafId = null, t0 = null;
 
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      var dpr = Math.min(window.devicePixelRatio || 1, scene.lowEnd ? 1 : 1.75);
       var w = canvas.clientWidth || canvas.parentElement.clientWidth || 300;
       var h = canvas.clientHeight || canvas.parentElement.clientHeight || 300;
       var pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
