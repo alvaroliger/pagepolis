@@ -34,17 +34,27 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
                     <h1 className="text-2xl font-bold text-white">Mensajes</h1>
                     <p className="text-gray-400 text-sm mt-1">Los contactos que llegan desde tus webs publicadas.</p>
                 </div>
-                {leads.length > 0 && (
-                    <a
-                        href="/mensajes/exportar"
-                        className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-4 py-2 rounded-lg border border-gray-700 transition-colors"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Exportar CSV
-                    </a>
-                )}
+                <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                        <button
+                            onClick={markAllRead}
+                            className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-4 py-2 rounded-lg border border-gray-700 transition-colors"
+                        >
+                            Marcar todos como leídos
+                        </button>
+                    )}
+                    {leads.length > 0 && (
+                        <a
+                            href="/mensajes/exportar"
+                            className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-4 py-2 rounded-lg border border-gray-700 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Exportar CSV
+                        </a>
+                    )}
+                </div>
             </div>
         }>
             <Head title="Mensajes" />
@@ -90,8 +100,16 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
                                         )}
                                         <span className="font-bold text-white">{lead.name || 'Sin nombre'}</span>
                                     </div>
-                                    <div className="text-xs text-gray-500">
-                                        {lead.created_at}{lead.project ? ` · ${lead.project}` : ''}
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-xs text-gray-500">
+                                            {lead.created_at}{lead.project ? ` · ${lead.project}` : ''}
+                                        </div>
+                                        <button
+                                            onClick={() => toggleRead(lead.id)}
+                                            className="text-xs text-gray-400 hover:text-white underline-offset-2 hover:underline transition-colors"
+                                        >
+                                            {lead.is_new ? 'Marcar leído' : 'Marcar no leído'}
+                                        </button>
                                     </div>
                                 </div>
 
