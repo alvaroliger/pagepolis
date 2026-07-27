@@ -33,7 +33,9 @@ createInertiaApp({
 
         root.render(
             <>
-                <App {...props} />
+                <ErrorBoundary>
+                    <App {...props} />
+                </ErrorBoundary>
                 <Toaster
                     position="bottom-center"
                     toastOptions={{
