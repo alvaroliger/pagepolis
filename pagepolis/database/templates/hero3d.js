@@ -5,8 +5,11 @@
    Uso: añade <canvas class="hero3d-canvas" data-hero3d></canvas> dentro de un
    contenedor con position:relative (p.ej. .hero). Se colorea solo con
    --brand (o --brand-2) del sistema de diseño, así que encaja con cualquier
-   plantilla. Si WebGL no está disponible, o el usuario prefiere menos
-   movimiento, se degrada solo sin romper nada. */
+   plantilla. Variantes opcionales vía el valor del atributo:
+   data-hero3d="crystal" (icosaedro, por defecto), "diamond" (octaedro) o
+   "duo" (icosaedro alternando --brand/--brand-2) — evita que todas las
+   plantillas se vean con la misma figura. Si WebGL no está disponible, o el
+   usuario prefiere menos movimiento, se degrada solo sin romper nada. */
 (function () {
   'use strict';
 
@@ -119,6 +122,45 @@
     return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
   }
 
+  /* ── Octaedro low-poly: figura más simple y afilada que el icosaedro,
+     usada como variante ("diamond") para que no toda plantilla se vea igual ── */
+  function buildOctahedron() {
+    var raw = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+    var faces = [
+      [0, 2, 4], [2, 1, 4], [1, 3, 4], [3, 0, 4],
+      [0, 5, 2], [2, 5, 1], [1, 5, 3], [3, 5, 0]
+    ];
+    var positions = [], normals = [];
+    faces.forEach(function (f) {
+      var a = raw[f[0]], b = raw[f[1]], c = raw[f[2]];
+      var ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+      var vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+      var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      var nl = Math.hypot(nx, ny, nz) || 1;
+      nx /= nl; ny /= nl; nz /= nl;
+      var cx = (a[0] + b[0] + c[0]) / 3, cy = (a[1] + b[1] + c[1]) / 3, cz = (a[2] + b[2] + c[2]) / 3;
+      if (nx * cx + ny * cy + nz * cz < 0) { nx = -nx; ny = -ny; nz = -nz; }
+      [a, b, c].forEach(function (p) {
+        positions.push(p[0], p[1], p[2]);
+        normals.push(nx, ny, nz);
+      });
+    });
+    return { positions: new Float32Array(positions), normals: new Float32Array(normals), count: positions.length / 3 };
+  }
+
+  /* ── Variantes: geometría + paleta según data-hero3d="crystal|diamond|duo".
+     "crystal" (o sin valor, por defecto) = icosaedro, color único --brand.
+     "diamond" = octaedro, color único --brand. "duo" = icosaedro alternando
+     --brand y --brand-2 entre figuras. Así webs de distintas plantillas no
+     se ven todas idénticas aunque comparten el mismo motor. ── */
+  function resolveVariant(canvas) {
+    var v = (canvas.dataset.hero3d || '').toLowerCase();
+    return {
+      geometry: v === 'diamond' ? buildOctahedron : buildIcosahedron,
+      duo: v === 'duo'
+    };
+  }
+
   var VERT_SRC = [
     'attribute vec3 aPosition;',
     'attribute vec3 aNormal;',
@@ -170,7 +212,8 @@
     }
     gl.useProgram(program);
 
-    var geo = buildIcosahedron();
+    var variant = resolveVariant(canvas);
+    var geo = variant.geometry();
     var posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferData(gl.ARRAY_BUFFER, geo.positions, gl.STATIC_DRAW);
@@ -208,7 +251,8 @@
         ry: Math.random() * Math.PI,
         speedX: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
         speedY: (Math.random() * 0.4 + 0.08) * (Math.random() < 0.5 ? -1 : 1),
-        bobPhase: Math.random() * Math.PI * 2
+        bobPhase: Math.random() * Math.PI * 2,
+        color: (variant.duo && i % 2 === 1) ? color2 : color
       });
     }
 
@@ -267,7 +311,6 @@
       var view = Mat4.translate(0, 0, 0);
       gl.uniformMatrix4fv(scene.uProj, false, proj);
       gl.uniformMatrix4fv(scene.uView, false, view);
-      gl.uniform3fv(scene.uColor, scene.color);
 
       scene.shapes.forEach(function (s) {
         var bob = Math.sin(elapsed * 0.6 + s.bobPhase) * 0.25;
@@ -276,6 +319,7 @@
         model = Mat4.multiply(model, Mat4.rotateX(s.rx + elapsed * s.speedX));
         model = Mat4.multiply(model, Mat4.scale(s.scale));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
 
@@ -300,10 +344,10 @@
       var aspect0 = canvas.width / canvas.height || 1;
       gl.uniformMatrix4fv(scene.uProj, false, Mat4.perspective(Math.PI / 4, aspect0, 0.1, 100));
       gl.uniformMatrix4fv(scene.uView, false, Mat4.translate(0, 0, 0));
-      gl.uniform3fv(scene.uColor, scene.color);
       scene.shapes.forEach(function (s) {
         var model = Mat4.multiply(Mat4.translate(s.x, s.y, s.z), Mat4.multiply(Mat4.rotateY(s.ry), Mat4.multiply(Mat4.rotateX(s.rx), Mat4.scale(s.scale))));
         gl.uniformMatrix4fv(scene.uModel, false, model);
+        gl.uniform3fv(scene.uColor, s.color);
         gl.drawArrays(gl.TRIANGLES, 0, scene.vertexCount);
       });
       return;
