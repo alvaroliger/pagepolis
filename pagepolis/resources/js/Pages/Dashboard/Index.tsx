@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
 import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
@@ -257,7 +258,11 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
 
     const confirmDelete = () => {
         if (!deleteTarget) return;
-        router.delete(`/proyectos/${deleteTarget.id}`, { preserveScroll: true });
+        router.delete(`/proyectos/${deleteTarget.id}`, {
+            preserveScroll: true,
+            onSuccess: () => toast.success('Proyecto movido a la papelera'),
+            onError: () => toast.error('No se pudo mover a la papelera. Inténtalo de nuevo.'),
+        });
         setDeleteTarget(null);
     };
 
