@@ -222,6 +222,15 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                             Ver web
                         </a>
                     )}
+                    {project.status === 'published' && (
+                        <button
+                            onClick={() => onUnpublish(project)}
+                            title="Despublicar (puedes volver a publicarla cuando quieras)"
+                            className="px-3 flex items-center bg-gray-800 hover:bg-yellow-900/30 text-gray-500 hover:text-yellow-400 rounded-lg transition-colors"
+                        >
+                            <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                        </button>
+                    )}
                     <a
                         href={`/proyectos/${project.id}/zip`}
                         title="Descargar web (ZIP)"
@@ -264,6 +273,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
             onError: () => toast.error('No se pudo mover a la papelera. Inténtalo de nuevo.'),
         });
         setDeleteTarget(null);
+    };
+
+    const unpublish = (project: Project) => {
+        router.post('/publicar/despublicar', { project_id: project.id }, { preserveScroll: true });
     };
 
     const restore = (id: number) => router.post(`/proyectos/${id}/restaurar`, {}, { preserveScroll: true });
