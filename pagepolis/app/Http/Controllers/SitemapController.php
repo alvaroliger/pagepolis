@@ -21,6 +21,10 @@ class SitemapController extends Controller
             ['loc' => $baseUrl . '/',           'priority' => '1.0', 'changefreq' => 'weekly'],
             ['loc' => $baseUrl . '/register',   'priority' => '0.9', 'changefreq' => 'monthly'],
             ['loc' => $baseUrl . '/plantillas', 'priority' => '0.8', 'changefreq' => 'weekly'],
+            // Páginas legales: públicas e indexables (Google valora que existan y
+            // sean accesibles en un servicio de pago), con prioridad baja.
+            ['loc' => $baseUrl . '/terminos',   'priority' => '0.2', 'changefreq' => 'yearly'],
+            ['loc' => $baseUrl . '/privacidad', 'priority' => '0.2', 'changefreq' => 'yearly'],
         ]);
 
         // Sitios publicados en /s/{slug} (tier gratuito)
