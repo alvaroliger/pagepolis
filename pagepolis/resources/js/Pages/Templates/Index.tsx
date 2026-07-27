@@ -54,15 +54,8 @@ export default function TemplatesIndex({ templates, categories }: Props) {
         .filter(t => typeFilter === 'Todos' || (typeFilter === '3D' ? t.has_3d : !t.has_3d));
     const previewTemplate = templates.find(t => t.id === previewId);
     const closePreview = () => setPreviewId(null);
-
-    useEffect(() => {
-        if (previewId === null) return;
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setPreviewId(null);
-        };
-        document.addEventListener('keydown', onKeyDown);
-        return () => document.removeEventListener('keydown', onKeyDown);
-    }, [previewId]);
+    // El cierre con Escape, la trampa de foco y la devolución del foco al cerrar
+    // los gestiona useModalA11y en el propio diálogo (ver más abajo).
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -138,17 +131,6 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             {cat}
                         </button>
                     ))}
-                    <button
-                        onClick={() => setOnly3d(v => !v)}
-                        aria-pressed={only3d}
-                        className={`ml-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
-                            only3d
-                                ? 'bg-fuchsia-600 border-fuchsia-500 text-white'
-                                : 'bg-gray-800 border-transparent text-gray-400 hover:bg-gray-700 hover:text-white'
-                        }`}
-                    >
-                        ✨ Solo 3D
-                    </button>
                 </div>
 
                 {filtered.length === 0 && (
@@ -170,18 +152,13 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-700/50 transition-all hover:-translate-y-1 group"
                         >
                             {/* Preview thumbnail */}
-                            <div
-                                role="button"
-                                tabIndex={0}
+                            {/* Botón nativo: gestiona Enter/Espacio y el foco por sí solo,
+                                sin necesidad de role/tabIndex/onKeyDown a mano. */}
+                            <button
+                                type="button"
                                 aria-label={`Vista previa de ${template.name}`}
-                                className="h-44 overflow-hidden relative cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                                className="block w-full text-left h-44 overflow-hidden relative cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                                 onClick={() => setPreviewId(template.id)}
-                                onKeyDown={e => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        setPreviewId(template.id);
-                                    }
-                                }}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
                                 {template.has_3d && (

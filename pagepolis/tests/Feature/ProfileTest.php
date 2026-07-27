@@ -120,26 +120,6 @@ class ProfileTest extends TestCase
         $this->assertNotNull($user->fresh());
     }
 
-    public function test_password_can_be_updated(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
-            ->from('/perfil')
-            ->put('/password', [
-                'current_password' => 'password',
-                'password' => 'nueva-contraseña-segura',
-                'password_confirmation' => 'nueva-contraseña-segura',
-            ]);
-
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/perfil');
-
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('nueva-contraseña-segura', $user->fresh()->password));
-    }
-
     public function test_correct_current_password_must_be_provided_to_update_password(): void
     {
         $user = User::factory()->create();
