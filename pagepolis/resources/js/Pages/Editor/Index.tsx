@@ -64,6 +64,7 @@ interface Props {
 
 type ViewMode  = 'desktop' | 'tablet' | 'mobile';
 type AiMode    = 'update' | 'generate';
+type MobilePanel = 'chat' | 'preview' | 'code';
 
 const viewWidths: Record<ViewMode, string> = {
     desktop: '100%',
@@ -427,7 +428,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             )}
 
             {/* Barra superior */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-800 bg-gray-900 flex-shrink-0">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-gray-800 bg-gray-900 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <a href="/dashboard" className="text-gray-500 hover:text-white transition-colors text-sm">
                         &larr; Mis proyectos
@@ -522,11 +523,41 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                 </div>
             </div>
 
+            {/* Pestañas móvil/tablet: en pantallas < lg solo cabe un panel a la vez */}
+            <div className="lg:hidden flex border-b border-gray-800 bg-gray-900 flex-shrink-0">
+                <button
+                    onClick={() => setMobilePanel('chat')}
+                    className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                        mobilePanel === 'chat' ? 'bg-gray-800 text-white border-b-2 border-violet-500' : 'text-gray-500 hover:text-white'
+                    }`}
+                >
+                    Chat IA
+                </button>
+                <button
+                    onClick={() => setMobilePanel('preview')}
+                    className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                        mobilePanel === 'preview' ? 'bg-gray-800 text-white border-b-2 border-violet-500' : 'text-gray-500 hover:text-white'
+                    }`}
+                >
+                    Vista previa
+                </button>
+                {!simpleMode && (
+                    <button
+                        onClick={() => setMobilePanel('code')}
+                        className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                            mobilePanel === 'code' ? 'bg-gray-800 text-white border-b-2 border-violet-500' : 'text-gray-500 hover:text-white'
+                        }`}
+                    >
+                        Código
+                    </button>
+                )}
+            </div>
+
             {/* Cuerpo */}
             <div className="flex flex-1 overflow-hidden">
 
                 {/* Panel IA */}
-                <div className="w-72 flex-shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col">
+                <div className={`${mobilePanel === 'chat' ? 'flex' : 'hidden'} lg:flex w-full lg:w-72 flex-shrink-0 border-r border-gray-800 bg-gray-900 flex-col`}>
 
                     {/* Selector de modo */}
                     <div className="flex border-b border-gray-800 flex-shrink-0">
@@ -755,7 +786,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
 
                 {/* Editor de código (solo en modo avanzado) */}
                 {!simpleMode && (
-                <div className="w-96 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex flex-col">
+                <div className={`${mobilePanel === 'code' ? 'flex' : 'hidden'} lg:flex w-full lg:w-96 flex-shrink-0 border-l border-gray-800 bg-gray-900 flex-col`}>
                     <div className="flex border-b border-gray-800 flex-shrink-0">
                         {(['html', 'css', 'js'] as ActiveTab[]).map(tab => (
                             <button

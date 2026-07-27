@@ -239,6 +239,15 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   Suite 244/244 verde, `npm run build` OK, verificado con Playwright simulando teclado
   (Tab+Enter+Escape), toque táctil y clic de ratón contra el editor real.
 
+## Hecho recientemente (2026-07-20)
+- **Layout responsive del editor en móvil/tablet** — antes de implementar, comprobé `git fetch
+  origin` + `git branch -r` (123 ramas remotas) y `list_pull_requests` (39 PRs abiertos, #44-#83,
+  ninguno fusionado desde el 2026-07-03). Mis dos primeros intentos de esta sesión (guardia de
+  rendimiento del hero 3D en gama baja, variantes de geometría del hero 3D) resultaron ser
+  duplicados casi exactos de PRs ya abiertos (#45 y #46/#57/#79 respectivamente), así que los
+  descarté sin hacer push. Añadido el aviso de arriba con la lista completa de qué ya tiene PR,
+  para que la próxima ejecución no repita el mismo trabajo.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
