@@ -147,6 +147,19 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   inventar). (heredado del backlog anterior)
 - 🟢 Prueba social real por idioma/región en landing/pricing (sin inventar testimonios).
 
+## Producto (continuación)
+- ✅ **Páginas de error 404/500 con marca Pagepolis** — no existía `resources/views/errors/`
+  ni `bootstrap/app.php` registraba ninguna vista de error, así que cualquier 404 (por
+  ejemplo un visitante entrando a `/s/{slug}` con un enlace roto o una web ya
+  despublicada — visible para los clientes FINALES de cada negocio, no solo para
+  usuarios de la app) caía en la página gris de error por defecto de Laravel, sin logo,
+  sin navegación, sin ninguna relación visual con Pagepolis ni con la web que buscaban.
+  Añadidas `resources/views/errors/404.blade.php` y `500.blade.php`: página oscura de
+  marca (mismo lenguaje visual que `GuestLayout`/emails — logo con gradiente violeta →
+  fucsia → cian, fondo `#030712`), autocontenida (CSS inline, sin depender del bundle de
+  Vite) con enlaces a inicio y al panel. Cubierto por `ErrorPagesTest` (2 tests: slug
+  inexistente en `/s/{slug}` y ruta inexistente en la app).
+
 ## Calidad
 - ✅ **Diálogos de borrado destructivo consistentes con el resto de la app** — "Borrar
   definitivo" (papelera del Dashboard) y "Eliminar mi cuenta" (Perfil) usaban `confirm()`
