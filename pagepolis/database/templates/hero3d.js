@@ -82,6 +82,20 @@
     return false;
   }
 
+  /* ── Nivel de rendimiento del dispositivo (ahorra batería/CPU en móviles
+     de gama baja): 'off' desactiva el hero por completo, 'low' lo mantiene
+     pero con menos figuras y menor resolución, 'full' es el comportamiento
+     de siempre. Basado en pistas heurísticas (núcleos de CPU, RAM, modo de
+     ahorro de datos); si el navegador no las expone, se asume gama alta. ── */
+  function devicePerformanceTier() {
+    var cores = navigator.hardwareConcurrency || 8;
+    var mem = navigator.deviceMemory || 8;
+    var saveData = !!(navigator.connection && navigator.connection.saveData);
+    if (saveData || cores <= 2 || mem <= 2) return 'off';
+    if (cores <= 4 || mem <= 4) return 'low';
+    return 'full';
+  }
+
   /* ── Álgebra mínima de matrices 4x4 (column-major, Float32Array) ── */
   var Mat4 = {
     identity: function () { return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]); },
@@ -282,6 +296,12 @@
   }
 
   function initCanvas(canvas) {
+    var tier = devicePerformanceTier();
+    if (tier === 'off') {
+      canvas.style.display = 'none';
+      return;
+    }
+    var lowPower = tier === 'low';
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var scene;
     try {

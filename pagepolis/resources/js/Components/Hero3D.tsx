@@ -12,6 +12,20 @@ import { useEffect, useRef } from 'react';
 
 type Vec3 = [number, number, number];
 
+/* Nivel de rendimiento del dispositivo (ahorra batería/CPU en móviles de
+ * gama baja): 'off' desactiva el hero por completo, 'low' lo mantiene pero
+ * con menos figuras y menor resolución, 'full' es el comportamiento de
+ * siempre. Si el navegador no expone estas pistas, se asume gama alta. */
+function devicePerformanceTier(): 'off' | 'low' | 'full' {
+    const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+    const cores = nav.hardwareConcurrency || 8;
+    const mem = nav.deviceMemory || 8;
+    const saveData = !!nav.connection?.saveData;
+    if (saveData || cores <= 2 || mem <= 2) return 'off';
+    if (cores <= 4 || mem <= 4) return 'low';
+    return 'full';
+}
+
 interface Props {
     className?: string;
     /** Color base en RGB 0..1 (por defecto, violeta de marca #8b5cf6). */
