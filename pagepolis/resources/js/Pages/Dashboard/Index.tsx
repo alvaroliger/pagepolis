@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
 import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 interface Project {
     id: number;
@@ -91,10 +92,20 @@ function OnboardingChecklist({ hasProject, hasPublished, hasDomain, firstProject
 }
 
 function DeleteModal({ project, onConfirm, onCancel }: { project: Project; onConfirm: () => void; onCancel: () => void }) {
+    const titleId = useId();
+    const modalRef = useModalA11y(onCancel);
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-            <FadeIn y={12} className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-                <h3 className="text-white font-semibold mb-2">Mover a la papelera</h3>
+            <FadeIn
+                ref={modalRef}
+                role="dialog"
+                aria-modal
+                aria-labelledby={titleId}
+                tabIndex={-1}
+                y={12}
+                className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl outline-none"
+            >
+                <h3 id={titleId} className="text-white font-semibold mb-2">Mover a la papelera</h3>
                 <p className="text-gray-400 text-sm mb-5">
                     ¿Seguro que quieres eliminar <strong className="text-white">"{project.name}"</strong>?
                     {project.status === 'published' && (

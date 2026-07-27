@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, useCallback, useId, lazy, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import type { ActiveTab } from './CodeMirrorEditor';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 // CodeMirror (~530 kB) solo se carga cuando el usuario activa el modo avanzado
 // (ver código), no en cada visita al editor.
@@ -96,10 +97,19 @@ function ChatBubble({ msg }: { msg: ChatMessage }) {
 }
 
 function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+    const descId = useId();
+    const modalRef = useModalA11y(onCancel);
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-                <p className="text-white text-sm leading-relaxed mb-5">{message}</p>
+            <div
+                ref={modalRef}
+                role="alertdialog"
+                aria-modal="true"
+                aria-describedby={descId}
+                tabIndex={-1}
+                className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl outline-none"
+            >
+                <p id={descId} className="text-white text-sm leading-relaxed mb-5">{message}</p>
                 <div className="flex gap-3">
                     <button onClick={onCancel} className="flex-1 border border-gray-700 text-gray-300 hover:text-white py-2 rounded-lg text-sm transition-colors">
                         Cancelar

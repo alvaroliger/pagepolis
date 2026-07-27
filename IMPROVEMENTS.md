@@ -168,6 +168,14 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   fotógrafo) con `tilt-3d` en tarjetas clave; autosave con debounce en el editor.
   Suite 96/96 verde, `npm run build` OK (framer-motion en chunk propio lazy de ~37 kB gzip).
 
+## Hecho recientemente (2026-07-12)
+- Modales accesibles por teclado en Templates, Dashboard y Editor (`role="dialog"`, foco
+  atrapado, Escape para cerrar, foco devuelto al cerrar) + hook reutilizable
+  `useModalA11y`. Arreglada también la miniatura de vista previa de plantillas, que no
+  era operable con teclado. Verificado con Playwright contra una sesión real logueada
+  (apertura por Enter, `aria-modal`/`aria-labelledby` presentes, foco entra y queda
+  contenido, Escape cierra y devuelve el foco). Suite 244/244 verde, `npm run build` OK.
+
 ## Hecho recientemente (2026-06-30)
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).

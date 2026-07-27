@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { useModalA11y } from '@/hooks/useModalA11y';
 
 // Evita que al pulsar enlaces en la vista previa el iframe navegue a la app
 // (lo que en local saturaba el servidor → "localhost rechaza la conexión").
@@ -51,6 +52,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
         .filter(t => filter === 'Todos' || t.category === filter)
         .filter(t => typeFilter === 'Todos' || (typeFilter === '3D' ? t.has_3d : !t.has_3d));
     const previewTemplate = templates.find(t => t.id === previewId);
+    const closePreview = () => setPreviewId(null);
 
     const useTemplate = (templateId: number) => {
         const projectName = name.trim() || templates.find(t => t.id === templateId)?.name || 'Mi proyecto';
@@ -140,8 +142,17 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         >
                             {/* Preview thumbnail */}
                             <div
-                                className="h-44 overflow-hidden relative cursor-pointer bg-white"
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Vista previa de ${template.name}`}
+                                className="h-44 overflow-hidden relative cursor-pointer bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                                 onClick={() => setPreviewId(template.id)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        setPreviewId(template.id);
+                                    }
+                                }}
                             >
                                 <TemplatePreview html={template.html} css={template.css} />
                                 {template.has_3d && (
