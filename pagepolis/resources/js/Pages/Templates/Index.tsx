@@ -112,11 +112,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                 </div>
 
                 {/* Filtros */}
-                <div className="flex gap-2 flex-wrap mb-8">
+                <div className="flex gap-2 flex-wrap mb-8" role="group" aria-label="Filtrar por categoría">
                     {['Todos', ...categories].map(cat => (
                         <button
                             key={cat}
                             onClick={() => setFilter(cat)}
+                            aria-pressed={filter === cat}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                                 filter === cat
                                     ? 'bg-violet-600 text-white'
