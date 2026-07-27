@@ -215,6 +215,17 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                         Editar
                     </Link>
                     {project.status !== 'published' && (
+                        <a
+                            href={project.preview_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Vista previa"
+                            className="px-3 flex items-center bg-gray-800 hover:bg-gray-700 text-gray-500 hover:text-white rounded-lg transition-colors"
+                        >
+                            <Eye className="w-4 h-4" strokeWidth={1.75} />
+                        </a>
+                    )}
+                    {project.status !== 'published' && (
                         <Link
                             href={`/publicar?project_id=${project.id}`}
                             className="flex-1 text-center bg-violet-700/30 hover:bg-violet-700/60 text-violet-300 text-xs font-semibold py-2 rounded-lg transition-colors"
