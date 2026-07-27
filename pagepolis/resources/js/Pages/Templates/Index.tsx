@@ -129,6 +129,12 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                     ))}
                 </div>
 
+                {filtered.length === 0 && (
+                    <div className="text-center py-16 text-gray-500 text-sm">
+                        No hay plantillas que coincidan con este filtro.
+                    </div>
+                )}
+
                 {/* Grid de plantillas */}
                 {filtered.length === 0 ? (
                     <div className="text-center py-16 text-gray-500 text-sm">
