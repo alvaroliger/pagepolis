@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Template;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,6 +20,23 @@ class LandingTest extends TestCase
     {
         $response = $this->get('/plantillas');
         $response->assertStatus(200);
+    }
+
+    public function test_templates_gallery_includes_js_so_3d_heroes_render_in_preview(): void
+    {
+        Template::create([
+            'name' => 'App / SaaS',
+            'category' => 'SaaS',
+            'html' => '<canvas class="hero3d-canvas" data-hero3d></canvas>',
+            'css' => '',
+            'js' => '/* PAGEPOLIS-HERO3D-ENGINE */ console.log("hero3d");',
+            'is_active' => true,
+        ]);
+
+        $response = $this->get('/plantillas');
+
+        $response->assertStatus(200);
+        $response->assertSee('PAGEPOLIS-HERO3D-ENGINE', false);
     }
 
     public function test_dashboard_requires_auth(): void

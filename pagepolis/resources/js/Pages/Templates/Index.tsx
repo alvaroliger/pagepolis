@@ -25,8 +25,8 @@ interface Props {
     categories: string[];
 }
 
-function TemplatePreview({ html, css }: { html: string; css: string }) {
-    const srcDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden}${css}</style></head><body>${html}</body></html>`;
+function TemplatePreview({ html, css, js }: { html: string; css: string; js: string }) {
+    const srcDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box}body{overflow:hidden}${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
     return (
         <iframe
             srcDoc={srcDoc}

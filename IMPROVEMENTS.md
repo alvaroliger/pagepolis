@@ -100,6 +100,15 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   al iframe mientras dura la generación.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
+- ✅ **Galería de plantillas: el hero 3D ahora se ve animado en la vista previa** — el
+  `TemplateController` no seleccionaba la columna `js`, y `Templates/Index.tsx` solo
+  inyectaba `html`+`css` en el `srcDoc` del iframe (miniatura y modal), así que las 6
+  plantillas con hero 3D (saas, servicios, abogados, coach, inmobiliaria, fotógrafo)
+  mostraban un `<canvas>` vacío justo en el momento en que el cliente decide qué
+  plantilla usar. Ahora se selecciona e inyecta también `js`, igual que ya hacía el
+  editor (`Editor/Index.tsx`), así el escaparate premium (WebGL, tilt-3d) es visible
+  desde el primer vistazo. Test añadido (`LandingTest`) que verifica que el motor 3D
+  llega al HTML de la página; suite 245/245 verde, `npm run build` OK.
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
   low-poly con luz e inclinación por ratón/scroll) + clase `.tilt-3d` para tarjetas con
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
