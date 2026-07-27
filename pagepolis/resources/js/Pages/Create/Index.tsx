@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import axios from 'axios';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -220,7 +220,7 @@ export default function CreateWizard() {
                                 <div className="p-3 bg-amber-900/20 border border-amber-800/40 rounded-xl text-xs text-amber-300/90 leading-relaxed">
                                     Has alcanzado el límite de {aiUsage.limit} generaciones con IA hoy. Se restablece a medianoche.{' '}
                                     {!aiUsage.isSubscribed && (
-                                        <a href="/publicar" className="underline text-violet-300">Mejora tu plan</a>
+                                        <Link href="/publicar" className="underline text-violet-300">Mejora tu plan</Link>
                                     )}
                                 </div>
                             </motion.div>

@@ -116,9 +116,9 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     <p className="text-gray-500 text-sm mb-8">
                         {t('publish.provisioning_note')}
                     </p>
-                    <a href="/dashboard" className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm">
+                    <Link href="/dashboard" className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm">
                         {t('publish.go_dashboard')}
-                    </a>
+                    </Link>
                 </div>
             </AuthenticatedLayout>
         );

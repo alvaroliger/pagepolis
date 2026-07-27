@@ -88,17 +88,17 @@ export default function Landing() {
                 {/* NAV */}
                 <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-gray-950/85 backdrop-blur-xl">
                     <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
-                        <a href="/" className="flex items-center gap-2.5">
+                        <Link href="/" className="flex items-center gap-2.5">
                             <PagepolisLogo size={32} />
                             <span className="text-xl font-black tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
                                 pagepolis
                             </span>
-                        </a>
+                        </Link>
                         <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
                             <button onClick={() => pricingRef.current?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">
                                 {t('nav.prices')}
                             </button>
-                            <a href="/plantillas" className="hover:text-white transition-colors">{t('nav.templates')}</a>
+                            <Link href="/plantillas" className="hover:text-white transition-colors">{t('nav.templates')}</Link>
                         </div>
                         <div className="flex items-center gap-2">
                             <LanguageSelector />
@@ -388,8 +388,8 @@ export default function Landing() {
                             <span className="font-black text-lg bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">pagepolis</span>
                         </div>
                         <div className="flex gap-6">
-                            <a href="/login" className="hover:text-gray-400 transition-colors">{t('footer.login')}</a>
-                            <a href="/register" className="hover:text-gray-400 transition-colors">{t('footer.register')}</a>
+                            <Link href="/login" className="hover:text-gray-400 transition-colors">{t('footer.login')}</Link>
+                            <Link href="/register" className="hover:text-gray-400 transition-colors">{t('footer.register')}</Link>
                             <a href={`mailto:${supportEmail}`} className="hover:text-gray-400 transition-colors">{t('footer.contact')}</a>
                         </div>
                         <p>© {new Date().getFullYear()} Pagepolis · {t('footer.rights')}</p>
