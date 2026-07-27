@@ -234,6 +234,11 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   sin errores de consola y son visualmente distintas (capturas comparadas manualmente);
   fallback `prefers-reduced-motion` comprobado igual. Suite 244/244 verde, `npm run build` OK.
 
+## Hecho recientemente (2026-07-19)
+- Contador de usos de IA del editor accesible por teclado/táctil (ver "Calidad" arriba).
+  Suite 244/244 verde, `npm run build` OK, verificado con Playwright simulando teclado
+  (Tab+Enter+Escape), toque táctil y clic de ratón contra el editor real.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la
