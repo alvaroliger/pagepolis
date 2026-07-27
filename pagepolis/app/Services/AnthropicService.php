@@ -251,7 +251,7 @@ CONVENCIÓN OBLIGATORIA de ids/clases (el JS depende de ella; respétala al pie 
 - FAQ: cada pregunta es <div class="faq-item"> con un <button class="faq-q"> y un <div class="faq-a"> (respuesta). El JS alterna "open" en .faq-item.
 - Galería (si hay): cada imagen ampliable con clase "gallery-img".
 - Testimonios en carrusel (si hay): contenedor <div class="testi-slider"> con pista <div class="testi-track"> y <div class="testi-slide">, y botones <button class="testi-prev"> / <button class="testi-next">.
-- Formulario de contacto: <form id="contact-form"> con campos name="nombre", name="email", name="mensaje", y un <div id="form-success" hidden> para el mensaje de éxito.
+- Formulario de contacto: <form id="contact-form"> con campos name="nombre", name="email", name="mensaje", y un <div id="form-success" hidden> para el mensaje de éxito. Cada input/textarea lleva su <label class="sr-only" for="..."> (con el mismo id en el campo) aunque visualmente el diseño use solo placeholder — así el formulario es accesible por lector de pantalla sin cambiar el aspecto.
 - Botón "volver arriba": <button id="to-top">.
 - Hero 3D (opcional; ver más abajo cuándo usarlo): <canvas class="hero3d-canvas" data-hero3d aria-hidden="true"> dentro del hero. Se inicializa solo (motor WebGL propio añadido automáticamente tras generar el JS); en el HTML/CSS solo colocas el canvas, NO escribas JS para él.
 - Inclinación 3D: añade la clase "tilt-3d" a una tarjeta (feature-card, price-card, product...) para que se incline suavemente hacia el cursor.

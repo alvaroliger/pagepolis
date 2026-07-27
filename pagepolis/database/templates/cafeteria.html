@@ -86,9 +86,12 @@
         </ul>
       </div>
       <form id="contact-form" class="reveal">
-        <input type="text" name="nombre" placeholder="Tu nombre" required>
-        <input type="email" name="email" placeholder="Tu email" required>
-        <textarea name="mensaje" rows="4" placeholder="¿Quieres reservar o preguntarnos algo?" required></textarea>
+        <label class="sr-only" for="contact-nombre">Tu nombre</label>
+        <input id="contact-nombre" type="text" name="nombre" placeholder="Tu nombre" required>
+        <label class="sr-only" for="contact-email">Tu email</label>
+        <input id="contact-email" type="email" name="email" placeholder="Tu email" required>
+        <label class="sr-only" for="contact-mensaje">¿Quieres reservar o preguntarnos algo?</label>
+        <textarea id="contact-mensaje" name="mensaje" rows="4" placeholder="¿Quieres reservar o preguntarnos algo?" required></textarea>
         <button type="submit" class="btn btn-primary">Enviar</button>
         <div id="form-success" hidden>¡Gracias! Te respondemos enseguida.</div>
       </form>
