@@ -71,4 +71,18 @@ class BillingCheckoutTest extends TestCase
 
         $response->assertStatus(500)->assertJsonStructure(['error']);
     }
+
+    public function test_portal_redirects_with_message_for_user_without_stripe_customer(): void
+    {
+        // Every authenticated user sees the "Suscripción" link in the account
+        // menu, but a free-tier user who never checked out has no stripe_id.
+        // Cashier's redirectToBillingPortal() would throw InvalidCustomer in
+        // that case; the controller must redirect gracefully instead.
+        $user = User::factory()->create(['stripe_id' => null]);
+
+        $response = $this->actingAs($user)->get('/facturacion/portal');
+
+        $response->assertRedirect(route('dashboard'));
+        $response->assertSessionHas('error');
+    }
 }

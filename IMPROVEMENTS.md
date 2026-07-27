@@ -67,6 +67,18 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   front.
 
 ## Producto
+- ✅ **El enlace "Suscripción" del menú de cuenta ya no rompe la app para clientes del plan
+  gratuito** — `BillingController::portal()` llamaba a `redirectToBillingPortal()` de Cashier,
+  que lanza `InvalidCustomer` si el usuario no tiene `stripe_id` (cualquiera que no haya
+  pagado nunca, es decir, la mayoría de la base gratuita) → 500 al hacer clic en un enlace
+  visible para todos. Ahora comprueba `hasStripeId()` antes y redirige con un aviso claro
+  si aún no hay suscripción que gestionar. De paso: el enlace pasó de `<Link>` de Inertia a
+  `<a>` nativo (siempre sale de la SPA, sea al portal de Stripe o de vuelta al dashboard), y
+  se añadió un listener global (`app.tsx`, `router.on('navigate')`) que convierte los mensajes
+  flash (`flash.error`/`flash.message`, ya compartidos por `HandleInertiaRequests` pero que
+  hasta ahora nadie mostraba en ningún sitio) en el mismo toast que ya usa el resto de la app
+  — beneficia también a otros flashes ya existentes como el límite de proyectos del plan
+  gratuito en `ProjectController`.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
