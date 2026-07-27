@@ -2,6 +2,7 @@ import { PropsWithChildren } from 'react';
 import { Link } from '@inertiajs/react';
 import PagepolisLogo from '@/Components/PagepolisLogo';
 import { FadeIn } from '@/Components/Motion';
+import FlashMessages from '@/Components/FlashMessages';
 
 export default function GuestLayout({ children }: PropsWithChildren) {
     return (
@@ -25,6 +26,8 @@ export default function GuestLayout({ children }: PropsWithChildren) {
                     {children}
                 </div>
             </FadeIn>
+
+            <FlashMessages />
         </div>
     );
 }

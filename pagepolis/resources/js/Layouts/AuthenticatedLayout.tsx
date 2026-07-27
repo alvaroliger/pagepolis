@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, PropsWithChildren, ReactNode } from 'react
 import { Link, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PagepolisLogo from '@/Components/PagepolisLogo';
+import FlashMessages from '@/Components/FlashMessages';
 
 interface AuthLayoutProps extends PropsWithChildren {
     header?: ReactNode;
@@ -129,6 +130,8 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
             )}
 
             <main>{children}</main>
+
+            <FlashMessages />
         </div>
     );
 }

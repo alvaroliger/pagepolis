@@ -34,7 +34,25 @@ class BillingController extends Controller
 
     public function portal(): RedirectResponse
     {
-        return auth()->user()->redirectToBillingPortal(route('dashboard'));
+        $user = auth()->user();
+
+        // Sin cliente en Stripe (usuario del plan gratis que nunca ha pagado) el
+        // portal no existe: redirigimos a la página de planes en vez de reventar
+        // con un 500. Antes, el botón "Suscripción" del menú y el aviso del
+        // dashboard daban error a cualquiera que no tuviera suscripción.
+        if (! $user->hasStripeId()) {
+            return redirect()->route('publish.index')
+                ->with('status', 'Todavía no tienes una suscripción activa. Elige un plan para empezar.');
+        }
+
+        try {
+            return $user->redirectToBillingPortal(route('dashboard'));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()->route('dashboard')
+                ->with('status', 'No hemos podido abrir el portal de facturación. Inténtalo de nuevo en unos minutos.');
+        }
     }
 
     // El webhook de Stripe lo gestiona Cashier en POST /stripe/webhook.

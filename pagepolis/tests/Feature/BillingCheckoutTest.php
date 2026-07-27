@@ -26,6 +26,18 @@ class BillingCheckoutTest extends TestCase
         $response->assertRedirect('/login');
     }
 
+    public function test_billing_portal_redirects_to_plans_when_user_has_no_subscription(): void
+    {
+        // El botón "Suscripción" (menú y dashboard) lo ve también quien está en el
+        // plan gratis: sin cliente en Stripe el portal reventaba con un 500.
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/facturacion/portal');
+
+        $response->assertRedirect(route('publish.index'));
+        $this->assertNull($user->fresh()->stripe_id);
+    }
+
     // ── Input validation ────────────────────────────────────────────────────
 
     public function test_checkout_requires_plan_parameter(): void

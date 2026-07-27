@@ -28,6 +28,10 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
                 'error'   => fn () => $request->session()->get('error'),
+                // 'status' es la convención de Breeze (perfil, contraseña, verificación)
+                // y la usan también los controladores propios: sin compartirla, esos
+                // avisos nunca llegaban al frontend.
+                'status'  => fn () => $request->session()->get('status'),
             ],
             // Correo de soporte (configurable), disponible en todas las páginas.
             'support' => [

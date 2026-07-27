@@ -18,11 +18,16 @@
         </include>
     </source>
     <php>
-        <env name="APP_KEY" value="base64:GbtRZbWmCB00BJOsWl83BDX+cc/8bKvQ5n8FlT3BHTE="/>
         <env name="ANTHROPIC_API_KEY" value="sk-ant-test-fake-key-for-testing-only"/>
+        <!-- Stripe SIEMPRE falso en tests: sin estos overrides, PHPUnit hereda las
+             claves reales del .env y la suite llama a la API de Stripe de verdad
+             (lenta, dependiente de red y creando objetos reales en la cuenta). -->
+        <env name="STRIPE_KEY" value="pk_test_fake_key_for_testing_only"/>
+        <env name="STRIPE_SECRET" value="sk_test_fake_key_for_testing_only"/>
         <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_fake_secret"/>
+        <env name="STRIPE_PRICE_MONTHLY" value="price_test_fake_monthly"/>
+        <env name="STRIPE_PRICE_YEARLY" value="price_test_fake_yearly"/>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_KEY" value="base64:HnwrOTjJiIb+cjoZ0pDmy89sCzvdxq8PXKOIsyiVr/4="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

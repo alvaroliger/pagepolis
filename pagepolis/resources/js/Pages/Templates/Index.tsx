@@ -53,7 +53,11 @@ export default function TemplatesIndex({ templates, categories }: Props) {
             name: projectName,
             template_id: templateId,
         }, {
-            onError: () => setCreating(null),
+            // onError solo cubre errores de validación (422). Si el backend responde
+            // con redirect-back (p. ej. al topar el límite de proyectos del plan
+            // gratis) el botón se quedaba girando para siempre: onFinish lo libera
+            // siempre y el aviso se ve en el toast global de flash.
+            onFinish: () => setCreating(null),
         });
     };
 
