@@ -147,6 +147,40 @@ class ProjectController extends Controller
         return redirect()->route('editor.index', $project->id);
     }
 
+    /**
+     * Duplica un proyecto (útil para probar un rediseño, p. ej. una variante 3D,
+     * sin arriesgar la web original). La copia siempre nace en borrador, sin
+     * publicar ni dominio asociado, y con su propio slug.
+     */
+    public function duplicate(Project $project): RedirectResponse
+    {
+        $this->authorize('view', $project);
+
+        $user = auth()->user();
+
+        // Mismo límite anti-abuso del tier gratuito que rige la creación normal.
+        if (!$user->isSubscribed()) {
+            $max = config('pagepolis.limits.free_max_projects', 10);
+            if ($user->projects()->count() >= $max) {
+                return redirect()->back()->with('error',
+                    "El plan gratuito permite hasta {$max} proyectos. Mejora a un plan de pago para crear más.");
+            }
+        }
+
+        $copy = Project::create([
+            'user_id'     => $user->id,
+            'name'        => $project->name . ' (copia)',
+            'template_id' => $project->template_id,
+            'html'        => $project->html,
+            'css'         => $project->css,
+            'js'          => $project->js,
+            'seo_meta'    => $project->seo_meta,
+            'status'      => 'draft',
+        ]);
+
+        return redirect()->route('editor.index', $copy->id);
+    }
+
     public function preview(Project $project): HttpResponse
     {
         $this->authorize('view', $project);

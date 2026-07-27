@@ -163,6 +163,16 @@ function PurgeModal({ name, onConfirm, onCancel }: { name: string; onConfirm: ()
 }
 
 function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
+    const [duplicating, setDuplicating] = useState(false);
+
+    const duplicate = () => {
+        if (duplicating) return;
+        setDuplicating(true);
+        router.post(`/proyectos/${project.id}/duplicar`, {}, {
+            onFinish: () => setDuplicating(false),
+        });
+    };
+
     return (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
             {/* Thumbnail */}

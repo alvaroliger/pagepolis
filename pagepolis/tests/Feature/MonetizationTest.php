@@ -91,6 +91,19 @@ class MonetizationTest extends TestCase
         $this->assertSame(1, $user->projects()->count());
     }
 
+    public function test_free_user_blocked_from_duplicating_at_project_limit(): void
+    {
+        config(['pagepolis.limits.free_max_projects' => 1]);
+        $user    = User::factory()->create();
+        $project = $this->project($user); // ya tiene 1
+
+        $this->actingAs($user)->from('/dashboard')->post("/proyectos/{$project->id}/duplicar")
+            ->assertRedirect('/dashboard')
+            ->assertSessionHas('error');
+
+        $this->assertSame(1, $user->projects()->count());
+    }
+
     public function test_published_free_site_shows_badge(): void
     {
         $user    = User::factory()->create();

@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Proyectos
     Route::post('/proyectos', [ProjectController::class, 'store'])->name('projects.store');
+    Route::post('/proyectos/{project}/duplicar', [ProjectController::class, 'duplicate'])->name('projects.duplicate');
     Route::get('/proyectos/{project}/preview', [ProjectController::class, 'preview'])->name('projects.preview');
     Route::get('/proyectos/{project}/zip', [ProjectController::class, 'exportZip'])->name('projects.zip');
     Route::delete('/proyectos/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
