@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { FadeIn } from '@/Components/Motion';
 
@@ -21,6 +22,17 @@ export default function CreateWizard() {
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
     const [touched, setTouched]           = useState(false);
+    const [stepIndex, setStepIndex]       = useState(0);
+    const reduceMotion = useReducedMotion();
+
+    useEffect(() => {
+        if (!loading) return;
+        setStepIndex(0);
+        const id = setInterval(() => {
+            setStepIndex(i => Math.min(i + 1, GENERATION_STEPS.length - 1));
+        }, 4000);
+        return () => clearInterval(id);
+    }, [loading]);
 
     const nameOk    = businessName.trim().length > 1;
     const descOk    = description.trim().length > 4;
@@ -211,8 +223,9 @@ export default function CreateWizard() {
                     <button
                         onClick={submit}
                         disabled={!canSubmit || loading}
-                        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40"
+                        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40 inline-flex items-center justify-center gap-2"
                     >
+                        {loading && <Loader2 className={`w-5 h-5 ${reduceMotion ? '' : 'animate-spin'}`} strokeWidth={2.5} />}
                         {loading ? 'Creando tu web…' : '✨ Crear mi web con IA'}
                     </button>
 
@@ -220,9 +233,24 @@ export default function CreateWizard() {
                         <p className="text-center text-xs text-amber-400 -mt-4">{validationHint}</p>
                     )}
 
-                    <p className="text-center text-xs text-gray-600">
-                        Tardará 1-3 minutos. Verás cómo se construye en pantalla.
-                    </p>
+                    {loading ? (
+                        <AnimatePresence mode="wait">
+                            <motion.p
+                                key={stepIndex}
+                                initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
+                                transition={{ duration: 0.3 }}
+                                className="text-center text-xs text-violet-400"
+                            >
+                                {GENERATION_STEPS[stepIndex]}
+                            </motion.p>
+                        </AnimatePresence>
+                    ) : (
+                        <p className="text-center text-xs text-gray-600">
+                            Tardará 1-3 minutos. Verás cómo se construye en pantalla.
+                        </p>
+                    )}
                 </FadeIn>
             </div>
         </AuthenticatedLayout>

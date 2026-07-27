@@ -80,6 +80,13 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   — beneficia también a otros flashes ya existentes como el límite de proyectos del plan
   gratuito en `ProjectController`.
 - ✅ Wizard de creación: validación/UX pulida (límite de caracteres, botón deshabilitado si inválido).
+- ✅ **Feedback de progreso durante la generación con IA** — `Create/Index.tsx` es la única
+  espera de 1-3 min de toda la app y antes solo mostraba un botón deshabilitado con texto
+  fijo ("Creando tu web…"), sin ninguna señal de que algo seguía en marcha. Ahora el botón
+  lleva un spinner y debajo va rotando una serie de mensajes de progreso ("Analizando tu
+  negocio…" → "Diseñando la estructura…" → "Redactando los textos…" → "Aplicando los
+  últimos detalles…", uno cada 4 s, se queda en el último si tarda más). Respeta
+  `prefers-reduced-motion` (sin `animate-spin` ni desplazamiento, solo fundido).
 - ✅ **Autosave en el editor con debounce** — guarda solo 2,5 s después del último cambio
   (html/css/js/nombre), pospuesto si hay guardado o generación IA en curso
   (`resources/js/Pages/Editor/Index.tsx`).
