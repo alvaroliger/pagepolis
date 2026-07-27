@@ -99,6 +99,14 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   motion con framer-motion (`Components/Motion.tsx`: `Reveal`, `FadeIn`, `TiltCard`,
   todas con `prefers-reduced-motion`) aplicadas a Landing, GuestLayout,
   AuthenticatedLayout (nav sticky blur + estados activos), Dashboard y wizard.
+- ✅ **Elección explícita "Clásica | 3D interactiva" en el wizard de creación con IA**
+  (`Create/Index.tsx`, `/crear-con-ia`) — nuevo paso opcional junto al resto de
+  preguntas; por defecto queda en "automático" (la IA decide por sector, como antes),
+  pero si el cliente elige una opción, `ProjectController::buildPrompt()` inyecta una
+  instrucción que fuerza o prohíbe explícitamente el hero 3D en el prompt que recibe
+  `AnthropicService`. Antes esta elección solo existía al filtrar la galería de
+  plantillas (`Templates/Index.tsx`, PR #44 en curso); ahora también está en el flujo
+  de creación "a prueba de abuelos" con IA, que es la vía de entrada por defecto.
 
 ## Crecimiento global (que se pueda suscribir cualquier persona del planeta)
 - 🔵 Ampliar `resources/js/i18n/locales/*.json` más allá de es/en: añadir pt, fr, de, it

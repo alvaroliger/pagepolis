@@ -8,6 +8,8 @@ import { FadeIn } from '@/Components/Motion';
 const STYLES  = ['Moderno', 'Elegante', 'Minimalista', 'Colorido', 'Clásico', 'Atrevido'];
 const DESC_MAX = 1000;
 
+type PageType = 'auto' | 'classic' | '3d';
+
 export default function CreateWizard() {
     const [businessName, setBusinessName] = useState('');
     const [description, setDescription]   = useState('');
@@ -15,6 +17,7 @@ export default function CreateWizard() {
     const [whatsapp, setWhatsapp]         = useState('');
     const [style, setStyle]               = useState('Moderno');
     const [location, setLocation]         = useState('');
+    const [pageType, setPageType]         = useState<PageType>('auto');
     const [loading, setLoading]           = useState(false);
     const [error, setError]               = useState('');
     const [touched, setTouched]           = useState(false);
@@ -43,6 +46,7 @@ export default function CreateWizard() {
                 whatsapp: sells ? whatsapp : null,
                 style,
                 location,
+                page_type: pageType === 'auto' ? null : pageType,
             });
             if (data.success) {
                 router.visit(data.redirect);   // el editor muestra el progreso
@@ -160,6 +164,32 @@ export default function CreateWizard() {
                                 className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-600"
                             />
                         </div>
+                    </div>
+
+                    {/* 5. Tipo de página */}
+                    <div>
+                        <label className="block text-sm font-semibold text-white mb-2">5. ¿Qué tipo de página quieres?</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setPageType(pageType === 'classic' ? 'auto' : 'classic')}
+                                aria-pressed={pageType === 'classic'}
+                                className={`text-left p-4 rounded-xl border transition ${pageType === 'classic' ? 'bg-violet-600 border-violet-500' : 'bg-gray-800 border-gray-700 hover:border-gray-600'}`}
+                            >
+                                <span className={`block text-sm font-semibold ${pageType === 'classic' ? 'text-white' : 'text-gray-200'}`}>Clásica</span>
+                                <span className={`block text-xs mt-1 ${pageType === 'classic' ? 'text-violet-100' : 'text-gray-500'}`}>Diseño limpio y directo, foto potente en el hero.</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPageType(pageType === '3d' ? 'auto' : '3d')}
+                                aria-pressed={pageType === '3d'}
+                                className={`text-left p-4 rounded-xl border transition ${pageType === '3d' ? 'bg-violet-600 border-violet-500' : 'bg-gray-800 border-gray-700 hover:border-gray-600'}`}
+                            >
+                                <span className={`block text-sm font-semibold ${pageType === '3d' ? 'text-white' : 'text-gray-200'}`}>✨ 3D interactiva</span>
+                                <span className={`block text-xs mt-1 ${pageType === '3d' ? 'text-violet-100' : 'text-gray-500'}`}>Hero con profundidad WebGL y microinteracciones, estilo agencia premium.</span>
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-1.5">Si no eliges ninguna, la IA decide lo que mejor encaje con tu negocio.</p>
                     </div>
 
                     <AnimatePresence>
