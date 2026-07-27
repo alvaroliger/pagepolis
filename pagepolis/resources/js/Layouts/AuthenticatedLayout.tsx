@@ -28,6 +28,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
     const leadsUnread = page.props.leadsUnread ?? 0;
     const url = page.url;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const reduce = useReducedMotion();
 
@@ -44,6 +45,17 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
             document.removeEventListener('keydown', onKey);
         };
     }, [menuOpen]);
+
+    useEffect(() => {
+        if (!mobileNavOpen) return;
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileNavOpen(false); };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [mobileNavOpen]);
+
+    useEffect(() => {
+        setMobileNavOpen(false);
+    }, [url]);
 
     const isActive = (prefix: string) => url === prefix || url.startsWith(prefix + '/') || url.startsWith(prefix + '?');
 
@@ -78,6 +90,23 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                         </div>
                         <div className="flex items-center gap-4">
                             <span className="text-sm text-gray-400 hidden sm:block">{auth.user.name}</span>
+                            <button
+                                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                                aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
+                                aria-expanded={mobileNavOpen}
+                                aria-controls="mobile-nav-panel"
+                                className="md:hidden w-8 h-8 flex items-center justify-center text-gray-300 hover:text-white transition-colors"
+                            >
+                                {mobileNavOpen ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-6 h-6" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-6 h-6" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                                    </svg>
+                                )}
+                            </button>
                             <div className="relative" ref={menuRef}>
                                 <button
                                     onClick={() => setMenuOpen(!menuOpen)}
@@ -119,6 +148,44 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                         </div>
                     </div>
                 </div>
+
+                <AnimatePresence>
+                    {mobileNavOpen && (
+                        <motion.div
+                            id="mobile-nav-panel"
+                            initial={reduce ? false : { opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={reduce ? undefined : { opacity: 0, height: 0 }}
+                            transition={{ duration: 0.16, ease: 'easeOut' }}
+                            className="md:hidden border-t border-white/5 overflow-hidden"
+                        >
+                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-1">
+                                <Link href="/dashboard" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/dashboard') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                                    Dashboard
+                                </Link>
+                                <Link href="/analytics" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/analytics') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                                    Analítica
+                                </Link>
+                                <Link href="/mensajes" className={`rounded-lg px-3 py-2.5 text-sm flex items-center gap-1.5 ${isActive('/mensajes') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                                    Mensajes
+                                    {leadsUnread > 0 && (
+                                        <span className="bg-violet-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                                            {leadsUnread}
+                                        </span>
+                                    )}
+                                </Link>
+                                <Link href="/plantillas" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/plantillas') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                                    Plantillas
+                                </Link>
+                                {auth.user.role === 'admin' && (
+                                    <Link href="/admin" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/admin') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                                        Admin
+                                    </Link>
+                                )}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </nav>
 
             {header && (
