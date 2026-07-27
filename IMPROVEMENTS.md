@@ -220,6 +220,11 @@ la galería de plantillas — probablemente compensa que Álvaro elija una versi
 familia y cierre el resto manualmente en vez de que una sesión intente fusionarlas sola.
 
 ## Ideas nuevas
+- 🟢 Mismo patrón `id`/`htmlFor`/`aria-invalid`/`autoComplete` de `Pages/Auth/*` aplicado
+  también a `Profile/Edit.tsx` (nombre, email, contraseña actual/nueva) y al formulario de
+  dominio propio en `Publish/Index.tsx` — quedan con la misma desconexión label/input.
+  (Cuidado: `Profile/Edit.tsx` y `Publish/Index.tsx` ya tienen PRs abiertas en otras cosas —
+  revisar #52 y #56 antes de tocarlos para evitar conflicto.)
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
 - 🟡 **Fusionar/cerrar el backlog de 48 PRs abiertas** — decisión de Álvaro, no de una
