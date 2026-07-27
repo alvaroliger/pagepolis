@@ -98,6 +98,16 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   profundidad. Cableado en `base.css`, `engine.js`, `TemplateSeeder` (plantilla `saas` ya
   lo usa) y en los prompts de `AnthropicService` (la IA añade el `<canvas>`; el motor se
   inyecta desde el backend tras generar el JS — fiable y sin coste extra de tokens).
+- ✅ **Vista previa en vivo del hero 3D en el modal de la galería de plantillas** — el modal
+  de `Templates/Index.tsx` no incluía `js` en el `srcDoc` del iframe, así que ni el canvas
+  WebGL del hero 3D ni `.tilt-3d` se ejecutaban nunca antes de elegir plantilla (se veía una
+  captura congelada aunque la plantilla final sí es interactiva). Ahora `TemplateController`
+  expone `js` y el modal lo inyecta, así el cliente ve el efecto real —figuras low-poly con
+  luz e inclinación por ratón— antes de decidir. El grid de miniaturas se deja sin JS a
+  propósito (12 contextos WebGL simultáneos a la vez sería un golpe de rendimiento; ver
+  ítem de auditoría móvil más abajo). Nota de coordinación: la PR nº67 (en paralelo, aún sin
+  fusionar cuando se hizo este cambio) añade por su lado la insignia "3D" y el filtro
+  Simple/3D en la misma página — ese trabajo no se duplicó aquí a propósito.
 - ✅ **Extender el hero 3D / `tilt-3d` a más plantillas base** — canvas 3D en servicios,
   abogados, coach, inmobiliaria y fotógrafo (su hero es solo texto, sin foto protagonista)
   + `tilt-3d` en sus tarjetas clave y en el plan destacado de gimnasio. Restaurante,
