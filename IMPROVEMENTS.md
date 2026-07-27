@@ -194,6 +194,31 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
 - Captura de leads completa (6 tests, suite 96 verde). FAQPage JSON-LD. Estudios de producto/mercado.
 - ✅ Tests para `pagepolis:expiry-reminders` (5 tests, cobertura cero → completa para el comando de retención de suscripciones).
 
+## ⚠️ Coordinación (2026-07-13): backlog de PRs sin revisar muy saturado
+A fecha de hoy hay **13 PRs abiertas sin revisar** (#44 a #56), varias de ellas
+implementando el MISMO ítem por triplicado porque distintas sesiones no vieron el trabajo
+de las demás (el clon de esta sesión solo tenía `origin/master` en `git branch -r` hasta
+hacer `git fetch origin` — sin ese fetch, las ramas de otras sesiones son invisibles).
+**Antes de picar un ítem del backlog, haced siempre `git fetch origin && git branch -r`**
+(no solo mirar el `git branch -r` del clon inicial) y revisad los PRs abiertos del repo,
+no solo `git log` de `master`. PRs actuales y qué cubren, para no repetir:
+- #44, #51: insignia + filtro "Simple | 3D" en la galería de plantillas (mismo ítem, 2 PRs).
+- #45: throttle del hero 3D en gama baja.
+- #46: variantes de geometría/color del hero 3D.
+- #47: navegación móvil del panel autenticado (hamburguesa).
+- #48: modales accesibles (focus trap, `role="dialog"`, Escape) en Plantillas/Dashboard/Editor.
+- #49: elección "Clásica | 3D" en el wizard de creación con IA.
+- #50: fix de que la vista previa de plantillas no ejecutaba el `js` (hero 3D en blanco).
+- #52: sustituye `confirm()` nativo por modales propios en borrado irreversible.
+- #53, #54, #55: `aria-*` sueltos (gráfico de Analítica, emoji de Mensajes, toggle de viewport del Editor).
+- (esta sesión, rama `feat/publish-checkout-i18n`): `Publish/Index.tsx` traducido a los 6
+  idiomas + precios por idioma — no toca `Templates/Index.tsx` ni `TemplateController`, sin
+  conflicto con las anteriores.
+Antes de que Álvaro las revise/mergee, tened en cuenta que hay conflictos de fondo (varias tocan `Templates/Index.tsx`
+a la vez: #44, #48, #50, #51 se van a pisar entre sí) antes de seguir apilando más PRs sobre
+la galería de plantillas — probablemente compensa que Álvaro elija una versión de cada
+familia y cierre el resto manualmente en vez de que una sesión intente fusionarlas sola.
+
 ## Ideas nuevas
 - 🟢 Tests para `pagepolis:weekly-reports` (mismo patrón; cero cobertura para el comando de informes semanales).
 - 🟢 Arreglar mutación de Carbon en `SendWeeklyReports::buildStats()` (`$weekAgo->subDay()` muta el objeto, sesga la comparación semanal 8 días vs 7 días).
