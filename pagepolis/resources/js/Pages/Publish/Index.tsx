@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
-import { Link2, Globe, Sparkles, Rocket } from 'lucide-react';
+import { Link2, Globe, Sparkles, Rocket, Copy, Check } from 'lucide-react';
 
 interface Props {
     project: { id: number; name: string; slug: string } | null;
@@ -25,6 +25,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
     const [error, setError]         = useState('');
     const [published, setPublished] = useState<string | null>(null);
     const [provisioning, setProvisioning] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
 
     const asObj   = (val: unknown): Record<string, string> => (val && typeof val === 'object' && !Array.isArray(val)) ? val as Record<string, string> : {};
     const asArray = (val: unknown): string[] => Array.isArray(val) ? val as string[] : [];
@@ -35,6 +36,24 @@ export default function PublishIndex({ project, baseDomain }: Props) {
     const monthlyPrice = `${sym}${cur.pro_monthly ?? '14,99'}${t('publish.per_month')}`;
 
     const freeUrl = project ? `${window.location.origin}/s/${project.slug}` : '';
+
+    const copyUrl = async () => {
+        if (!published) return;
+        try {
+            await navigator.clipboard.writeText(published);
+        } catch {
+            const el = document.createElement('textarea');
+            el.value = published;
+            el.style.position = 'fixed';
+            el.style.opacity = '0';
+            document.body.appendChild(el);
+            el.select();
+            try { document.execCommand('copy'); } catch { /* noop */ }
+            document.body.removeChild(el);
+        }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     const publishFree = async () => {
         if (!project) return;
@@ -123,6 +142,25 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     >
                         {published}
                     </a>
+                    <div className="mt-3">
+                        <button
+                            type="button"
+                            onClick={copyUrl}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-white transition-colors"
+                        >
+                            {copied ? (
+                                <>
+                                    <Check className="w-3.5 h-3.5 text-emerald-400" strokeWidth={2.5} />
+                                    <span className="text-emerald-400">¡Enlace copiado!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Copy className="w-3.5 h-3.5" strokeWidth={2} />
+                                    Copiar enlace
+                                </>
+                            )}
+                        </button>
+                    </div>
                     <div className="mt-8 flex gap-3 justify-center">
                         <a
                             href={project ? `/editor/${project.id}` : '/dashboard'}
