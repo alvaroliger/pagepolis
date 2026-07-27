@@ -14,6 +14,7 @@
      #checkout-whatsapp / #checkout-email
    - Inclinación 3D: .tilt-3d en cualquier tarjeta reacciona al ratón
    - Hero 3D: <canvas class="hero3d-canvas" data-hero3d> lo inicializa hero3d.js
+     (data-hero3d-variant="icosahedron|octahedron|cube", opcional)
    Edita estas dos líneas para recibir pedidos:                                 */
 const WHATSAPP_NUMERO = '34600000000'; // tu WhatsApp: dígitos con prefijo país, sin '+'
 const EMAIL_PEDIDOS  = 'pedidos@tunegocio.com';
