@@ -7,8 +7,10 @@ use App\Jobs\PurchaseDomain;
 use App\Models\Domain;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\DinahostingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 /**
@@ -114,5 +116,53 @@ class DomainFlowTest extends TestCase
 
         $this->assertDatabaseMissing('domains', ['domain' => 'stolen.com']);
         Queue::assertNothingPushed();
+    }
+
+    public function test_check_reports_available_domain(): void
+    {
+        $this->mock(DinahostingService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('checkAvailability')->with('librenegocio.com')
+                ->andReturn(['available' => true, 'price' => 12.00]);
+        });
+
+        $this->actingAs($this->subscribedUser())
+            ->postJson('/dominios/verificar', ['domain' => 'librenegocio.com'])
+            ->assertOk()
+            ->assertJson(['available' => true]);
+    }
+
+    public function test_check_reports_taken_domain(): void
+    {
+        $this->mock(DinahostingService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('checkAvailability')->with('google-clone.com')
+                ->andReturn(['available' => false, 'price' => 12.00]);
+        });
+
+        $this->actingAs($this->subscribedUser())
+            ->postJson('/dominios/verificar', ['domain' => 'google-clone.com'])
+            ->assertOk()
+            ->assertJson(['available' => false]);
+    }
+
+    public function test_check_blocks_forbidden_domain_without_calling_registrar(): void
+    {
+        $this->actingAs($this->subscribedUser())
+            ->postJson('/dominios/verificar', ['domain' => 'google.com'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('domain');
+    }
+
+    public function test_check_rejects_invalid_domain_format(): void
+    {
+        $this->actingAs($this->subscribedUser())
+            ->postJson('/dominios/verificar', ['domain' => 'not a domain'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('domain');
+    }
+
+    public function test_check_requires_authentication(): void
+    {
+        $this->postJson('/dominios/verificar', ['domain' => 'minegocio.com'])
+            ->assertStatus(401);
     }
 }
