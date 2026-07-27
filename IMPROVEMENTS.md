@@ -73,6 +73,12 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   (`resources/js/Pages/Editor/Index.tsx`).
 - ✅ Checklist de onboarding en el dashboard.
 - ✅ Code-splitting del editor: CodeMirror extraído a chunk vendor propio (app-*.js ya no lo arrastra).
+- ✅ **Overlay de carga en la vista previa del editor** — mientras la IA genera o aplica un
+  cambio (`aiLoading`), el panel de vista previa (`resources/js/Pages/Editor/Index.tsx`) se
+  quedaba en blanco o con el contenido antiguo sin ningún indicio visual (el chat ya avisaba
+  con los puntos de "escribiendo", pero el panel grande de la derecha no daba ninguna pista).
+  Ahora un overlay con blur + los mismos puntos animados + el texto de progreso se superpone
+  al iframe mientras dura la generación.
 
 ## Diseño / nivel visual (referencia: motionsites.ai — agencia premium, 3D/motion)
 - ✅ Motor hero 3D propio sin dependencias (`database/templates/hero3d.js`, WebGL, figuras
