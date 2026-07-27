@@ -14,6 +14,7 @@ interface Template {
     thumbnail: string | null;
     tags: string[] | null;
     is_premium: boolean;
+    is_3d: boolean;
     uses_count: number;
     html: string;
     css: string;
@@ -127,6 +128,17 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                             {cat}
                         </button>
                     ))}
+                    <button
+                        onClick={() => setOnly3d(v => !v)}
+                        aria-pressed={only3d}
+                        className={`ml-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
+                            only3d
+                                ? 'bg-fuchsia-600 border-fuchsia-500 text-white'
+                                : 'bg-gray-800 border-transparent text-gray-400 hover:bg-gray-700 hover:text-white'
+                        }`}
+                    >
+                        ✨ Solo 3D
+                    </button>
                 </div>
 
                 {filtered.length === 0 && (
