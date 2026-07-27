@@ -143,6 +143,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [messages, setMessages]   = useState<ChatMessage[]>(project.ai_history ?? []);
     const [seoMeta, setSeoMeta]     = useState(project.seo_meta);
     const [seoLoading, setSeoLoading] = useState(false);
+    const [seoPanelOpen, setSeoPanelOpen] = useState(false);
     const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null);
     const [showUsageTooltip, setShowUsageTooltip] = useState(false);
     const usageTooltipRef = useRef<HTMLDivElement>(null);
@@ -217,6 +218,11 @@ export default function EditorIndex({ project, aiUsage }: Props) {
 
     const markDirty = () => setDirty(true);
 
+    const updateSeoMeta = (patch: Partial<NonNullable<Project['seo_meta']>>) => {
+        setSeoMeta(m => ({ ...(m ?? {}), ...patch }));
+        markDirty();
+    };
+
     const handleHtmlChange = (v: string) => { setHtml(v); markDirty(); };
     const handleCssChange  = (v: string) => { setCss(v);  markDirty(); };
     const handleJsChange   = (v: string) => { setJs(v);   markDirty(); };
@@ -280,6 +286,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
             const res = await axios.post('/ai/seo', { project_id: project.id });
             if (res.data.success) {
                 setSeoMeta(res.data.meta);
+                setSeoPanelOpen(true);
                 toast.success('SEO generado y guardado');
             }
         } catch (err: any) {
@@ -292,7 +299,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const save = async () => {
         setSaving(true);
         try {
-            await axios.post(`/editor/${project.id}/guardar`, { name, html, css, js });
+            await axios.post(`/editor/${project.id}/guardar`, { name, html, css, js, seo_meta: seoMeta });
             setSaved(true);
             setDirty(false);
             setTimeout(() => setSaved(false), 2500);
@@ -311,7 +318,7 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         const timer = window.setTimeout(save, 2500);
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [html, css, js, name, dirty, saving, aiLoading]);
+    }, [html, css, js, name, seoMeta, dirty, saving, aiLoading]);
 
     const requestModeSwitch = (newMode: AiMode) => {
         if (newMode === aiMode) return;
