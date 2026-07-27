@@ -38,7 +38,7 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
             <div className="max-w-4xl mx-auto px-4 py-8">
                 {leads.length === 0 ? (
                     <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
-                        <div className="text-4xl mb-3">📭</div>
+                        <div className="text-4xl mb-3" aria-hidden="true">📭</div>
                         <h2 className="text-lg font-bold text-white">Aún no tienes mensajes</h2>
                         <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
                             Cuando alguien rellene el formulario de contacto de tu web, su mensaje aparecerá aquí
@@ -69,12 +69,12 @@ export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) 
                                 <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-sm">
                                     {lead.email && (
                                         <a href={`mailto:${lead.email}`} className="text-violet-400 hover:underline">
-                                            ✉️ {lead.email}
+                                            <span aria-hidden="true">✉️</span> {lead.email}
                                         </a>
                                     )}
                                     {lead.phone && (
                                         <a href={`tel:${lead.phone}`} className="text-violet-400 hover:underline">
-                                            📞 {lead.phone}
+                                            <span aria-hidden="true">📞</span> {lead.phone}
                                         </a>
                                     )}
                                 </div>
