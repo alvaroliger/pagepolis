@@ -86,6 +86,7 @@ export default function TemplatesIndex({ templates, categories }: Props) {
                         type="text"
                         value={name}
                         onChange={e => setName(e.target.value)}
+                        maxLength={100}
                         placeholder="Nombre de tu proyecto (ej: Mi restaurante)"
                         className="flex-1 max-w-md bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-500"
                     />

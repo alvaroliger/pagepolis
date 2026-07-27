@@ -192,6 +192,8 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                 </AnimatePresence>
             </nav>
 
+            <FlashBanner />
+
             {header && (
                 <header className="bg-gray-900/60 border-b border-gray-800">
                     <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
