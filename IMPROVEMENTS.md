@@ -248,6 +248,17 @@ otro ítem o una mejora de calidad/corrección de bug en su lugar.
   descarté sin hacer push. Añadido el aviso de arriba con la lista completa de qué ya tiene PR,
   para que la próxima ejecución no repita el mismo trabajo.
 
+## Hecho recientemente (2026-07-21)
+- Confirmación visual al guardar "Datos personales" y "Cambiar contraseña" en /perfil
+  (antes no había ningún aviso de éxito en ninguno de los dos formularios).
+- ⚠️ Nota para la próxima pasada: el repo tiene actualmente ~50 PRs abiertas de auto-mejora
+  sin fusionar todavía, cubriendo ya la gran mayoría de ítems 🟢 obvios de este backlog
+  (variantes/throttle del hero 3D, badges y filtros 3D en la galería, i18n del checkout,
+  a11y de editor/dashboard/formularios, papelera/duplicar/buscar en Dashboard, elección
+  Clásica/3D en el wizard, modales sin `confirm()` nativo, etc.). Antes de elegir ítem,
+  revisa `list_pull_requests` (state=open) para no duplicar — muchos de esos PRs, una vez
+  fusionados, dejarán obsoletas las líneas ✅/🟢 correspondientes de este archivo.
+
 ## Hecho recientemente (2026-07-03, integración a master)
 - Integradas a master las ~30 ramas de dos semanas de auto-mejora (una rama por mejora)
   + todo el trabajo de la sesión (3D, motion, prompt caching, autosave). Duplicados de la

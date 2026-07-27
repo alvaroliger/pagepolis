@@ -43,6 +43,20 @@ interface User {
     whatsapp_phone: string | null;
 }
 
+const STATUS_MESSAGES: Record<string, string> = {
+    'profile-updated':  'Perfil actualizado correctamente.',
+    'password-updated': 'Contraseña actualizada correctamente.',
+};
+
+function StatusBanner({ status, expected }: { status?: string; expected: string }) {
+    if (status !== expected) return null;
+    return (
+        <div className="mb-4 text-sm text-green-400 bg-green-900/20 border border-green-800 rounded-lg p-3">
+            {STATUS_MESSAGES[expected]}
+        </div>
+    );
+}
+
 export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth, errors: pageErrors } = usePage<{ auth: { user: User } }>().props;
 
@@ -100,7 +114,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
                     <h2 className="text-lg font-bold text-white mb-5">Datos personales</h2>
 
-                    {status && <div className="mb-4 text-sm text-green-400 bg-green-900/20 border border-green-800 rounded-lg p-3">{status}</div>}
+                    <StatusBanner status={status} expected="profile-updated" />
 
                     <form onSubmit={updateProfile} className="space-y-4">
                         <div>
@@ -148,6 +162,7 @@ export default function ProfileEdit({ mustVerifyEmail, status }: { mustVerifyEma
                 {/* Contraseña */}
                 <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
                     <h2 className="text-lg font-bold text-white mb-5">Cambiar contraseña</h2>
+                    <StatusBanner status={status} expected="password-updated" />
                     <form onSubmit={updatePassword} className="space-y-4">
                         {(['current_password', 'password', 'password_confirmation'] as const).map((field, i) => (
                             <div key={field}>
