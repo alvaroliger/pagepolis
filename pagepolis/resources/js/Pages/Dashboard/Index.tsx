@@ -245,6 +245,15 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
     const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
     const [purgeTarget, setPurgeTarget] = useState<TrashedProject | null>(null);
     const [showTrash, setShowTrash] = useState(false);
+    const [query, setQuery] = useState('');
+
+    const filteredProjects = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return projects;
+        return projects.filter(p =>
+            [p.name, p.domain].some(field => field?.toLowerCase().includes(q))
+        );
+    }, [projects, query]);
 
     const confirmDelete = () => {
         if (!deleteTarget) return;
@@ -357,13 +366,37 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                             </Link>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                            {projects.map((project, i) => (
-                                <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
-                                    <ProjectCard project={project} onDelete={setDeleteTarget} />
-                                </Reveal>
-                            ))}
-                        </div>
+                        {projects.length > 3 && (
+                            <input
+                                type="search"
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                placeholder="Buscar por nombre o dominio..."
+                                aria-label="Buscar proyectos"
+                                className="w-full max-w-md mb-6 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-violet-500 placeholder-gray-500"
+                            />
+                        )}
+
+                        {filteredProjects.length === 0 ? (
+                            <div className="text-center py-16 border border-dashed border-gray-800 rounded-2xl">
+                                <p className="text-gray-400 font-semibold mb-1">Sin resultados para "{query}"</p>
+                                <p className="text-gray-600 text-sm mb-4">Prueba con otro nombre o dominio</p>
+                                <button
+                                    onClick={() => setQuery('')}
+                                    className="text-violet-400 hover:text-violet-300 text-sm font-semibold"
+                                >
+                                    Quitar búsqueda
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                {filteredProjects.map((project, i) => (
+                                    <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
+                                        <ProjectCard project={project} onDelete={setDeleteTarget} />
+                                    </Reveal>
+                                ))}
+                            </div>
+                        )}
                     </>
                 )}
 
