@@ -1,0 +1,72 @@
+/* ── Aura — plantilla 3D premium (belleza / estética / spa). Carbón cálido con
+   rosa-oro, elegante y sereno; hero WebGL y halo suave animado. ── */
+:root{
+  --font-head:'Cormorant Garamond','Playfair Display',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#141017; --text:#f2e9ee; --muted:#b39bad;
+  --brand:#e8b4b8; --brand-2:#c9a15e; --on-brand:#2a1620;
+  --surface:rgba(255,255,255,.04); --border:rgba(232,180,184,.18);
+  --header-bg:rgba(20,16,23,.8); --footer-bg:#0e0a11; --footer-text:#b39bad;
+  --radius:16px; --maxw:1160px;
+}
+body{background:var(--bg);background-image:radial-gradient(800px 600px at 50% -5%,rgba(232,180,184,.14),transparent 60%)}
+::selection{background:var(--brand);color:#2a1620}
+.logo{font-family:var(--font-head);font-size:1.8rem;font-weight:600;letter-spacing:.04em;color:var(--brand)}
+.badge-pill{display:inline-block;font-size:.74rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:.45rem 1.1rem;border-radius:999px;color:var(--brand-2);border:1px solid var(--border);margin-bottom:1.5rem}
+#site-header.scrolled{background:var(--header-bg);border-bottom:1px solid var(--border)}
+#main-nav a{color:var(--text)}
+.btn-primary{background:linear-gradient(100deg,var(--brand),var(--brand-2));color:var(--on-brand);box-shadow:0 10px 40px rgba(232,180,184,.25);font-weight:700}
+.btn-outline{border-color:var(--border);color:var(--text);background:rgba(255,255,255,.03)}
+.kicker{color:var(--brand);font-family:var(--font-body)}
+
+/* Hero */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;text-align:center;overflow:hidden;padding:120px 0 80px}
+.hero .container{position:relative;z-index:3}
+.hero3d-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.55}
+.halo{position:absolute;left:50%;top:36%;width:60vw;height:60vw;transform:translate(-50%,-50%);z-index:0;background:radial-gradient(circle,rgba(232,180,184,.22),transparent 62%);filter:blur(50px);animation:breathe 8s ease-in-out infinite alternate;pointer-events:none}
+@keyframes breathe{0%{opacity:.5;transform:translate(-50%,-50%) scale(.92)}100%{opacity:.85;transform:translate(-50%,-50%) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.halo{animation:none}}
+.hero h1{font-family:var(--font-head);font-size:clamp(3rem,8vw,6.5rem);font-weight:500;line-height:1;color:#fff;margin-bottom:1.4rem}
+.hero h1 em{font-style:italic;color:var(--brand)}
+.hero p{font-size:clamp(1.05rem,2vw,1.25rem);color:var(--muted);max-width:600px;margin:0 auto 2.2rem}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap}
+
+.sec-title{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.4rem);font-weight:600;color:#fff;margin-top:.3rem}
+
+/* Servicios */
+.serv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.serv-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;backdrop-filter:blur(12px);text-align:center}
+.serv-ic{font-size:1.8rem;color:var(--brand);margin-bottom:14px}
+.serv-card h3{font-family:var(--font-head);color:#fff;font-size:1.4rem;margin-bottom:.5rem}
+.serv-card p{color:var(--muted);font-size:.92rem;margin-bottom:1rem}
+.serv-price{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--brand-2);border-top:1px solid var(--border);padding-top:.8rem;width:100%}
+
+/* Espacio (split) */
+.split{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;align-items:center}
+.split-img{aspect-ratio:4/5;border-radius:18px;background:var(--img) center/cover no-repeat;filter:saturate(1.02)}
+.aura-list{list-style:none;margin:1.4rem 0 2rem}
+.aura-list li{padding:.55rem 0 .55rem 1.8rem;position:relative;color:var(--text);border-bottom:1px solid var(--border)}
+.aura-list li::before{content:'✦';position:absolute;left:0;color:var(--brand)}
+
+/* Testimonios */
+.testi blockquote{font-family:var(--font-head);font-size:clamp(1.4rem,3vw,2.1rem);font-style:italic;line-height:1.4;color:#fff;text-align:center;max-width:800px;margin:0 auto 1.6rem}
+.testi-author{display:flex;gap:.8rem;align-items:center;justify-content:center}
+.testi-author img{width:52px;height:52px;border-radius:50%;border:2px solid var(--border)}
+.testi-author strong{display:block;color:#fff}.testi-author span{color:var(--muted);font-size:.88rem}
+.testi-controls{display:flex;gap:1rem;justify-content:center;margin-top:1.8rem}
+.testi-prev,.testi-next{background:var(--surface);border:1px solid var(--border);color:#fff}
+
+/* CTA */
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:24px;padding:64px 40px;text-align:center}
+.cta-band h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);font-weight:600;color:#2a1620;margin-bottom:.5rem}
+.cta-band p{color:rgba(42,22,32,.8);margin-bottom:1.8rem}
+.cta-band .btn-primary{background:#141017;color:#fff}
+
+@media(max-width:900px){
+  .serv-grid{grid-template-columns:1fr 1fr}
+  .split{grid-template-columns:1fr;gap:28px}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:#141017;transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:#fff;z-index:120}
+}
+@media(max-width:540px){.serv-grid{grid-template-columns:1fr}}

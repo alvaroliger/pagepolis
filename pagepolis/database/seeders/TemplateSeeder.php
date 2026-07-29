@@ -28,6 +28,8 @@ class TemplateSeeder extends Seeder
             ['key' => 'vault',  'name' => 'Vault — Fintech / Web3 3D',    'category' => 'Fintech',     'tags' => ['fintech', 'cripto', 'web3', '3d'],      'premium' => true],
             ['key' => 'pulse',  'name' => 'Pulse — Gimnasio / Fitness 3D','category' => 'Fitness',     'tags' => ['gimnasio', 'fitness', '3d', 'moderna'], 'premium' => true],
             ['key' => 'ember',  'name' => 'Ember — Restaurante 3D',       'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', '3d', 'premium'],'premium' => true],
+            ['key' => 'aura',   'name' => 'Aura — Belleza / Estética 3D', 'category' => 'Belleza',     'tags' => ['belleza', 'estética', 'spa', '3d'],     'premium' => true],
+            ['key' => 'vista',  'name' => 'Vista — Inmobiliaria 3D',      'category' => 'Inmobiliaria','tags' => ['inmobiliaria', 'propiedades', '3d'],    'premium' => true],
 
             ['key' => 'restaurante', 'name' => 'Restaurante con pedidos', 'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', 'pedidos', 'tienda']],
             ['key' => 'tienda',      'name' => 'Tienda online',          'category' => 'E-commerce',  'tags' => ['tienda', 'productos', 'carrito']],
