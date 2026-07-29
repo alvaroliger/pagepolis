@@ -15,6 +15,14 @@ const CodeMirrorEditor = lazy(() => import('./CodeMirrorEditor'));
 // no al sitio publicado real.
 const PREVIEW_GUARD = "(function(){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';if(h.charAt(0)==='#'){e.preventDefault();try{if(h.length>1){var el=document.querySelector(h);if(el)el.scrollIntoView({behavior:'smooth'});}}catch(x){}}else{e.preventDefault();}},true);document.addEventListener('submit',function(e){e.preventDefault();},true);})();";
 
+// ── Edición de textos in-situ ("Editar textos") ──────────────────────────────
+// Hace editable cada bloque de texto de la preview (clic → escribir), sin tocar
+// código, para que cualquiera pueda cambiar todos los textos de una plantilla.
+// Al salir de un texto, devuelve el HTML del <body> al editor por postMessage.
+// Se marca lo inyectado (scripts/estilos) para poder quitarlo antes de guardar.
+const EDIT_STYLE = "<style data-ppinject>[data-ppedit]{outline:1px dashed rgba(124,92,255,.5);outline-offset:2px;border-radius:2px;cursor:text;transition:outline-color .15s}[data-ppedit]:hover{outline-color:rgba(124,92,255,.95)}[data-ppedit]:focus{outline:2px solid #7c5cff!important;background:rgba(124,92,255,.07)}</style>";
+const INLINE_EDITOR = "(function(){function leaf(el){if(el.querySelector('img,canvas,svg,video,iframe,input,textarea,select,button'))return false;var k=el.children;for(var i=0;i<k.length;i++){if(!/^(SPAN|EM|STRONG|B|I|A|SMALL|U|MARK|BR|SUP|SUB)$/.test(k[i].tagName))return false;}var t=(el.textContent||'').trim();return t.length>0&&t.length<900;}var sel='h1,h2,h3,h4,h5,h6,p,li,blockquote,figcaption,td,th,label,a,button,span,small';document.querySelectorAll(sel).forEach(function(el){if(el.closest('[data-hero3d]'))return;if(el.parentElement&&el.parentElement.closest('[data-ppedit]'))return;if(!leaf(el))return;el.setAttribute('contenteditable','true');el.setAttribute('data-ppedit','1');el.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey&&el.tagName!=='DIV'){e.preventDefault();el.blur();}});el.addEventListener('blur',sync);});function sync(){var b=document.body.cloneNode(true);b.querySelectorAll('[data-ppedit]').forEach(function(n){n.removeAttribute('contenteditable');n.removeAttribute('data-ppedit');if(!n.getAttribute('style'))n.removeAttribute('style');});b.querySelectorAll('script[data-ppinject],style[data-ppinject]').forEach(function(n){n.remove();});try{parent.postMessage({type:'pp-inline-edit',html:b.innerHTML},'*');}catch(e){}}})();";
+
 // Sugerencias rápidas del chat (modo Modificar). Muchas se resuelven gratis al
 // instante (color, fondo, fuente, WhatsApp, ocultar) sin gastar IA.
 type Suggestion = { label: string; text?: string; action?: 'image' };
@@ -24,6 +32,8 @@ const SUGGESTIONS: Suggestion[] = [
     { label: '🔤 Tipografía',       text: 'Cambia la tipografía a Poppins' },
     { label: '📱 Mi WhatsApp',      text: 'Mi WhatsApp para pedidos es +34 ' },
     { label: '✂️ Quitar sección',   text: 'Quita la sección de testimonios' },
+    { label: '🔄 Cambiar de sector', text: 'Adapta toda esta web para otro negocio: un gimnasio. Cambia todos los textos, servicios, secciones y el nombre para que encajen, pero mantén el diseño y la estructura visual.' },
+    { label: '➕ Añadir sección',    text: 'Añade una sección de ' },
     { label: '📷 Subir logo/foto',  action: 'image' },
 ];
 
@@ -153,8 +163,17 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     const [simpleMode, setSimpleMode] = useState(true);   // el usuario no ve código por defecto
     const [canUndo, setCanUndo]     = useState(project.can_undo);
     const [undoing, setUndoing]     = useState(false);
+    // Panel visible en móvil/tablet (chat | preview | code) y edición de textos in-situ.
+    const [mobilePanel, setMobilePanel] = useState<MobilePanel>('preview');
+    const [textEdit, setTextEdit]   = useState(false);
+
+    // ¿La web usa el motor 3D? (canvas hero3d). Se recalcula con el HTML actual.
+    const has3d = /data-hero3d/.test(html);
 
     const iframeRef  = useRef<HTMLIFrameElement>(null);
+    // Cuando el HTML cambia porque el usuario editó un texto EN la preview, no hay
+    // que reconstruir el iframe (se perdería la selección/foco): esta bandera lo evita.
+    const skipRebuild = useRef(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
     const pollRef    = useRef<number | null>(null);
     const imageInput = useRef<HTMLInputElement>(null);
@@ -185,13 +204,36 @@ export default function EditorIndex({ project, aiUsage }: Props) {
         return () => window.removeEventListener('beforeunload', handler);
     }, [dirty]);
 
-    const buildPreviewHtml = useCallback(() =>
-        `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>${PREVIEW_GUARD}<\/script><script>${js}<\/script></body></html>`,
-    [html, css, js]);
+    const buildPreviewHtml = useCallback(() => {
+        // En modo "Editar textos" se omite el JS del sitio (acordeones, sliders,
+        // animaciones de aparición) para no estorbar al escribir; solo el guard de
+        // navegación + el editor in-situ. Fuera de ese modo, el sitio corre normal.
+        const head = `<style>${css}</style>` + (textEdit ? EDIT_STYLE : '');
+        const tail = textEdit
+            ? `<script data-ppinject>${PREVIEW_GUARD}<\/script><script data-ppinject>${INLINE_EDITOR}<\/script>`
+            : `<script data-ppinject>${PREVIEW_GUARD}<\/script><script data-ppinject>${js}<\/script>`;
+        return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${head}</head><body>${html}${tail}</body></html>`;
+    }, [html, css, js, textEdit]);
 
     useEffect(() => {
+        // Si el cambio de HTML vino de editar un texto en la preview, no se
+        // reconstruye el iframe (evita el parpadeo y la pérdida de foco).
+        if (skipRebuild.current) { skipRebuild.current = false; return; }
         if (iframeRef.current) iframeRef.current.srcdoc = buildPreviewHtml();
     }, [buildPreviewHtml]);
+
+    // Recibe los textos editados in-situ desde la preview y los sincroniza.
+    useEffect(() => {
+        const onMessage = (e: MessageEvent) => {
+            if (e.data && e.data.type === 'pp-inline-edit' && typeof e.data.html === 'string') {
+                skipRebuild.current = true;
+                setHtml(e.data.html);
+                markDirty();
+            }
+        };
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+    }, []);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -503,6 +545,18 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         ))}
                     </div>
                     <button
+                        onClick={() => setTextEdit(v => !v)}
+                        title="Edita los textos haciendo clic directamente sobre ellos en la vista previa"
+                        aria-pressed={textEdit}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+                            textEdit
+                                ? 'bg-emerald-900/40 text-emerald-300 border-emerald-700/50'
+                                : 'bg-gray-800 text-gray-400 hover:text-white border-gray-700'
+                        }`}
+                    >
+                        {textEdit ? '✏️ Editando textos' : '✏️ Editar textos'}
+                    </button>
+                    <button
                         onClick={() => setSimpleMode(s => !s)}
                         title={simpleMode ? 'Mostrar el código (modo avanzado)' : 'Ocultar el código (modo sencillo)'}
                         className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
@@ -781,8 +835,14 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                 </div>
 
                 {/* Preview */}
-                <div className="flex-1 bg-gray-800 flex items-start justify-center overflow-auto p-4">
-                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full min-h-0 relative">
+                <div className="flex-1 bg-gray-800 flex flex-col items-stretch overflow-auto p-4">
+                    {textEdit && (
+                        <div className="mb-3 flex items-center justify-center gap-2 text-xs text-emerald-300 bg-emerald-900/20 border border-emerald-800/40 rounded-lg py-2 px-3">
+                            <span>✏️ Haz clic en cualquier texto de tu web para editarlo. Se guarda solo al salir del texto.</span>
+                            <button onClick={() => setTextEdit(false)} className="font-semibold underline hover:text-white">Terminar</button>
+                        </div>
+                    )}
+                    <div style={{ width: viewWidths[viewMode], transition: 'width 0.3s ease' }} className="h-full min-h-0 relative mx-auto">
                         <iframe
                             ref={iframeRef}
                             sandbox="allow-scripts allow-same-origin"
