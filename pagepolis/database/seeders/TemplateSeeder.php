@@ -22,6 +22,11 @@ class TemplateSeeder extends Seeder
     private function manifest(): array
     {
         return [
+            // ── Plantillas 3D premium (modernas, oscuras, hero WebGL) — al frente ──
+            ['key' => 'nebula', 'name' => 'Nebula — IA / SaaS 3D',        'category' => 'SaaS',        'tags' => ['ia', 'saas', '3d', 'moderna'],        'premium' => true],
+            ['key' => 'prisma', 'name' => 'Prisma — Estudio creativo 3D', 'category' => 'Portfolio',   'tags' => ['agencia', 'portfolio', '3d', 'diseño'], 'premium' => true],
+            ['key' => 'vault',  'name' => 'Vault — Fintech / Web3 3D',    'category' => 'Fintech',     'tags' => ['fintech', 'cripto', 'web3', '3d'],      'premium' => true],
+
             ['key' => 'restaurante', 'name' => 'Restaurante con pedidos', 'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', 'pedidos', 'tienda']],
             ['key' => 'tienda',      'name' => 'Tienda online',          'category' => 'E-commerce',  'tags' => ['tienda', 'productos', 'carrito']],
             ['key' => 'servicios',   'name' => 'Empresa de servicios',   'category' => 'Servicios',   'tags' => ['servicios', 'empresa', 'agencia']],

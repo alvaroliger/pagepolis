@@ -1,0 +1,88 @@
+/* ── Prisma Studio — plantilla 3D premium (agencia creativa / portfolio).
+   Oscura, editorial, con marquee animado, grano y hero 3D WebGL. ── */
+:root{
+  --font-head:'Clash Display','Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#0b0b0d; --text:#f2f0ec; --muted:#9c9a94;
+  --brand:#ff5c39; --brand-2:#ffd23f; --on-brand:#0b0b0d;
+  --surface:rgba(255,255,255,.04); --border:rgba(255,255,255,.12);
+  --header-bg:rgba(11,11,13,.75); --footer-bg:#060607; --footer-text:#9c9a94;
+  --radius:14px; --maxw:1240px;
+}
+body{background:var(--bg)}
+::selection{background:var(--brand);color:#fff}
+.badge-pill{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.45rem 1rem;border-radius:999px;color:var(--brand-2);border:1px solid var(--border);margin-bottom:1.6rem}
+#site-header.scrolled{background:var(--header-bg);border-bottom:1px solid var(--border)}
+#main-nav a{color:var(--text)}
+.logo span{color:var(--brand)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 10px 40px rgba(255,92,57,.35)}
+.btn-outline{border-color:var(--border);color:var(--text)}
+.kicker{color:var(--brand)}
+
+/* Hero */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding:140px 0 90px}
+.hero .container{position:relative;z-index:3}
+.hero3d-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.75}
+.hero h1{font-size:clamp(3rem,9vw,7.5rem);letter-spacing:-.04em;line-height:.94;color:#fff;margin-bottom:1.6rem;text-transform:uppercase}
+.hero h1 em{font-style:italic;font-weight:400;background:linear-gradient(100deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--muted);max-width:560px;margin-bottom:2.4rem}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap}
+/* Grano sutil animado */
+.grain{position:absolute;inset:0;z-index:2;opacity:.06;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grainmove 8s steps(6) infinite}
+@keyframes grainmove{0%{transform:translate(0,0)}100%{transform:translate(-40px,30px)}}
+
+/* Marquee inferior del hero */
+.marquee{position:absolute;bottom:0;left:0;right:0;z-index:3;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(0,0,0,.3);overflow:hidden;padding:16px 0}
+.marquee-track{display:inline-block;white-space:nowrap;animation:scroll 22s linear infinite;font-family:var(--font-head);font-size:1.1rem;letter-spacing:.1em;color:var(--muted)}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee-track{animation:none}.grain{animation:none}}
+
+.sec-title{font-size:clamp(2rem,5vw,3.4rem);letter-spacing:-.03em;color:#fff;text-transform:uppercase}
+.eyebrow{max-width:none;margin-bottom:2.4rem}
+
+/* Trabajo */
+.work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+.work-card{display:block;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border)}
+.work-img{aspect-ratio:4/3;background:var(--img) center/cover no-repeat;transition:transform .6s cubic-bezier(.2,.8,.2,1);filter:saturate(1.05)}
+.work-card:hover .work-img{transform:scale(1.06)}
+.work-meta{display:flex;justify-content:space-between;align-items:center;padding:20px 22px}
+.work-meta h3{color:#fff;font-size:1.3rem}
+.work-meta span{color:var(--muted);font-size:.85rem;text-align:right}
+
+/* Servicios */
+.serv-list{border-top:1px solid var(--border)}
+.serv-row{display:grid;grid-template-columns:70px 1fr 1.2fr;gap:24px;align-items:center;padding:30px 0;border-bottom:1px solid var(--border);transition:padding-left .3s,background .3s}
+.serv-row:hover{padding-left:16px;background:linear-gradient(90deg,rgba(255,92,57,.06),transparent)}
+.serv-n{font-family:var(--font-head);color:var(--brand);font-size:1.1rem}
+.serv-row h3{color:#fff;font-size:clamp(1.4rem,3vw,2.2rem);text-transform:uppercase;letter-spacing:-.02em}
+.serv-row p{color:var(--muted)}
+
+/* Stats */
+.stats{padding:30px 0 70px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;border-top:1px solid var(--border);padding-top:50px}
+.stats-grid strong{display:block;font-family:var(--font-head);font-size:2.8rem;color:var(--brand)}
+.stats-grid span{color:var(--muted);font-size:.9rem}
+
+/* Testimonios */
+.testi blockquote{font-family:var(--font-head);font-size:clamp(1.4rem,3vw,2.1rem);line-height:1.35;color:#fff;text-align:center;max-width:820px;margin:0 auto 1.6rem}
+.testi-author{display:flex;gap:.8rem;align-items:center;justify-content:center}
+.testi-author img{width:52px;height:52px;border-radius:50%;border:2px solid var(--border)}
+.testi-author strong{display:block;color:#fff}.testi-author span{color:var(--muted);font-size:.88rem}
+.testi-controls{display:flex;gap:1rem;justify-content:center;margin-top:1.8rem}
+.testi-prev,.testi-next{background:var(--surface);border:1px solid var(--border);color:#fff}
+
+/* CTA */
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:28px;padding:70px 40px;text-align:center}
+.cta-band h2{font-size:clamp(2rem,5vw,3.4rem);color:#fff;text-transform:uppercase;letter-spacing:-.02em;margin-bottom:.6rem}
+.cta-band p{color:rgba(255,255,255,.92);margin-bottom:1.8rem}
+.cta-band .btn-primary{background:#0b0b0d;color:#fff}
+
+@media(max-width:860px){
+  .work-grid{grid-template-columns:1fr}
+  .serv-row{grid-template-columns:50px 1fr;grid-template-areas:'n h' '. p'}
+  .serv-n{grid-area:n}.serv-row h3{grid-area:h}.serv-row p{grid-area:p}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:#0b0b0d;transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:#fff;z-index:120}
+}
