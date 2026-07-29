@@ -85,6 +85,15 @@ export default function Landing() {
 
             <div className="bg-gray-950 text-white min-h-screen">
 
+                {/* Motion premium: aurora del hero, glow del CTA (respeta reduce-motion) */}
+                <style dangerouslySetInnerHTML={{ __html: `
+@keyframes pp-drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(6%,5%) scale(1.3)}}
+@keyframes pp-glow{0%,100%{box-shadow:0 12px 44px rgba(124,58,237,.45)}50%{box-shadow:0 16px 64px rgba(217,70,239,.65)}}
+.pp-aurora span{position:absolute;border-radius:9999px;filter:blur(80px);mix-blend-mode:screen;animation:pp-drift 16s ease-in-out infinite alternate}
+.pp-glow{animation:pp-glow 3.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.pp-aurora span,.pp-glow{animation:none}}
+                `}} />
+
                 {/* NAV */}
                 <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-gray-950/85 backdrop-blur-xl">
                     <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
@@ -114,9 +123,10 @@ export default function Landing() {
 
                 {/* HERO */}
                 <section className="pt-36 pb-20 px-6 relative overflow-hidden">
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-violet-700/20 rounded-full blur-[130px]" />
-                        <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] bg-fuchsia-700/12 rounded-full blur-[100px]" />
+                    <div className="absolute inset-0 pointer-events-none pp-aurora overflow-hidden opacity-60">
+                        <span className="w-[42vw] h-[42vw] -left-[6vw] -top-[6vw]" style={{ background: 'radial-gradient(circle,#7c3aed,transparent 65%)' }} />
+                        <span className="w-[36vw] h-[36vw] -right-[4vw] top-[6vw]" style={{ background: 'radial-gradient(circle,#22d3ee,transparent 65%)', animationDelay: '-5s' }} />
+                        <span className="w-[30vw] h-[30vw] left-[34vw] top-[18vw]" style={{ background: 'radial-gradient(circle,#d946ef,transparent 65%)', animationDelay: '-9s' }} />
                         <Hero3D className="absolute inset-0 w-full h-full opacity-70" />
                     </div>
                     <div className="max-w-5xl mx-auto text-center relative">
@@ -160,7 +170,7 @@ export default function Landing() {
 
                         <FadeIn delay={0.32}>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                                <Link href="/register" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-violet-900/40 hover:shadow-2xl hover:shadow-violet-800/50 hover:-translate-y-0.5">
+                                <Link href="/register" className="pp-glow bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all hover:-translate-y-0.5">
                                     {t('hero.cta_primary')}
                                 </Link>
                                 <Link href="/plantillas" className="border border-gray-700 text-gray-300 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-violet-600/60 hover:text-white transition-all hover:-translate-y-0.5">
@@ -403,6 +413,13 @@ export default function Landing() {
                         </a>
                     </div>
                 </footer>
+
+                {/* CTA fija en móvil: mantiene el "empezar gratis" siempre a mano → más conversión */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 bg-gray-950/92 backdrop-blur-lg border-t border-white/10">
+                    <Link href="/register" className="block text-center bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-3 rounded-xl">
+                        {t('nav.start')}
+                    </Link>
+                </div>
             </div>
         </>
     );
