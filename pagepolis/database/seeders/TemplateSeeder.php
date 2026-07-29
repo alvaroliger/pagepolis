@@ -26,6 +26,8 @@ class TemplateSeeder extends Seeder
             ['key' => 'nebula', 'name' => 'Nebula — IA / SaaS 3D',        'category' => 'SaaS',        'tags' => ['ia', 'saas', '3d', 'moderna'],        'premium' => true],
             ['key' => 'prisma', 'name' => 'Prisma — Estudio creativo 3D', 'category' => 'Portfolio',   'tags' => ['agencia', 'portfolio', '3d', 'diseño'], 'premium' => true],
             ['key' => 'vault',  'name' => 'Vault — Fintech / Web3 3D',    'category' => 'Fintech',     'tags' => ['fintech', 'cripto', 'web3', '3d'],      'premium' => true],
+            ['key' => 'pulse',  'name' => 'Pulse — Gimnasio / Fitness 3D','category' => 'Fitness',     'tags' => ['gimnasio', 'fitness', '3d', 'moderna'], 'premium' => true],
+            ['key' => 'ember',  'name' => 'Ember — Restaurante 3D',       'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', '3d', 'premium'],'premium' => true],
 
             ['key' => 'restaurante', 'name' => 'Restaurante con pedidos', 'category' => 'Restaurante', 'tags' => ['restaurante', 'carta', 'pedidos', 'tienda']],
             ['key' => 'tienda',      'name' => 'Tienda online',          'category' => 'E-commerce',  'tags' => ['tienda', 'productos', 'carrito']],
