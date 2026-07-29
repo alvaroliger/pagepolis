@@ -9,7 +9,10 @@
         {{-- SEO base (la landing es la página clave para posicionar en Google) --}}
         <meta name="description" content="Crea tu página web profesional con inteligencia artificial en minutos. Describe tu negocio y Pagepolis genera una web completa, con tienda online y dominio propio. Publica gratis.">
         <meta name="keywords" content="crear página web, web con inteligencia artificial, hacer una web, página web gratis, tienda online, crear web negocio, generador de webs IA">
-        <meta name="robots" content="index, follow">
+        {{-- 'max-image-preview:large' habilita miniaturas grandes en Google (más CTR);
+             max-snippet/max-video-preview sin límite → mejores fragmentos enriquecidos. --}}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+        <meta name="author" content="Pagepolis">
         <meta name="theme-color" content="#7c3aed">
         <link rel="canonical" href="{{ url()->current() }}">
         <link rel="icon" href="/favicon.ico" sizes="any">
@@ -23,6 +26,9 @@
         <meta property="og:description" content="Describe tu negocio y la IA genera una web completa con tienda online. Publica gratis en pagepolis.com o con tu propio dominio.">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image" content="{{ config('app.url') }}/og-image.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="Pagepolis — crea tu web profesional con IA">
         <meta property="og:locale" content="es_ES">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="Pagepolis — Crea tu web profesional con IA en minutos">
@@ -84,8 +90,8 @@
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
         </script>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
+        <!-- Fonts (preconnect con crossorigin → mejor LCP / Core Web Vitals) -->
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
