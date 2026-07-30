@@ -43,6 +43,20 @@ class TemplateSeeder extends Seeder
             ['key' => 'cafeteria',   'name' => 'Cafetería con tienda',   'category' => 'Restaurante', 'tags' => ['cafetería', 'café', 'pedidos', 'tienda']],
             ['key' => 'saas',        'name' => 'App / SaaS',             'category' => 'SaaS',        'tags' => ['saas', 'startup', 'software']],
             ['key' => 'coach',       'name' => 'Coach / Formación',      'category' => 'Servicios',   'tags' => ['coach', 'formación', 'cursos']],
+
+            // ── Recuperadas de producción (2026-07-30): eran las únicas 7 realmente
+            // distintas de las 20 que había en el servidor real — el resto eran una
+            // misma plantilla genérica de relleno duplicada 13 veces con el nombre
+            // cambiado. Son autocontenidas (su propio CSS/JS, sistema anterior a
+            // base.css/engine.js): 'standalone' => true evita mezclarlas con el motor
+            // compartido, que rompería su diseño original.
+            ['key' => 'prod-landing-saas',        'name' => 'Landing SaaS',         'category' => 'SaaS',        'tags' => ['oscuro', 'moderno', 'startup'],       'standalone' => true],
+            ['key' => 'prod-portfolio-creativo',  'name' => 'Portfolio Creativo',    'category' => 'Portfolio',   'tags' => ['minimalista', 'creativo', 'diseñador'],'standalone' => true],
+            ['key' => 'prod-restaurante-elegante','name' => 'Restaurante Elegante',  'category' => 'Restaurante', 'tags' => ['gastronomía', 'elegante', 'reservas'], 'standalone' => true],
+            ['key' => 'prod-agencia-marketing',   'name' => 'Agencia de Marketing',  'category' => 'Agencia',     'tags' => ['colorida', 'stats', 'marketing'],      'standalone' => true],
+            ['key' => 'prod-app-movil',           'name' => 'App Móvil',             'category' => 'App',         'tags' => ['app', 'móvil', 'startup', 'producto'], 'standalone' => true],
+            ['key' => 'prod-gimnasio-fitness',    'name' => 'Gimnasio Fitness',      'category' => 'Fitness',     'tags' => ['gym', 'fitness', 'energía', 'deporte'],'standalone' => true],
+            ['key' => 'prod-blog-personal',       'name' => 'Blog Personal',         'category' => 'Blog',        'tags' => ['blog', 'escritura', 'personal'],       'standalone' => true],
         ];
     }
 
@@ -63,14 +77,19 @@ class TemplateSeeder extends Seeder
                 continue;
             }
 
+            // Las 'standalone' (recuperadas de producción) llevan su CSS/JS propio,
+            // sin el motor compartido base.css/engine.js/hero3d.js.
+            $standalone = $t['standalone'] ?? false;
+            $ownJs = $standalone ? (@file_get_contents("{$dir}/{$t['key']}.js") ?: '') : '';
+
             Template::updateOrCreate(
                 ['name' => $t['name']],
                 [
                     'category'   => $t['category'],
                     'tags'       => $t['tags'],
                     'html'       => $html,
-                    'css'        => $base . "\n\n" . $css,
-                    'js'         => $engine . "\n\n" . $hero3d,
+                    'css'        => $standalone ? $css : ($base . "\n\n" . $css),
+                    'js'         => $standalone ? $ownJs : ($engine . "\n\n" . $hero3d),
                     'is_premium' => $t['premium'] ?? false,
                     'is_active'  => true,
                 ]
