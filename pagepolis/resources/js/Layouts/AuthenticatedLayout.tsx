@@ -23,8 +23,11 @@ function NavLink({ href, active, children, className = '' }: PropsWithChildren<{
 }
 
 export default function AuthenticatedLayout({ header, children }: AuthLayoutProps) {
-    const page = usePage<{ auth: { user: { name: string; email: string; role: string } }; leadsUnread?: number }>();
+    const page = usePage<{ auth: { user: { name: string; email: string; role: string } | null }; leadsUnread?: number }>();
     const auth = page.props.auth;
+    // /plantillas es una ruta PÚBLICA que usa este layout: un visitante sin sesión
+    // llega con user=null. Se tolera (muestra login/registro) en vez de reventar.
+    const user = auth?.user ?? null;
     const leadsUnread = page.props.leadsUnread ?? 0;
     const url = page.url;
     const [menuOpen, setMenuOpen] = useState(false);
@@ -83,13 +86,13 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     )}
                                 </NavLink>
                                 <NavLink href="/plantillas" active={isActive('/plantillas')}>Plantillas</NavLink>
-                                {auth.user.role === 'admin' && (
+                                {user?.role === 'admin' && (
                                     <NavLink href="/admin" active={isActive('/admin')}>Admin</NavLink>
                                 )}
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-400 hidden sm:block">{auth.user.name}</span>
+                            {user && <span className="text-sm text-gray-400 hidden sm:block">{user.name}</span>}
                             <button
                                 onClick={() => setMobileNavOpen(!mobileNavOpen)}
                                 aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -107,6 +110,13 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     </svg>
                                 )}
                             </button>
+                            {!user && (
+                                <span className="flex items-center gap-3">
+                                    <Link href="/login" className="text-sm text-gray-300 hover:text-white transition-colors">Iniciar sesión</Link>
+                                    <Link href="/register" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-bold px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity">Registrarse</Link>
+                                </span>
+                            )}
+                            {user && (
                             <div className="relative" ref={menuRef}>
                                 <button
                                     onClick={() => setMenuOpen(!menuOpen)}
@@ -114,7 +124,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     aria-expanded={menuOpen}
                                     className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white text-sm font-bold flex items-center justify-center ring-2 ring-transparent hover:ring-violet-500/40 transition-shadow"
                                 >
-                                    {auth.user.name[0].toUpperCase()}
+                                    {user.name[0].toUpperCase()}
                                 </button>
                                 <AnimatePresence>
                                     {menuOpen && (
@@ -149,6 +159,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     )}
                                 </AnimatePresence>
                             </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -181,7 +192,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                 <Link href="/plantillas" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/plantillas') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
                                     Plantillas
                                 </Link>
-                                {auth.user.role === 'admin' && (
+                                {user?.role === 'admin' && (
                                     <Link href="/admin" className={`rounded-lg px-3 py-2.5 text-sm ${isActive('/admin') ? 'bg-white/10 text-white font-semibold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
                                         Admin
                                     </Link>
@@ -191,9 +202,6 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                     )}
                 </AnimatePresence>
             </nav>
-
-            <FlashBanner />
-
             {header && (
                 <header className="bg-gray-900/60 border-b border-gray-800">
                     <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">

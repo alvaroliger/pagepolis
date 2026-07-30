@@ -11,7 +11,9 @@ const DESC_MAX = 1000;
 
 type PageType = 'auto' | 'classic' | '3d';
 
-export default function CreateWizard() {
+interface AiUsage { used: number; limit: number; tier: string; isSubscribed: boolean }
+
+export default function CreateWizard({ aiUsage }: { aiUsage: AiUsage }) {
     const [businessName, setBusinessName] = useState('');
     const [description, setDescription]   = useState('');
     const [sells, setSells]               = useState(false);
@@ -34,6 +36,7 @@ export default function CreateWizard() {
         return () => clearInterval(id);
     }, [loading]);
 
+    const quotaExceeded = aiUsage.used >= aiUsage.limit;
     const nameOk    = businessName.trim().length > 1;
     const descOk    = description.trim().length > 4;
     const canSubmit = nameOk && descOk && !loading && !quotaExceeded;

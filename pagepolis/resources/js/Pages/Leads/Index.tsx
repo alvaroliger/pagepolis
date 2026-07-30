@@ -15,7 +15,7 @@ interface Lead {
     created_at: string;
 }
 
-export default function LeadsIndex({ leads = [] as Lead[] }: { leads: Lead[] }) {
+export default function LeadsIndex({ leads = [] as Lead[], unreadCount = 0 }: { leads: Lead[]; unreadCount?: number }) {
     const [query, setQuery] = useState('');
 
     const filteredLeads = useMemo(() => {

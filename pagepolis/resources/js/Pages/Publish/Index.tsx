@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { Link2, Globe, Sparkles, Rocket, Copy, Check } from 'lucide-react';
 
 interface Props {
