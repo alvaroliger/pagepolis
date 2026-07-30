@@ -7,6 +7,7 @@ import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import toast, { Toaster } from 'react-hot-toast';
+import ErrorBoundary from '@/Components/ErrorBoundary';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Pagepolis';
 
