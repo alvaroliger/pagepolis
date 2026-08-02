@@ -48,6 +48,18 @@ body.js-ready .reveal.visible{opacity:1;transform:none;transition:opacity .7s ea
 @media (prefers-reduced-motion:reduce){.tilt-3d{transition:none}}
 @media (hover:none){.tilt-3d{transform:none}}
 
+/* Hero de foto cinemática (ver hero-photo.js): capa de foto + velo de
+   legibilidad + contenido, con Ken Burns en reposo y "vuelo hacia dentro" al
+   hacer scroll (el JS fija el transform de .hero-photo-img en cada frame). */
+.hero-photo{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;isolation:isolate}
+.hero-photo-img{position:absolute;inset:-6% -6%;background:var(--photo) center/cover no-repeat;transform:scale(1.08);will-change:transform;z-index:0}
+.hero-photo.hp-live .hero-photo-img{animation:hp-kenburns 22s ease-in-out infinite alternate}
+.hero-photo.hp-static .hero-photo-img{animation:none;transform:scale(1.02)}
+@keyframes hp-kenburns{0%{filter:brightness(.98)}100%{filter:brightness(1.04)}}
+.hero-photo-veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.15) 40%,rgba(0,0,0,.55) 100%);pointer-events:none}
+.hero-photo-content{position:relative;z-index:2;width:100%}
+@media (prefers-reduced-motion:reduce){.hero-photo-img{animation:none!important;transform:scale(1.02)!important}}
+
 /* FAQ */
 .faq-item{border:1px solid var(--border,#e6e6ee);border-radius:var(--radius,12px);margin-bottom:12px;overflow:hidden;background:var(--surface,#fff)}
 .faq-q{width:100%;text-align:left;background:none;border:0;padding:20px 22px;font-size:1.05rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;align-items:center;color:inherit;font-family:inherit}

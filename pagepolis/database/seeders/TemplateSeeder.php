@@ -73,15 +73,22 @@ class TemplateSeeder extends Seeder
             ['key' => 'moda-boutique',        'name' => 'Boutique de moda',          'category' => 'E-commerce',  'tags' => ['moda', 'boutique', 'ropa']],
             ['key' => 'conferencia',          'name' => 'Evento / Conferencia',      'category' => 'Evento',      'tags' => ['evento', 'conferencia', 'congreso']],
             ['key' => 'barberia',             'name' => 'Barbería',                  'category' => 'Belleza',     'tags' => ['peluquería', 'barbería', 'estilo']],
+
+            // ── Estreno del motor de foto cinemática (hero-photo.js, 2026-07-31):
+            // Ken Burns en reposo + "vuelo hacia dentro" ligado al scroll sobre una
+            // fotografía real, con profundidad de capas. Reutilizable en cualquier
+            // plantilla vía <div class="hero-photo" data-hero-photo>.
+            ['key' => 'aventura-montana', 'name' => 'Cumbre Viva — Turismo de aventura', 'category' => 'Turismo', 'tags' => ['aventura', 'montaña', 'rutas', 'cinemática'], 'premium' => true],
         ];
     }
 
     public function run(): void
     {
-        $dir    = database_path('templates');
-        $base   = @file_get_contents("{$dir}/base.css") ?: '';
-        $engine = @file_get_contents("{$dir}/engine.js") ?: '';
-        $hero3d = @file_get_contents("{$dir}/hero3d.js") ?: '';
+        $dir       = database_path('templates');
+        $base      = @file_get_contents("{$dir}/base.css") ?: '';
+        $engine    = @file_get_contents("{$dir}/engine.js") ?: '';
+        $hero3d    = @file_get_contents("{$dir}/hero3d.js") ?: '';
+        $heroPhoto = @file_get_contents("{$dir}/hero-photo.js") ?: '';
 
         $names = [];
         foreach ($this->manifest() as $t) {
@@ -105,7 +112,7 @@ class TemplateSeeder extends Seeder
                     'tags'       => $t['tags'],
                     'html'       => $html,
                     'css'        => $standalone ? $css : ($base . "\n\n" . $css),
-                    'js'         => $standalone ? $ownJs : ($engine . "\n\n" . $hero3d),
+                    'js'         => $standalone ? $ownJs : ($engine . "\n\n" . $hero3d . "\n\n" . $heroPhoto),
                     'is_premium' => $t['premium'] ?? false,
                     'is_active'  => true,
                 ]
