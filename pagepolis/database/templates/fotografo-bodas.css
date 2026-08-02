@@ -1,0 +1,51 @@
+/* ── Lúa Fotografía — fotógrafo de bodas documental. Blanco cálido editorial
+   con acento terracota; grid de trabajo grande, precios claros. ── */
+:root{
+  --font-head:'Cormorant Garamond',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#fbfaf8; --text:#2b2622; --muted:#7a7268;
+  --brand:#b3593f; --brand-2:#d9a066; --on-brand:#fff;
+  --surface:#fff; --border:#eae4da;
+  --header-bg:rgba(251,250,248,.92); --footer-bg:#241f1b; --footer-text:#c9beb0;
+  --radius:14px; --maxw:1180px;
+}
+.badge-pill{display:inline-block;font-size:.8rem;font-weight:600;letter-spacing:.06em;padding:.5rem 1.1rem;border-radius:999px;color:var(--brand);border:1px solid var(--border);margin-bottom:1.5rem}
+#site-header.scrolled{background:var(--header-bg);box-shadow:0 1px 0 var(--border)}
+.btn-primary{background:var(--brand);box-shadow:0 10px 30px rgba(179,89,63,.25)}
+.btn-outline{border-color:var(--brand);color:var(--brand)}
+.kicker{color:var(--brand)}
+
+.hero{min-height:70vh;display:flex;align-items:center;padding:150px 0 70px}
+.hero h1{font-family:var(--font-head);font-size:clamp(2.8rem,7vw,5.4rem);font-weight:500;line-height:1.05;color:var(--text);max-width:760px;margin-bottom:1.3rem}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:600px;margin-bottom:2rem}
+
+.sec-title{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3.2rem);color:var(--text)}
+.eyebrow{max-width:none;margin-bottom:2.2rem}
+
+.work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+.work-card{display:block;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border)}
+.work-img{aspect-ratio:4/3;background:var(--img) center/cover no-repeat;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.work-card:hover .work-img{transform:scale(1.05)}
+.work-meta{display:flex;justify-content:space-between;align-items:center;padding:18px 20px}
+.work-meta h3{font-family:var(--font-head);font-size:1.35rem;color:var(--text)}
+.work-meta span{color:var(--muted);font-size:.85rem}
+
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px 28px}
+.price-card.featured{border-color:var(--brand);box-shadow:0 20px 50px rgba(179,89,63,.15)}
+.price-card .amount{font-family:var(--font-head);font-size:2.6rem;font-weight:600;color:var(--text);margin:.5rem 0 1.1rem}
+.price-card ul{list-style:none;margin-bottom:1.4rem}
+.price-card li{padding:.35rem 0;color:var(--text);font-size:.92rem;border-bottom:1px solid var(--border)}
+.price-card .btn{width:100%;justify-content:center}
+
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:22px;padding:60px 40px;text-align:center}
+.cta-band h2{font-family:var(--font-head);font-size:clamp(2rem,4.5vw,3rem);color:#fff;margin-bottom:.5rem}
+.cta-band p{color:rgba(255,255,255,.9);margin-bottom:1.7rem}
+.cta-band .btn-primary{background:#241f1b;color:#fff}
+
+@media(max-width:860px){
+  .work-grid,.price-grid{grid-template-columns:1fr}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:var(--bg);transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:var(--text);z-index:120}
+}

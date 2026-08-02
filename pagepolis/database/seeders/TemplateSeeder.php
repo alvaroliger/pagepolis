@@ -57,6 +57,22 @@ class TemplateSeeder extends Seeder
             ['key' => 'prod-app-movil',           'name' => 'App Móvil',             'category' => 'App',         'tags' => ['app', 'móvil', 'startup', 'producto'], 'standalone' => true],
             ['key' => 'prod-gimnasio-fitness',    'name' => 'Gimnasio Fitness',      'category' => 'Fitness',     'tags' => ['gym', 'fitness', 'energía', 'deporte'],'standalone' => true],
             ['key' => 'prod-blog-personal',       'name' => 'Blog Personal',         'category' => 'Blog',        'tags' => ['blog', 'escritura', 'personal'],       'standalone' => true],
+
+            // ── Reemplazo de las 13 duplicadas genéricas de producción (2026-07-30):
+            // diseño y copy reales y distintos por sector, no relleno.
+            ['key' => 'cv-resume',            'name' => 'CV / Portfolio personal',   'category' => 'Portfolio',   'tags' => ['currículum', 'personal', 'freelance']],
+            ['key' => 'boda',                 'name' => 'Invitación de boda',        'category' => 'Boda',        'tags' => ['boda', 'invitación', 'pareja']],
+            ['key' => 'tienda-tech',          'name' => 'Tienda de tecnología',      'category' => 'E-commerce',  'tags' => ['tienda', 'tecnología', 'gadgets']],
+            ['key' => 'inmobiliaria-listados','name' => 'Inmobiliaria con listados', 'category' => 'Inmobiliaria','tags' => ['inmobiliaria', 'listados', 'venta']],
+            ['key' => 'clinica-dental',       'name' => 'Clínica dental',            'category' => 'Salud',       'tags' => ['salud', 'dental', 'citas']],
+            ['key' => 'consultoria-legal',    'name' => 'Consultoría legal',         'category' => 'Servicios',   'tags' => ['legal', 'consultoría', 'abogada']],
+            ['key' => 'startup-tech',         'name' => 'Startup tecnológica',       'category' => 'SaaS',        'tags' => ['startup', 'tech', 'producto']],
+            ['key' => 'fotografo-bodas',      'name' => 'Fotógrafo de bodas',        'category' => 'Portfolio',   'tags' => ['fotografía', 'bodas', 'portfolio']],
+            ['key' => 'musico-artista',       'name' => 'Músico / Banda',            'category' => 'Música',      'tags' => ['música', 'artista', 'conciertos']],
+            ['key' => 'ong-fundacion',        'name' => 'ONG / Fundación',           'category' => 'ONG',         'tags' => ['ong', 'fundación', 'donaciones']],
+            ['key' => 'moda-boutique',        'name' => 'Boutique de moda',          'category' => 'E-commerce',  'tags' => ['moda', 'boutique', 'ropa']],
+            ['key' => 'conferencia',          'name' => 'Evento / Conferencia',      'category' => 'Evento',      'tags' => ['evento', 'conferencia', 'congreso']],
+            ['key' => 'barberia',             'name' => 'Barbería',                  'category' => 'Belleza',     'tags' => ['peluquería', 'barbería', 'estilo']],
         ];
     }
 

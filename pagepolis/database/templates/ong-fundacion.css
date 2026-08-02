@@ -1,0 +1,52 @@
+/* ── Fundación Raíces — ONG educativa. Crema con verde tierra y naranja
+   arcilla; cálida, confiable, sin frivolidad. ── */
+:root{
+  --font-head:'Inter',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#faf7f0; --text:#2b2a20; --muted:#6b6a58;
+  --brand:#4d7c4a; --brand-2:#e08e3e; --on-brand:#fff;
+  --surface:#fff; --border:#e7e2d0;
+  --header-bg:rgba(250,247,240,.92); --footer-bg:#233021; --footer-text:#bcc4ae;
+  --radius:14px; --maxw:1160px;
+}
+.badge-pill{display:inline-block;font-size:.78rem;font-weight:700;padding:.5rem 1.1rem;border-radius:999px;color:var(--brand);background:rgba(77,124,74,.08);margin-bottom:1.5rem}
+#site-header.scrolled{background:var(--header-bg);box-shadow:0 1px 0 var(--border)}
+.btn-primary{background:linear-gradient(100deg,var(--brand),#3f6a3d);box-shadow:0 8px 26px rgba(77,124,74,.25)}
+.btn-outline{border-color:var(--brand);color:var(--brand)}
+.kicker{color:var(--brand-2)}
+
+.hero{min-height:75vh;display:flex;align-items:center;text-align:center;padding:150px 0 60px}
+.hero h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:800;letter-spacing:-.02em;color:var(--text);margin-bottom:1.2rem}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:620px;margin:0 auto 2rem}
+
+.stats{padding:20px 0 60px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stats-grid strong{display:block;font-size:2.2rem;font-weight:800;color:var(--brand)}
+.stats-grid span{color:var(--muted);font-size:.86rem}
+
+.sec-title{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:800;letter-spacing:-.02em;color:var(--text)}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;text-align:center;box-shadow:0 4px 20px rgba(77,124,74,.05)}
+.feature-card .ic{font-size:2rem;margin-bottom:14px}
+.feature-card h3{font-size:1.15rem;color:var(--text);margin-bottom:.5rem}
+.feature-card p{color:var(--muted);font-size:.92rem}
+
+.testi blockquote{font-size:clamp(1.15rem,2.5vw,1.5rem);line-height:1.5;color:var(--text);text-align:center;max-width:760px;margin:0 auto 1.6rem}
+.testi-author{display:flex;gap:.8rem;align-items:center;justify-content:center}
+.testi-author img{width:50px;height:50px;border-radius:50%}
+.testi-author strong{display:block;color:var(--text)}.testi-author span{color:var(--muted);font-size:.85rem}
+.testi-controls{display:flex;gap:1rem;justify-content:center;margin-top:1.6rem}
+
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:22px;padding:60px 40px;text-align:center}
+.cta-band h2{font-size:clamp(1.9rem,4vw,2.8rem);color:#fff;margin-bottom:.5rem}
+.cta-band p{color:rgba(255,255,255,.92);margin-bottom:1.7rem}
+.cta-band .btn-primary{background:#233021;color:#fff}
+
+@media(max-width:900px){
+  .feature-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:var(--bg);transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:var(--text);z-index:120}
+}

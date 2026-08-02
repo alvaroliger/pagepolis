@@ -1,0 +1,52 @@
+/* ── Coral Vértigo — banda de rock. Negro con rojo eléctrico, tipografía
+   condensada tipo cartel de concierto. ── */
+:root{
+  --font-head:'Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#0a0a0a; --text:#f2f2f2; --muted:#999;
+  --brand:#e11d3f; --brand-2:#f97316; --on-brand:#fff;
+  --surface:rgba(255,255,255,.04); --border:rgba(255,255,255,.1);
+  --header-bg:rgba(10,10,10,.85); --footer-bg:#000; --footer-text:#8a8a8a;
+  --radius:8px; --maxw:1160px;
+}
+.logo{font-family:var(--font-head);font-weight:800;letter-spacing:.08em;font-size:1.2rem}
+.badge-pill{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.5rem 1.1rem;border-radius:4px;color:var(--brand);border:1px solid var(--brand);margin-bottom:1.6rem}
+#site-header.scrolled{background:var(--header-bg);border-bottom:1px solid var(--border)}
+#main-nav a{color:var(--text)}
+.btn-primary{background:var(--brand);border-radius:6px;box-shadow:0 8px 30px rgba(225,29,63,.35)}
+.btn-outline{border-color:var(--border);color:var(--text);border-radius:6px}
+.kicker{color:var(--brand)}
+
+.hero{min-height:90vh;display:flex;align-items:center;text-align:center;padding:130px 0 80px}
+.hero h1{font-family:var(--font-head);font-size:clamp(3.2rem,10vw,7.5rem);font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:1.4rem;text-transform:uppercase}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:600px;margin:0 auto 2.2rem}
+
+.sec-title{font-family:var(--font-head);font-size:clamp(1.9rem,4.5vw,2.9rem);color:#fff;text-transform:uppercase}
+
+.work-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.work-card{display:block;border-radius:var(--radius);overflow:hidden;background:var(--surface);border:1px solid var(--border)}
+.work-img{aspect-ratio:1/1;background:var(--img) center/cover no-repeat;filter:grayscale(.4) contrast(1.1);transition:filter .4s,transform .5s}
+.work-card:hover .work-img{filter:none;transform:scale(1.05)}
+.work-meta{padding:14px 16px}
+.work-meta h3{color:#fff;font-size:1.05rem}
+.work-meta span{color:var(--brand);font-size:.82rem}
+
+.serv-list{border-top:1px solid var(--border)}
+.serv-row{display:grid;grid-template-columns:90px 1fr 1.3fr;gap:20px;align-items:center;padding:22px 0;border-bottom:1px solid var(--border)}
+.serv-n{font-family:var(--font-head);color:var(--brand);font-weight:800;letter-spacing:.04em}
+.serv-row h3{color:#fff;font-size:1.3rem}
+.serv-row p{color:var(--muted)}
+
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:14px;padding:56px 40px;text-align:center}
+.cta-band h2{font-family:var(--font-head);font-size:clamp(1.9rem,4.5vw,2.9rem);color:#fff;text-transform:uppercase;margin-bottom:.5rem}
+.cta-band p{color:rgba(255,255,255,.9);margin-bottom:1.6rem}
+.cta-band .btn-primary{background:#0a0a0a;color:#fff}
+
+@media(max-width:900px){
+  .work-grid{grid-template-columns:1fr 1fr}
+  .serv-row{grid-template-columns:60px 1fr;grid-template-areas:'n h' '. p'}
+  .serv-n{grid-area:n}.serv-row h3{grid-area:h}.serv-row p{grid-area:p}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:#0a0a0a;transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:#fff;z-index:120}
+}

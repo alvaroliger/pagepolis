@@ -1,0 +1,90 @@
+<header id="site-header">
+  <div class="container header-inner">
+    <a href="#inicio" class="logo">NUÉ</a>
+    <nav id="main-nav">
+      <a href="#coleccion">Colección</a>
+      <a href="#nosotros">Nosotras</a>
+    </nav>
+    <button id="menu-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="container reveal">
+      <span class="badge-pill">Nueva colección · Otoño 2026</span>
+      <h1>Prendas que envejecen<br>bien contigo</h1>
+      <p>Tejidos naturales, cortes atemporales y producción en talleres españoles. Ropa para llevar años, no una temporada.</p>
+      <div class="hero-cta">
+        <a href="#coleccion" class="btn btn-primary btn-lg">Ver la colección</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="coleccion" class="section">
+    <div class="container">
+      <div class="eyebrow reveal"><span class="kicker">Otoño 2026</span><h2 class="sec-title">Piezas de la temporada</h2></div>
+      <div class="products reveal">
+        <article class="product" data-id="nue1" data-name="Abrigo de lana virgen" data-price="189.00" data-img="https://picsum.photos/seed/nue1/400/500">
+          <img src="https://picsum.photos/seed/nue1/400/500" alt="Abrigo de lana virgen" loading="lazy">
+          <div class="product-body"><h3>Abrigo de lana virgen</h3><p>Corte oversize, forro de viscosa.</p>
+            <div class="product-foot"><span class="product-price">189,00 €</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nue2" data-name="Camisa de seda" data-price="79.00" data-img="https://picsum.photos/seed/nue2/400/500">
+          <img src="https://picsum.photos/seed/nue2/400/500" alt="Camisa de seda" loading="lazy">
+          <div class="product-body"><h3>Camisa de seda</h3><p>100% seda natural, tacto fluido.</p>
+            <div class="product-foot"><span class="product-price">79,00 €</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nue3" data-name="Pantalón de pinzas" data-price="95.00" data-img="https://picsum.photos/seed/nue3/400/500">
+          <img src="https://picsum.photos/seed/nue3/400/500" alt="Pantalón de pinzas" loading="lazy">
+          <div class="product-body"><h3>Pantalón de pinzas</h3><p>Lana fría, caída perfecta.</p>
+            <div class="product-foot"><span class="product-price">95,00 €</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nue4" data-name="Bolso de piel curtida" data-price="145.00" data-img="https://picsum.photos/seed/nue4/400/500">
+          <img src="https://picsum.photos/seed/nue4/400/500" alt="Bolso de piel" loading="lazy">
+          <div class="product-body"><h3>Bolso de piel curtida</h3><p>Curtido vegetal, hecho a mano en Ubrique.</p>
+            <div class="product-foot"><span class="product-price">145,00 €</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="nosotros" class="section split-sec">
+    <div class="container split">
+      <div class="split-img reveal" style="--img:url('https://picsum.photos/seed/nue-taller/900/1100')"></div>
+      <div class="reveal">
+        <span class="kicker">Nuestro compromiso</span>
+        <h2 class="sec-title">Moda que dura</h2>
+        <p>Trabajamos con tres talleres familiares en España. Producimos en tiradas pequeñas, sin stock muerto ni prisa por la próxima temporada.</p>
+        <p>Cada prenda lleva la etiqueta del taller que la hizo. Nos parece justo que lo sepas.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="logo" style="color:#fff">NUÉ</div><p style="opacity:.75;margin-top:.8rem">Moda atemporal, hecha en España.</p></div>
+      <div><h4>Tienda</h4><a href="#coleccion">Colección</a><a href="#">Guía de tallas</a></div>
+      <div><h4>Nosotras</h4><a href="#nosotros">Nuestro compromiso</a><a href="#">Talleres</a></div>
+      <div><h4>Contacto</h4><a href="#">hola@nue.style</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 NUÉ · Moda hecha en España</div>
+  </div>
+</footer>
+<button id="to-top" aria-label="Volver arriba">↑</button>
+
+<button id="cart-toggle" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 22a1 1 0 100-2 1 1 0 000 2zM20 22a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><span id="cart-count">0</span></button>
+<div id="cart-overlay"></div>
+<div id="cart-drawer">
+  <div class="cart-head"><h3>Tu cesta</h3><button id="cart-close" aria-label="Cerrar">×</button></div>
+  <div id="cart-items"><p class="cart-empty">Tu cesta está vacía.</p></div>
+  <div class="cart-foot"><div class="cart-total-row"><span>Total</span><span id="cart-total">0,00€</span></div>
+    <a href="#" class="btn btn-primary">Finalizar compra</a>
+  </div>
+</div>

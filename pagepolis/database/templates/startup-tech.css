@@ -1,0 +1,58 @@
+/* ── Fluxo — startup B2B SaaS (inventario). Gris pizarra con verde lima
+   eléctrico; identidad de "startup en crecimiento", distinta de Nebula. ── */
+:root{
+  --font-head:'Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --bg:#101418; --text:#eef1ee; --muted:#93a09a;
+  --brand:#a3e635; --brand-2:#4ade80; --on-brand:#0d1a0a;
+  --surface:rgba(255,255,255,.04); --border:rgba(255,255,255,.09);
+  --header-bg:rgba(16,20,24,.85); --footer-bg:#0a0d10; --footer-text:#8b9791;
+  --radius:14px; --maxw:1160px;
+}
+.badge-pill{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;padding:.45rem 1.1rem;border-radius:999px;color:var(--brand);border:1px solid rgba(163,230,53,.35);background:rgba(163,230,53,.08);margin-bottom:1.5rem}
+#site-header.scrolled{background:var(--header-bg);border-bottom:1px solid var(--border)}
+#main-nav a{color:var(--text)}
+.btn-primary{background:var(--brand);color:var(--on-brand);font-weight:800;box-shadow:0 10px 32px rgba(163,230,53,.28)}
+.btn-outline{border-color:var(--border);color:var(--text)}
+.kicker{color:var(--brand)}
+
+.hero{min-height:80vh;display:flex;align-items:center;text-align:center;padding:130px 0 70px}
+.hero h1{font-size:clamp(2.6rem,6.5vw,4.8rem);letter-spacing:-.03em;color:#fff;margin-bottom:1.3rem}
+.hero p{font-size:1.15rem;color:var(--muted);max-width:600px;margin:0 auto 2rem}
+
+.stats{padding:10px 0 50px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.stats-grid strong{display:block;font-family:var(--font-head);font-size:2.2rem;color:var(--brand)}
+.stats-grid span{color:var(--muted);font-size:.86rem}
+
+.sec-title{font-size:clamp(1.9rem,4vw,2.8rem);letter-spacing:-.02em;color:#fff}
+
+.flow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.flow-step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 28px}
+.flow-n{font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:var(--brand);display:block;margin-bottom:.5rem}
+.flow-step h3{color:#fff;margin-bottom:.4rem}.flow-step p{color:var(--muted);font-size:.94rem}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px}
+.feature-card h3{color:#fff;font-size:1.1rem;margin-bottom:.4rem}
+.feature-card p{color:var(--muted);font-size:.9rem}
+
+.testi blockquote{font-family:var(--font-head);font-size:clamp(1.2rem,2.8vw,1.7rem);line-height:1.4;color:#fff;text-align:center;max-width:760px;margin:0 auto 1.6rem}
+.testi-author{display:flex;gap:.8rem;align-items:center;justify-content:center}
+.testi-author img{width:48px;height:48px;border-radius:50%;border:2px solid var(--border)}
+.testi-author strong{display:block;color:#fff}.testi-author span{color:var(--muted);font-size:.85rem}
+.testi-controls{display:flex;gap:1rem;justify-content:center;margin-top:1.6rem}
+.testi-prev,.testi-next{background:var(--surface);border:1px solid var(--border);color:#fff}
+
+.cta-band .container{background:linear-gradient(120deg,var(--brand),var(--brand-2));border-radius:24px;padding:56px 40px;text-align:center}
+.cta-band h2{font-size:clamp(1.9rem,4vw,2.8rem);color:var(--on-brand);margin-bottom:.5rem}
+.cta-band p{color:rgba(13,26,10,.75);margin-bottom:1.6rem}
+.cta-band .btn-primary{background:#0d1a0a;color:#fff}
+
+@media(max-width:900px){
+  .flow-grid,.feature-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  #main-nav{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);flex-direction:column;justify-content:center;background:#101418;transform:translateX(100%);transition:transform .3s;border-left:1px solid var(--border)}
+  #main-nav.open{transform:none}
+  #menu-toggle{display:block;color:#fff;z-index:120}
+}

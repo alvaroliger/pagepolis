@@ -1,0 +1,96 @@
+<header id="site-header">
+  <div class="container header-inner">
+    <a href="#inicio" class="logo">Nexo</a>
+    <nav id="main-nav">
+      <a href="#productos">Productos</a>
+      <a href="#envios">Envíos</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button id="menu-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero hero-center">
+    <div class="container reveal">
+      <span class="badge-pill">Envío gratis desde 40€</span>
+      <h1>Tecnología que<br>simplifica tu día</h1>
+      <p>Auriculares, cargadores y accesorios seleccionados por calidad y diseño. Sin relleno, sin marcas de dudosa procedencia.</p>
+      <div class="hero-cta" style="justify-content:center">
+        <a href="#productos" class="btn btn-primary btn-lg">Ver productos</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="productos" class="section">
+    <div class="container">
+      <div class="eyebrow center reveal"><span class="kicker">Catálogo</span><h2 class="sec-title">Los más vendidos</h2></div>
+      <div class="products reveal">
+        <article class="product" data-id="nx1" data-name="Auriculares NX-Air" data-price="79.90" data-img="https://picsum.photos/seed/nexo1/400/400">
+          <img src="https://picsum.photos/seed/nexo1/400/400" alt="Auriculares NX-Air" loading="lazy">
+          <div class="product-body"><h3>Auriculares NX-Air</h3><p>Cancelación de ruido, 30h de batería.</p>
+            <div class="product-foot"><span class="product-price">79,90€</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nx2" data-name="Cargador GaN 65W" data-price="34.90" data-img="https://picsum.photos/seed/nexo2/400/400">
+          <img src="https://picsum.photos/seed/nexo2/400/400" alt="Cargador GaN 65W" loading="lazy">
+          <div class="product-body"><h3>Cargador GaN 65W</h3><p>Carga 3 dispositivos a la vez, tamaño de mechero.</p>
+            <div class="product-foot"><span class="product-price">34,90€</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nx3" data-name="Powerbank 20.000mAh" data-price="49.90" data-img="https://picsum.photos/seed/nexo3/400/400">
+          <img src="https://picsum.photos/seed/nexo3/400/400" alt="Powerbank 20.000mAh" loading="lazy">
+          <div class="product-body"><h3>Powerbank 20.000mAh</h3><p>Carga rápida, pantalla de porcentaje.</p>
+            <div class="product-foot"><span class="product-price">49,90€</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+        <article class="product" data-id="nx4" data-name="Soporte magnético coche" data-price="19.90" data-img="https://picsum.photos/seed/nexo4/400/400">
+          <img src="https://picsum.photos/seed/nexo4/400/400" alt="Soporte magnético" loading="lazy">
+          <div class="product-body"><h3>Soporte magnético coche</h3><p>Compatible MagSafe, giro 360°.</p>
+            <div class="product-foot"><span class="product-price">19,90€</span><button class="add-to-cart">Añadir</button></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="envios" class="stats">
+    <div class="container stats-grid">
+      <div class="reveal"><strong>24-48h</strong><span>entrega en península</span></div>
+      <div class="reveal"><strong>30 días</strong><span>devolución gratuita</span></div>
+      <div class="reveal"><strong>2 años</strong><span>garantía en todo</span></div>
+      <div class="reveal"><strong>4,8 ★</strong><span>valoración media</span></div>
+    </div>
+  </section>
+
+  <section id="contacto" class="cta-band section">
+    <div class="container reveal">
+      <h2>¿Dudas antes de comprar?</h2>
+      <p>Escríbenos y te respondemos en menos de 24 horas.</p>
+      <a href="mailto:hola@nexo.shop" class="btn btn-primary btn-lg">Contactar →</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="logo" style="color:#fff">Nexo</div><p style="opacity:.75;margin-top:.8rem">Tecnología esencial, sin ruido.</p></div>
+      <div><h4>Tienda</h4><a href="#productos">Productos</a><a href="#envios">Envíos y devoluciones</a></div>
+      <div><h4>Legal</h4><a href="#">Términos</a><a href="#">Privacidad</a></div>
+      <div><h4>Contacto</h4><a href="#">hola@nexo.shop</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 Nexo · Tecnología esencial</div>
+  </div>
+</footer>
+<button id="to-top" aria-label="Volver arriba">↑</button>
+
+<button id="cart-toggle" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 22a1 1 0 100-2 1 1 0 000 2zM20 22a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><span id="cart-count">0</span></button>
+<div id="cart-overlay"></div>
+<div id="cart-drawer">
+  <div class="cart-head"><h3>Tu carrito</h3><button id="cart-close" aria-label="Cerrar">×</button></div>
+  <div id="cart-items"><p class="cart-empty">Tu carrito está vacío.</p></div>
+  <div class="cart-foot"><div class="cart-total-row"><span>Total</span><span id="cart-total">0,00€</span></div>
+    <a href="#" class="btn btn-primary">Finalizar compra</a>
+  </div>
+</div>
