@@ -111,9 +111,14 @@ function PreviewModal({ template, creating, onClose, onUse }: {
                     y la galería no tiene que llevarse el código de las 218.
                     Un solo iframe abierto a la vez: aquí el coste sí es asumible.
                 */}
+                {/* allow-same-origin es IMPRESCINDIBLE: sin él el iframe es de
+                    "origen opaco" y el motor de la plantilla (kinetic/classic) no
+                    puede pintar la escena — la preview salía NEGRA. El contenido es
+                    una plantilla del catálogo (first-party, no input del usuario),
+                    así que compartir origen es seguro. Igual que el Editor. */}
                 <iframe
                     src={`/plantillas/${template.id}/render`}
-                    sandbox="allow-scripts"
+                    sandbox="allow-scripts allow-same-origin"
                     className="flex-1 w-full border-0 min-h-0"
                     title={template.name}
                 />
