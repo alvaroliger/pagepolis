@@ -35,6 +35,12 @@ class Domain extends Model
         return $this->belongsTo(Project::class);
     }
 
+    /** Movimientos del fondo de reserva de este dominio (histórico auditable). */
+    public function reserveMovements()
+    {
+        return $this->hasMany(DomainReserveMovement::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

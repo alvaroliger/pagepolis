@@ -17,7 +17,7 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
 | B1-2 | 🟠 | OPcache desactivado en el PHP de Windows → recompila Laravel entero en cada petición (2-6 s/petición). | RESUELTO (activado; 0,2-0,5 s con caché caliente) |
 | B1-3 | 🟠 | `composer dev` inservible en Windows: `php artisan pail` necesita `pcntl` (inexistente en PHP Windows) y con `--kill-others` mata a server/queue/vite. | RESUELTO (script `scripts/dev-local.ps1` sin pail) |
 | B1-4 | 🟡 | Verificar causas de lentitud ADICIONALES: N+1 en el listado, generación de preview bloqueante, assets sin cachear. | EN CURSO |
-| B1-5 | 🟡 | No hay caché de aplicación real (Redis/config) para prod; hoy `CACHE_STORE` por defecto. | PENDIENTE |
+| B1-5 | 🟠 | **Horizon instalado pero requiere Redis, y `.env` usa `QUEUE/CACHE/SESSION=database` sin `ext-redis`.** El panel `/horizon` no funciona así. Decidir: Redis+Horizon en prod, o quitar Horizon y quedarse en colas `database`. Hoy funciona (database) pero es incoherente. | PENDIENTE |
 | B1-6 | 🟡 | Stack de producción: hoy no hay receta reproducible (nginx+php-fpm o FrankenPHP en el VPS). Deploy usa nginx (`scripts/deploy.py`) pero sin OPcache/worker garantizados. | PENDIENTE |
 
 ## Bloque 2 — Completar la aplicación (botones muertos, flujos)
@@ -47,9 +47,9 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
 
 | # | Sev | Problema | Estado |
 |---|-----|----------|--------|
-| B5-1 | 🔴 | Compra automática de dominio al pagar (API registrador, sandbox). | PENDIENTE |
-| B5-2 | 🔴 | Fondo de reserva prorrateado + histórico auditable de movimientos. | PENDIENTE |
-| B5-3 | 🟠 | Casos límite: cancelación, dunning, precio premium, pago reversible, doble compra (lock), fallo parcial (saga/reintento). | PENDIENTE |
+| B5-1 | 🔴 | Compra automática de dominio al pagar. YA EXISTE andamiaje real: job `PurchaseDomain` (Dinahosting + Cloudflare A-record + Nginx vhost + `expires_at`+1año) disparado por el webhook de Stripe. Falta: flag sandbox→real, lock atómico anti-doble-compra, consulta de precio en vivo, idempotencia del reintento. | PARCIAL |
+| B5-2 | 🔴 | **Fondo de reserva prorrateado + histórico auditable.** Núcleo construido y probado: `DomainReserveFund` + tabla `domain_reserve_movements` (append-only, idempotente) + 7 tests (margen, idempotencia, auditoría, casos límite). Falta: llamar al `accrue()` desde el webhook `invoice.payment_succeeded` y el comando de renovación. | NÚCLEO RESUELTO |
+| B5-3 | 🟠 | Casos límite: cancelación (config `domain.on_cancel`), dunning, precio premium (débito con precio real ya soportado), pago reversible (acumular solo en pago confirmado), doble compra (lock), fallo parcial (saga/reintento con idempotencia por `reference`). | PARCIAL |
 
 ## Bloque 6 — Transversal
 
@@ -79,6 +79,25 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
   allow-same-origin` (correcto); alineada la galería. Verificado con screenshots:
   `allow-scripts` = negro, `allow-scripts allow-same-origin` = escena completa.
 - Contenido = plantilla del catálogo (first-party), así que compartir origen es seguro.
+
+### B5-2 — Fondo de reserva de dominios (NÚCLEO RESUELTO)
+- **La pregunta de Álvaro** ("¿cómo aparto una parte menor de lo que me paga el cliente, en
+  las mismas fechas, para que la renovación anual nunca falle?") queda resuelta así:
+  - En cada cobro CONFIRMADO se aparta una porción prorrateada del coste anual del dominio,
+    con margen de seguridad configurable (`domain.reserve_margin`, por defecto 1.25).
+  - **Invariante probada:** porción mensual = `ceil(coste_anual × margen / 12)`; sumadas 12
+    ⇒ ≥ coste anual + colchón. Y esa porción (p. ej. 1,25 €/mes) es siempre menor que la cuota
+    que paga el cliente, así que nunca se come el margen de la plataforma.
+  - **Histórico auditable append-only** (`domain_reserve_movements`): cada entrada/salida con
+    `balance_after`, idempotente por `reference` (webhook repetido no cuenta doble).
+  - La renovación debita el fondo con el **precio real** consultado al registrador (soporta
+    subidas de precio); `canCover()` avisa antes de renovar si no llega (dominio premium).
+- Ficheros: `app/Services/DomainReserveFund.php`, `app/Models/DomainReserveMovement.php`,
+  migración `..._create_domain_reserve_movements_table`, `config/pagepolis.php` (bloque `domain`),
+  `tests/Feature/DomainReserveFundTest.php` (7 tests verdes).
+- **Falta para cerrarlo:** llamar `accrue()` desde el webhook `invoice.payment_succeeded` de
+  Cashier (idempotente por invoice id) y un comando `domains:renew` que recorra los que expiran
+  en `renew_before_days`, consulte precio real, debite el fondo y renueve; con alerta si no cubre.
 
 ### B3-3 — Vídeos de fondo hotlinkeados desde Pexels
 - `grep <video src` → 84 ficheros en `database/templates/*.html` con
