@@ -24,8 +24,9 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
 
 | # | Sev | Problema | Estado |
 |---|-----|----------|--------|
-| B2-1 | 🟠 | Botones/enlaces sin destino en plantillas y vistas de la app ("solo la primera vista está hecha"). | EN CURSO (auditoría) |
-| B2-2 | 🟡 | Flujos de producto incompletos por confirmar: recuperación de contraseña, facturación, panel admin. | PENDIENTE |
+| B2-1 | 🟡 | **Enlaces muertos en plantillas.** Estructura OK: 264/272 con ≥3 secciones, 272/272 con `<nav>`, 271/272 con `<footer>` → son páginas completas, no "solo el hero" (eso era el bug de preview, ya resuelto). PERO **68/272 plantillas tienen `href="#"` muertos (317 en total)**, casi todos placeholders de footer (Instagram, LinkedIn, Privacidad, Contacto, teléfono…). Quedan "sin acabar" a la vista. | PENDIENTE (batch) |
+| B2-2 | 🟢 | Botones de la APP (dashboard/editor/crear/publicar): auditados, **sin handlers muertos** (todos con onClick/submit). Flujos con ruta+controlador reales (auth completa, billing, admin, reset pwd). Falta probar cada uno end-to-end. | PARCIAL |
+| B2-3 | 🟡 | Enlaces legales de footer de plantillas (`Privacidad`, `Términos`, `Aviso legal`) van a `#`: deberían apuntar a páginas reales o quitarse. | PENDIENTE |
 
 ## Bloque 3 — Catálogo de plantillas
 
