@@ -296,15 +296,26 @@ class GenerateTemplateThumbnails extends Command
                     }))
             );
             // Los héroes con vídeo de fondo llegan con preload="none" y los
-            // carga el motor al entrar en pantalla; hasta que no hay un
-            // fotograma el CSS los mantiene invisibles, así que sin esperarlos
-            // la miniatura salía en negro (pasaba en 13 de 218).
+            // dispara el motor al entrar en viewport. En la captura headless eso
+            // NO basta: si solo esperamos 'loadeddata' de forma pasiva, en un
+            // vídeo con preload="none" el navegador nunca lo pide, el evento no
+            // llega, gana el timeout y la miniatura sale con solo el degradado
+            // (le pasaba a las 84 plantillas con vídeo de Pexels). La solución es
+            // FORZAR la carga a mano: preload='auto' + load() + play(), y esperar
+            // a que haya un primer fotograma (readyState>=2).
             const videos = Promise.all(
                 [...document.querySelectorAll('video')]
-                    .filter(v => v.readyState < 2)
                     .map(v => new Promise(resolve => {
+                        if (v.readyState >= 2) { resolve(); return; }
                         v.addEventListener('loadeddata', resolve, { once: true });
                         v.addEventListener('error', resolve, { once: true });
+                        try {
+                            v.preload = 'auto';
+                            v.muted = true;            // autoplay solo si va silenciado
+                            v.load();
+                            const p = v.play();
+                            if (p && p.catch) p.catch(() => {});
+                        } catch (e) {}
                     }))
             );
             await Promise.race([Promise.all([fonts, images, videos]), cap]);
