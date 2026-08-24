@@ -1,0 +1,41 @@
+/* ── Torno — cerámica artesanal ───────────────────────────────────────────
+   Barro, verde salvia y crudo. El plato del torno gira de verdad (con marcas
+   que lo hacen visible), la pieza gira sobre su eje y las manos tiemblan un
+   poco: tres animaciones desacompasadas que dan sensación de trabajo real.  */
+
+:root {
+  --bg: #17120e; --bg-2: #201913; --bg-3: #2b221a;
+  --ink: #f5efe6; --ink-dim: #a1917f; --ink-faint: #6f6252;
+  --accent: #c47b4a; --accent-2: #7c9a88;
+  --line: rgba(240,225,205,.12); --line-2: rgba(240,225,205,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.cf-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.cf-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.8rem,9vw,7rem); line-height: 1; letter-spacing: -.02em; margin: .6rem 0 1.3rem; }
+.cf-title em { color: var(--accent); }
+.cf-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+/* Las marcas del plato orbitan aplastadas en Y, que es como se ve girar un
+   disco en perspectiva. La pieza se estrecha y ensancha un pelo sobre su eje. */
+ 
+
+.cf-shop { background: var(--bg-2); }
+.kx-product figure { background: var(--bg-3); padding: 1.4rem; }
+.kx-product .kx-btn { margin-top: 1rem; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight: 400; }
+#cart-drawer { background: var(--bg-2); }
+
+@media (max-width: 900px) {
+  .cf-grid { grid-template-columns: 1fr; }
+  .cf-wheel { max-width: 300px; order: -1; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #dccdb8; }
+.cf-grid { grid-template-columns: 1fr; max-width: 44rem; }
+
+/* Sobre la fotografía del hero el titular va en blanco; el color de
+   marca se reserva para la palabra destacada. */
+.cf-title { color: #fff; text-shadow: 0 14px 46px rgba(6,10,16,.55); }

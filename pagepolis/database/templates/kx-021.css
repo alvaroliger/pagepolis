@@ -1,0 +1,17 @@
+/* ── Filo — E-commerce ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #0d0d0f; --bg-2: #151518; --bg-3: #1e1e22;
+  --ink: #f2f2f4; --ink-dim: #8d8d95; --ink-faint: #5a5a62;
+  --accent: #c9a227; --accent-2: #e8d08a;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:300; }
+.021-alt { background: var(--bg-2); }
+.021-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display);  }
+@media (max-width: 880px) { .021-faq { grid-template-columns: 1fr; } }

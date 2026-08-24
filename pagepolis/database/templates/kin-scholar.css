@@ -1,0 +1,34 @@
+/* ── Aprendo — formación online ───────────────────────────────────────────
+   Índigo y ámbar. El estudiante flota con un libro en las manos y tres libros
+   más orbitan a su alrededor a velocidades distintas.                       */
+
+:root {
+  --bg: #0e1226; --bg-2: #151a33; --bg-3: #1e2442;
+  --ink: #f0f2ff; --ink-dim: #8d94b8; --ink-faint: #5c6288;
+  --accent: #f0a929; --accent-2: #5b8cf5;
+  --line: rgba(190,200,255,.12); --line-2: rgba(190,200,255,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.sc-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.sc-title { font-weight: 700; font-size: clamp(2.8rem,8.5vw,7rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.sc-title em { color: var(--accent); font-family: var(--f-serif); font-weight: 400; }
+.sc-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+
+/* Órbita de libros: cada <i> gira sobre el centro con su propio periodo */
+.sc-method { background: var(--bg-2); }
+.sc-price { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.9rem,3.6vw,2.8rem); letter-spacing: -.04em; margin: .9rem 0 .7rem; }
+.sc-featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(240,169,41,.13), transparent 55%), var(--bg-3); }
+.kx-card .kx-btn { margin-top: 1.2rem; }
+.kx-btn--accent { --btn-fg: #0e1226; }
+
+@media (max-width: 900px) {
+  .sc-grid { grid-template-columns: 1fr; }
+  .sc-scene { max-width: 280px; order: -1; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #d6c9a8; }
+.sc-grid { grid-template-columns: 1fr; max-width: 44rem; }

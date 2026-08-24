@@ -1,0 +1,23 @@
+/* ── Cadencia — Música ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #0d0714; --bg-2: #150b20; --bg-3: #1f102e;
+  --ink: #f6eefc; --ink-dim: #a189b0; --ink-faint: #6d5a78;
+  --accent: #a855f7; --accent-2: #e4bcff;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:300; }
+.038-alt { background: var(--bg-2); }
+.038-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display);  }
+@media (max-width: 880px) { .038-faq { grid-template-columns: 1fr; } }
+
+/* Hero centrado */
+.038-hero .kx-vhero-body { text-align: center; align-items: center; }
+.038-hero .kx-vblock { align-items: center; }
+.038-hero .kx-vhero-p { margin-inline: auto; }
+.038-hero .kx-vhero-actions { justify-content: center; }

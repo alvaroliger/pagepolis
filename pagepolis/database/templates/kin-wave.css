@@ -1,0 +1,43 @@
+/* ── Onda Mayor — banda de rock ───────────────────────────────────────────
+   Negro, amarillo ácido y un ecualizador de 28 barras que baila. Cada barra
+   lleva su propia duración (--s) y altura (--h), así que el conjunto nunca
+   cae en un patrón obvio. CSS puro: se mueve también en la miniatura.       */
+
+:root {
+  --bg: #0a0a0a; --bg-2: #121212; --bg-3: #1b1b1b;
+  --ink: #f5f5f0; --ink-dim: #8e8e88; --ink-faint: #5a5a55;
+  --accent: #d8f21a; --accent-2: #ff3b6b;
+  --line: rgba(255,255,255,.11); --line-2: rgba(255,255,255,.22);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.wv-hero { text-align: center; }
+.wv-eq {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: clamp(3px, .7vw, 9px);
+  width: min(94vw, 1100px); height: min(46vh, 380px);
+  opacity: .55;
+}
+.wv-eq i {
+  flex: 1; display: block; min-width: 3px;
+  height: var(--h, 50%);
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent));
+  border-radius: 3px 3px 0 0;
+  transform-origin: bottom;
+  animation: wv-eq var(--s, 1s) var(--ease-io) infinite alternate;
+}
+@keyframes wv-eq { from { transform: scaleY(.22); } to { transform: scaleY(1); } }
+
+.wv-title { font-weight: 800; font-size: clamp(3rem,12vw,9.5rem); letter-spacing: -.05em; mix-blend-mode: exclusion; }
+.wv-title em { color: var(--accent); font-family: var(--f-serif); font-weight: 400; }
+.wv-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; text-align: left; margin-top: clamp(9rem,24vw,17rem); }
+.wv-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; }
+.wv-sold { color: var(--ink-faint); }
+.wv-tour { background: var(--bg-2); }
+
+.kx-marquee { background: var(--accent); color: #0a0a0a; border-color: transparent; }
+.kx-marquee-item { color: #0a0a0a; font-weight: 800; }
+.kx-marquee-item span { color: #0a0a0a; opacity: .5; }
+.kx-btn--accent { --btn-fg: #0a0a0a; }
+
+@media (max-width: 780px) { .wv-foot { margin-top: clamp(8rem, 44vw, 13rem); } }

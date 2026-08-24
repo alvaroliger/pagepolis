@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Reveal, FadeIn } from '@/Components/Motion';
-import { Eye, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Download, Trash2, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useModalA11y } from '@/hooks/useModalA11y';
 
 // Cierra con Escape (mismo patrón que el menú de avatar de AuthenticatedLayout).
@@ -162,22 +162,12 @@ function PurgeModal({ name, onConfirm, onCancel }: { name: string; onConfirm: ()
     );
 }
 
-function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Project) => void }) {
-    const [duplicating, setDuplicating] = useState(false);
-
-    const duplicate = () => {
-        if (duplicating) return;
-        setDuplicating(true);
-        router.post(`/proyectos/${project.id}/duplicar`, {}, {
-            onFinish: () => setDuplicating(false),
-        });
-    };
-
+function ProjectCard({ project, onDelete, onUnpublish }: { project: Project; onDelete: (p: Project) => void; onUnpublish: (p: Project) => void }) {
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-violet-800/50 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-950/25 transition-all duration-300 group flex flex-col h-full">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-colors duration-200 flex flex-col h-full">
             {/* Thumbnail */}
-            <div className="h-36 bg-gradient-to-br from-violet-950/40 via-gray-900 to-gray-800 flex items-center justify-center border-b border-gray-800 relative overflow-hidden">
-                <span className="text-5xl font-black text-gray-800 select-none">{project.name.charAt(0).toUpperCase()}</span>
+            <div className="h-36 bg-gray-800/60 flex items-center justify-center border-b border-gray-800 relative overflow-hidden">
+                <span className="text-4xl font-semibold text-gray-700 select-none">{project.name.charAt(0).toUpperCase()}</span>
                 {project.status === 'published' && (
                     <span className="absolute top-2 right-2 w-2 h-2 bg-green-400 rounded-full" title="Publicado" />
                 )}
@@ -228,7 +218,7 @@ function ProjectCard({ project, onDelete }: { project: Project; onDelete: (p: Pr
                     {project.status !== 'published' && (
                         <Link
                             href={`/publicar?project_id=${project.id}`}
-                            className="flex-1 text-center bg-violet-700/30 hover:bg-violet-700/60 text-violet-300 text-xs font-semibold py-2 rounded-lg transition-colors"
+                            className="flex-1 text-center bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold py-2 rounded-lg transition-colors"
                         >
                             Publicar
                         </Link>
@@ -322,9 +312,10 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                     </Link>
                     <Link
                         href="/crear"
-                        className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-opacity"
+                        className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
                     >
-                        ✨ Crear con IA
+                        <Sparkles className="w-4 h-4" strokeWidth={2} />
+                        Crear con IA
                     </Link>
                 </div>
             </div>
@@ -376,28 +367,25 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                 )}
 
                 {projects.length === 0 ? (
-                    <FadeIn className="text-center py-24 relative">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[420px] h-[260px] bg-violet-700/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
-                        <div className="relative">
-                            <div className="w-16 h-16 bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 border border-violet-700/30 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                                <Sparkles className="w-8 h-8 text-violet-400" strokeWidth={1.5} />
-                            </div>
-                            <h2 className="text-2xl font-black text-white mb-2 tracking-tight">Crea tu primera web</h2>
-                            <p className="text-gray-500 text-sm mb-8">Elige una plantilla y la IA generará tu web en menos de 30 segundos.</p>
-                            <Link
-                                href="/plantillas"
-                                className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white px-8 py-3 rounded-xl font-semibold transition-all text-sm shadow-lg shadow-violet-900/40 hover:-translate-y-0.5"
-                            >
-                                Explorar plantillas
-                            </Link>
+                    <FadeIn className="text-center py-24">
+                        <div className="w-14 h-14 bg-gray-900 border border-gray-800 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+                            <Sparkles className="w-6 h-6 text-violet-400" strokeWidth={1.5} />
                         </div>
+                        <h2 className="text-xl font-semibold text-white mb-2 tracking-tight">Crea tu primera web</h2>
+                        <p className="text-gray-500 text-sm mb-8">Elige una plantilla y la IA generará tu web en menos de 30 segundos.</p>
+                        <Link
+                            href="/plantillas"
+                            className="inline-block bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors text-sm"
+                        >
+                            Explorar plantillas
+                        </Link>
                     </FadeIn>
                 ) : (
                     <>
                         {/* Resumen de visitas */}
                         <div className="mb-6 flex flex-wrap items-center gap-4">
                             <div className="flex items-center gap-2 text-sm text-gray-400">
-                                <span className="text-2xl font-black text-white">{totalViews.toLocaleString('es-ES')}</span>
+                                <span className="text-2xl font-semibold text-white">{totalViews.toLocaleString('es-ES')}</span>
                                 visitas en los últimos 30 días
                             </div>
                             <Link href="/analytics" className="text-sm text-violet-400 hover:text-violet-300 font-semibold">
@@ -431,7 +419,7 @@ export default function Dashboard({ projects, trashed, isSubscribed, inGracePeri
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                 {filteredProjects.map((project, i) => (
                                     <Reveal key={project.id} delay={Math.min(i, 8) * 0.05} y={18}>
-                                        <ProjectCard project={project} onDelete={setDeleteTarget} />
+                                        <ProjectCard project={project} onDelete={setDeleteTarget} onUnpublish={unpublish} />
                                     </Reveal>
                                 ))}
                             </div>

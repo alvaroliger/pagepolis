@@ -1,0 +1,95 @@
+<div class="kx-progress"></div>
+<div class="kx-grain" aria-hidden="true"></div>
+
+<header class="kx-nav">
+  <a href="#top" class="kx-logo"><i>✚</i> Clínica Vera</a>
+  <nav class="kx-nav-links">
+    <a href="#servicios">Servicios</a><a href="#equipo">Equipo</a><a href="#cita">Cita</a>
+    <a href="#cita" class="kx-btn kx-btn--sm" data-magnetic><span>Pedir cita</span></a>
+  </nav>
+  <button class="kx-burger" aria-label="Menú"><span></span><span></span><span></span></button>
+</header>
+
+<main id="top">
+  <!-- Electrocardiograma que se dibuja solo, en bucle -->
+  <section class="kx-hero pu-hero">
+    <div class="kx-cam" data-cam="0.5" aria-hidden="true">
+      <div class="kx-cam-img" style="--img:url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=2400&q=80&fm=jpg');--origin:50% 50%"></div>
+      <div class="kx-cam-haze"></div>
+      <div class="kx-cam-grade"></div>
+    </div>
+    <div class="kx-hero-art">
+      <svg class="pu-ecg" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+        <path class="kx-draw" style="--len:2400"
+              d="M0 130h180l24-70 26 140 30-110 26 40h120l24-70 26 140 30-110 26 40h120l24-70 26 140 30-110 26 40h180l24-70 26 140 30-110 26 40h180"
+              fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="kx-wrap kx-hero-inner pu-grid">
+      <div>
+        <span class="kx-eyebrow" data-reveal>Centro médico · Salamanca</span>
+        <h1 class="kx-display pu-title" data-split>Cuidarse sin<br><em>esperas</em></h1>
+        <p class="kx-lede" data-reveal data-reveal-delay="0.2">Medicina general, fisioterapia y análisis en el mismo sitio. Cita en menos de 48 horas y consultas de veinte minutos de verdad.</p>
+        <div class="pu-cta" data-reveal data-reveal-delay="0.3">
+          <a href="#cita" class="kx-btn kx-btn--accent kx-btn--lg" data-magnetic><span>Pedir cita</span><span class="kx-arrow">↗</span></a>
+          <a href="#servicios" class="kx-link">Ver servicios</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="kx-marquee kx-marquee--sm"><div class="kx-marquee-track"><div class="kx-marquee-item">Medicina general · Fisioterapia · Análisis · Pediatría · Nutrición ·</div></div></div>
+
+  <section id="servicios" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">01 — Servicios</span><h2 class="kx-h2" data-split>Todo en el mismo sitio</h2></div></div>
+      <div class="kx-grid kx-grid--4">
+        <article class="kx-card" data-tilt data-reveal><span class="kx-index">/ 01</span><div class="kx-ic">✚</div><h3 class="kx-h3">Medicina general</h3><p>Consulta de veinte minutos y receta electrónica en el momento.</p></article>
+        <article class="kx-card" data-tilt data-reveal data-reveal-delay="0.07"><span class="kx-index">/ 02</span><div class="kx-ic">◈</div><h3 class="kx-h3">Fisioterapia</h3><p>Sesiones de una hora, con ejercicios para casa que sí se hacen.</p></article>
+        <article class="kx-card" data-tilt data-reveal data-reveal-delay="0.14"><span class="kx-index">/ 03</span><div class="kx-ic">◉</div><h3 class="kx-h3">Análisis</h3><p>Extracción por la mañana y resultados en tu correo al día siguiente.</p></article>
+        <article class="kx-card" data-tilt data-reveal data-reveal-delay="0.21"><span class="kx-index">/ 04</span><div class="kx-ic">◐</div><h3 class="kx-h3">Pediatría</h3><p>Revisiones y vacunas con sala de espera aparte para los peques.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="equipo" class="kx-section pu-team">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">02 — Equipo</span><h2 class="kx-h2" data-split>Quién le va a atender</h2></div>
+        <p class="kx-lede" data-reveal>Doce profesionales, la mayoría llevan aquí más de una década.</p></div>
+      <div class="kx-stats" data-reveal>
+        <div class="kx-stat"><strong data-count="12">0</strong><span>Profesionales</span></div>
+        <div class="kx-stat"><strong data-count="48" data-count-suffix=" h">0</strong><span>Para tener cita</span></div>
+        <div class="kx-stat"><strong data-count="20" data-count-suffix=" min">0</strong><span>Por consulta</span></div>
+        <div class="kx-stat"><strong data-count="4.9" data-count-suffix=" ★">0</strong><span>Valoración</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cita" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">03 — Cita</span><h2 class="kx-h2" data-split>Reserve su hueco</h2></div></div>
+      <form class="kx-form" data-reveal>
+        <div class="kx-field"><input type="text" name="nombre" placeholder="Nombre y apellidos" required></div>
+        <div class="kx-field"><input type="tel" name="telefono" placeholder="Teléfono" required></div>
+        <div class="kx-field"><textarea name="mensaje" placeholder="Qué especialidad necesita y qué días le vienen bien" required></textarea></div>
+        <button type="submit" class="kx-btn kx-btn--accent kx-btn--lg" data-magnetic><span>Pedir cita</span><span class="kx-arrow">↗</span></button>
+        <p class="kx-form-ok">Recibido. Le llamamos hoy mismo para confirmar la hora.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="kx-footer">
+  <div class="kx-wrap">
+    <div class="kx-footer-grid">
+      <div><div class="kx-logo"><i>✚</i> Clínica Vera</div><p style="color:var(--ink-dim);margin-top:.9rem;max-width:34ch">Centro médico privado en Salamanca.</p></div>
+      <div><h4>Clínica</h4><a href="#servicios">Servicios</a><a href="#equipo">Equipo</a><a href="#cita">Cita</a></div>
+      <div><h4>Horario</h4><a href="#">L–V · 8:00–21:00</a><a href="#">Sábado · 9:00–14:00</a></div>
+      <div><h4>Dónde</h4><a href="#">Paseo Canalejas 8, Salamanca</a><a href="#">+34 923 000 000</a></div>
+    </div>
+    <div class="kx-footer-word">VERA</div>
+    <div class="kx-footer-bot"><span>© 2026 Clínica Vera</span><span>Registro sanitario 37/0000</span></div>
+  </div>
+</footer>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TemplateEngine;
 use App\Http\Middleware\AiRateLimit;
 use App\Jobs\GenerateWebsiteJob;
 use App\Models\Project;
@@ -134,6 +135,9 @@ class ProjectController extends Controller
             'user_id'     => auth()->id(),
             'name'        => $request->name,
             'template_id' => $request->template_id,
+            // Hereda el motor compartido de su plantilla para poder
+            // enlazarlo en vez de copiarlo dentro del proyecto.
+            'engine'      => $template?->engine,
             'html'        => $template?->html ?? '',
             'css'         => $template?->css ?? '',
             'js'          => $template?->js ?? '',
@@ -171,6 +175,9 @@ class ProjectController extends Controller
             'user_id'     => $user->id,
             'name'        => $project->name . ' (copia)',
             'template_id' => $project->template_id,
+            // Sin esto la copia pierde el motor compartido (kinetic/classic)
+            // y sale sin estilo en el editor y en la vista previa.
+            'engine'      => $project->engine,
             'html'        => $project->html,
             'css'         => $project->css,
             'js'          => $project->js,
@@ -202,6 +209,11 @@ class ProjectController extends Controller
 
         // La preview se sirve en un iframe sandboxed desde el editor.
         // Los headers CSP impiden acceso a cookies de pagepolis.com.
+        // El motor compartido va enlazado, no incrustado: el navegador lo
+        // cachea una vez y lo reutiliza en todas las páginas publicadas, y
+        // la base de datos deja de guardar 110 KB repetidos por proyecto.
+        $engineTags = TemplateEngine::tags($project->engine ?? null);
+
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -212,11 +224,13 @@ class ProjectController extends Controller
     <meta name="description" content="{$desc}">
     <meta name="robots" content="noindex, nofollow">
     {$schema}
+    {$engineTags['css']}
     <style>{$css}</style>
 </head>
 <body>
 {$body}
 <script>{$previewGuard}</script>
+{$engineTags['js']}
 <script>{$js}</script>
 </body>
 </html>
@@ -273,8 +287,11 @@ HTML;
         $this->authorize('view', $project);
 
         $title = htmlspecialchars($project->name);
-        $css   = trim($project->css ?? '');
-        $js    = trim($project->js ?? '');
+        // El ZIP es un sitio estático sin servidor que le enlace el motor
+        // compartido, así que aquí SÍ va incrustado entero (motor + propio),
+        // igual que hacía la versión antigua antes de separar el motor.
+        $css   = trim(TemplateEngine::inline($project->engine ?? null, $project->css ?? '', 'css'));
+        $js    = trim(TemplateEngine::inline($project->engine ?? null, $project->js ?? '', 'js'));
         $body  = $project->html ?? '';
 
         $cssLink = $css ? '    <link rel="stylesheet" href="styles.css">' : '';

@@ -19,9 +19,13 @@ return [
     |--------------------------------------------------------------------------
     | Correo de soporte
     |--------------------------------------------------------------------------
-    | Dirección a la que los usuarios escriben para pedir ayuda. Créala como
-    | buzón en Dinahosting y ponla en SUPPORT_EMAIL en el .env de producción.
+    | Dirección a la que los usuarios escriben para pedir ayuda. Por defecto es
+    | hola@pagepolis.com (la misma que MAIL_FROM_ADDRESS, bandeja real que ya se
+    | usa). El botón "Escríbenos" de la landing y las páginas legales usaban
+    | antes soporte@pagepolis.com, un buzón que nunca llegó a crearse: los
+    | correos se perdían. Si algún día creas un buzón dedicado, ponlo en
+    | SUPPORT_EMAIL en el .env.
     */
-    'support_email' => env('SUPPORT_EMAIL', 'soporte@pagepolis.com'),
+    'support_email' => env('SUPPORT_EMAIL', 'hola@pagepolis.com'),
 
 ];

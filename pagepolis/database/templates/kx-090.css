@@ -1,0 +1,17 @@
+/* ── Sotobosque — Turismo ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #08120e; --bg-2: #0d1c16; --bg-3: #132a21;
+  --ink: #eef7f2; --ink-dim: #89a99a; --ink-faint: #5a7568;
+  --accent: #2fbf7e; --accent-2: #a8e6c4;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:400; }
+.090-alt { background: var(--bg-2); }
+.090-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight:400; }
+@media (max-width: 880px) { .090-faq { grid-template-columns: 1fr; } }

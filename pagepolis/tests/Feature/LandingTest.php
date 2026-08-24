@@ -22,9 +22,15 @@ class LandingTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_templates_gallery_includes_js_so_3d_heroes_render_in_preview(): void
+    /**
+     * El JS de la plantilla ya no viaja en las props de la galería (218
+     * plantillas × su código eran 2,95 MB por visita, más un iframe por
+     * tarjeta). Llega por /plantillas/{id}/render, que es lo que carga la
+     * vista previa: el hero 3D tiene que seguir animándose ahí.
+     */
+    public function test_template_render_endpoint_includes_js_so_3d_heroes_animate_in_preview(): void
     {
-        Template::create([
+        $template = Template::create([
             'name' => 'App / SaaS',
             'category' => 'SaaS',
             'html' => '<canvas class="hero3d-canvas" data-hero3d></canvas>',
@@ -33,7 +39,7 @@ class LandingTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get('/plantillas');
+        $response = $this->get("/plantillas/{$template->id}/render");
 
         $response->assertStatus(200);
         $response->assertSee('PAGEPOLIS-HERO3D-ENGINE', false);

@@ -1,0 +1,37 @@
+/* ── Azure Horizon — club náutico ─────────────────────────────────────────
+   Hero de vídeo a pantalla completa. La paleta del cuerpo es azul noche para
+   que la página no rompa con el plano de agua de arriba.                    */
+
+:root {
+  --bg: #05080c; --bg-2: #0a1017; --bg-3: #101a24;
+  --ink: #f2f6fa; --ink-dim: #8ba0b2; --ink-faint: #5a6e7e;
+  --accent: #4bb3c9; --accent-2: #d9c9a3;
+  --line: rgba(190,220,240,.12); --line-2: rgba(190,220,240,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+/* Titular en serif fina: es lo que separa "náutica de lujo" de "chárter" */
+.kx-vhero-h1 { font-family: var(--f-display); font-weight: 400; letter-spacing: -.01em; }
+
+.yc-nav-left, .yc-nav-right { display: flex; align-items: center; gap: 1.5rem; }
+.yc-logo {
+  display: inline-flex; align-items: center; gap: .6rem;
+  color: #fff; font-family: var(--f-display); font-size: 1.1rem; letter-spacing: -.01em;
+}
+.yc-links { display: none; gap: 1.6rem; }
+.yc-links a { font-size: .85rem; color: rgba(255,255,255,.78); transition: color .3s; }
+.yc-links a:hover { color: #fff; }
+.yc-note { display: none; font-family: var(--f-mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.6); }
+.yc-block { display: flex; flex-direction: column; gap: 1.1rem; max-width: 46rem; }
+.yc-tags { align-self: flex-start; }
+
+.yc-dark { background: var(--bg-2); }
+.yc-faq { display: grid; grid-template-columns: .8fr 1.4fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight: 400; }
+
+@media (min-width: 768px) {
+  .yc-links { display: flex; }
+  .yc-note { display: inline; }
+  .yc-tags { align-self: flex-end; }
+}
+@media (max-width: 860px) { .yc-faq { grid-template-columns: 1fr; } }

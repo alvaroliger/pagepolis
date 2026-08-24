@@ -1,0 +1,29 @@
+/* ── Hilo — moda lenta ────────────────────────────────────────────────────
+   Ciruela oscuro y arena. Dos capas de "tela" que ondean en el fondo con un
+   escalado horizontal muy lento: sugiere tejido sin usar ninguna foto.      */
+
+:root {
+  --bg: #14101a; --bg-2: #1c1622; --bg-3: #261e2e;
+  --ink: #f3eee9; --ink-dim: #9b8f9a; --ink-faint: #6b6070;
+  --accent: #c9856b; --accent-2: #8a4c52;
+  --line: rgba(240,230,235,.12); --line-2: rgba(240,230,235,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.bo-hero { text-align: left; }
+.bo-cloth { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.bo-cloth svg { width: 100%; height: 100%; }
+/* La onda respira: escala en X desde el centro, muy despacio */
+.bo-wave { animation: bo-wave 14s var(--ease-io) infinite; transform-box: view-box; transform-origin: center; }
+.bo-wave--b { animation-duration: 19s; animation-delay: -6s; }
+@keyframes bo-wave { 0%,100% { transform: scaleX(1) translateY(0); } 50% { transform: scaleX(1.06) translateY(-14px); } }
+
+.bo-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.8rem,9vw,7rem); line-height: 1; letter-spacing: -.02em; }
+.bo-title em { color: var(--accent); }
+.bo-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; margin-top: clamp(2rem,6vw,4rem); }
+
+.bo-shop { background: var(--bg-2); }
+.kx-product figure { background: var(--bg-3); padding: 1.4rem; }
+.kx-product .kx-btn { margin-top: 1rem; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight: 400; }
+#cart-drawer { background: var(--bg-2); }

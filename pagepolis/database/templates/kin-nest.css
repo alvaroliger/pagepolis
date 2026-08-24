@@ -1,0 +1,36 @@
+/* ── Umbral — inmobiliaria ────────────────────────────────────────────────
+   Verde bosque y arena. La casa isométrica flota, las ventanas se van
+   encendiendo y sale humo de la chimenea.                                   */
+
+:root {
+  --bg: #0e1512; --bg-2: #141d19; --bg-3: #1c2721;
+  --ink: #f0f5f1; --ink-dim: #8ba095; --ink-faint: #5b6f65;
+  --accent: #4ea373; --accent-2: #e0b45c;
+  --line: rgba(200,230,215,.12); --line-2: rgba(200,230,215,.24);
+  --f-display: 'Space Grotesk', sans-serif;
+}
+
+.ne-grid { display: grid; grid-template-columns: 1fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.ne-title { font-size: clamp(2.8rem,8.5vw,7rem); margin: .6rem 0 1.3rem; }
+.ne-title em { color: var(--accent-2); }
+.ne-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+.ne-house { width: 100%; max-width: 460px; margin-inline: auto; filter: drop-shadow(0 30px 44px rgba(0,0,0,.5)); }
+
+/* Las ventanas se encienden en momentos distintos: la casa parece habitada */
+.ne-win path { animation: ne-win 6s var(--ease-io) infinite; animation-delay: var(--d, 0s); }
+@keyframes ne-win { 0%,100% { opacity: .28; } 40%,65% { opacity: 1; } }
+/* Humo de la chimenea */
+.ne-smoke circle { animation: ne-smoke 5s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ne-smoke {
+  0%   { transform: translate(0,10px) scale(.4); opacity: 0; }
+  25%  { opacity: .38; }
+  100% { transform: translate(-16px,-52px) scale(1.5); opacity: 0; }
+}
+
+.ne-price { font-family: var(--f-mono); font-size: .92rem; color: var(--accent-2); white-space: nowrap; }
+.ne-serv { background: var(--bg-2); }
+
+@media (max-width: 900px) {
+  .ne-grid { grid-template-columns: 1fr; }
+  .ne-house { max-width: 330px; order: -1; }
+}

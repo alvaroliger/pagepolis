@@ -1,0 +1,1399 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   KINETIC — sistema de diseño + motor de animación CSS de las plantillas
+   premium de Pagepolis.
+
+   Es el equivalente en CSS de kinetic.js: define los TOKENS (paleta, tipografía,
+   ritmo) y todos los componentes y animaciones. Cada plantilla solo redefine sus
+   variables y añade el arte de su hero, así que su CSS propio es corto.
+
+   REGLA IMPORTANTE — la galería renderiza la miniatura SIN JavaScript
+   (Templates/Index.tsx monta un iframe con HTML+CSS y sin <script>). Por eso:
+     · Toda animación "de reposo" (auroras, órbitas, marquesinas, parpadeos,
+       respiración de los personajes, brillos) es CSS puro y se ve en la galería.
+     · Las animaciones de entrada ([data-reveal], [data-split]) SOLO se ocultan
+       si el motor JS ha arrancado (body.kx-js). Sin JS el contenido se ve
+       entero: nunca una miniatura en blanco.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Familias del sistema. Se descartó Anton a propósito: dibuja la tilde de la Ñ
+   tan alta que a tamaño de cartel parece un signo suelto, y estas plantillas
+   son para copy en español. Bricolage Grotesque cubre el mismo papel de titular
+   pesado con los acentos bien colocados. */
+/* Las fuentes ya NO se cargan con @import: dentro de un iframe (miniaturas
+   de la galería, vista previa) un @import bloquea la aplicación de TODO el
+   resto del CSS hasta que resuelve — comprobado con una prueba aislada: con
+   @import el motor entero no se aplicaba, quitándolo se aplicó al instante.
+   Las fuentes se enlazan aparte, como <link>, en cada sitio donde se usa
+   este motor (ver el bloque FONT_LINK en TemplateEngine y en el frontend). */
+
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:        #060607;
+  --bg-2:      #0d0d10;
+  --bg-3:      #141419;
+  --ink:       #f4f4f5;
+  --ink-dim:   #8b8b96;
+  --ink-faint: #55555f;
+  --accent:    #6d6dff;
+  --accent-2:  #b98cff;
+  --line:      rgba(255,255,255,.10);
+  --line-2:    rgba(255,255,255,.16);
+
+  --f-display: 'Space Grotesk', system-ui, sans-serif;
+  --f-serif:   'Instrument Serif', Georgia, serif;
+  --f-body:    'Inter', system-ui, sans-serif;
+  --f-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  --r:      18px;
+  --r-lg:   28px;
+  --pad:    clamp(1.25rem, 5vw, 5.5rem);
+  --ease:   cubic-bezier(.22,1,.36,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--f-body);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, svg, video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul { list-style: none; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Tipografía ─────────────────────────────────────────────────────────── */
+.kx-display {
+  font-family: var(--f-display);
+  font-size: clamp(2.8rem, 9.5vw, 8.5rem);
+  font-weight: 500;
+  line-height: .92;
+  letter-spacing: -.04em;
+  text-wrap: balance;
+}
+.kx-display--tight { line-height: .84; }
+.kx-display em, .kx-serif {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.01em;
+}
+.kx-h2 {
+  font-family: var(--f-display);
+  font-size: clamp(1.9rem, 4.6vw, 4rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.kx-h3 {
+  font-family: var(--f-display);
+  font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.kx-eyebrow {
+  font-family: var(--f-mono);
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+}
+.kx-eyebrow::before {
+  content: '';
+  width: 1.6rem;
+  height: 1px;
+  background: currentColor;
+  opacity: .5;
+}
+.kx-eyebrow--bare::before { display: none; }
+.kx-lede {
+  font-size: clamp(1rem, 1.35vw, 1.15rem);
+  color: var(--ink-dim);
+  max-width: 46ch;
+  line-height: 1.65;
+}
+.kx-index {
+  font-family: var(--f-mono);
+  font-size: .7rem;
+  color: var(--ink-faint);
+  letter-spacing: .1em;
+}
+
+/* Degradado animado sobre texto (se mueve también sin JS) */
+.kx-grad {
+  background: linear-gradient(100deg, var(--accent), var(--accent-2), var(--accent));
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: kx-grad 7s linear infinite;
+}
+@keyframes kx-grad { to { background-position: -250% 0; } }
+
+/* Texto con contorno */
+.kx-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-2);
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.kx-wrap { width: 100%; padding-inline: var(--pad); margin-inline: auto; max-width: 1500px; }
+.kx-section { padding-block: clamp(4.5rem, 11vw, 10rem); position: relative; }
+.kx-sec-head {
+  display: flex; flex-wrap: wrap; gap: 1.4rem 3rem;
+  align-items: flex-end; justify-content: space-between;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+.kx-sec-head > div { max-width: 62ch; }
+.kx-sec-head .kx-h2 { margin-top: 1rem; }
+.kx-rule { height: 1px; background: var(--line); border: 0; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.kx-nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 90;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 2rem;
+  padding: 1.1rem var(--pad);
+  transition: background .45s var(--ease), backdrop-filter .45s, border-color .45s, padding .45s var(--ease);
+  border-bottom: 1px solid transparent;
+}
+.kx-nav.kx-stuck {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border-bottom-color: var(--line);
+  padding-block: .75rem;
+}
+.kx-logo {
+  font-family: var(--f-display);
+  font-weight: 600; font-size: 1.05rem;
+  letter-spacing: -.03em;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.kx-logo i { font-style: normal; color: var(--accent); animation: kx-spin 9s linear infinite; display: inline-block; }
+@keyframes kx-spin { to { transform: rotate(360deg); } }
+.kx-nav-links { display: flex; align-items: center; gap: clamp(1rem, 2.2vw, 2.2rem); }
+.kx-nav-links a {
+  font-size: .84rem; color: var(--ink-dim);
+  position: relative; transition: color .3s;
+  padding-block: .3rem;
+}
+.kx-nav-links a::after {
+  content: ''; position: absolute; left: 0; bottom: 0;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right;
+  transition: transform .45s var(--ease);
+}
+.kx-nav-links a:hover { color: var(--ink); }
+.kx-nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+.kx-burger { display: none; width: 26px; height: 14px; position: relative; }
+.kx-burger span {
+  position: absolute; left: 0; width: 100%; height: 1.5px;
+  background: var(--ink); transition: .35s var(--ease);
+}
+.kx-burger span:nth-child(1) { top: 0; }
+.kx-burger span:nth-child(2) { top: 50%; margin-top: -.75px; }
+.kx-burger span:nth-child(3) { bottom: 0; }
+.kx-burger.kx-open span:nth-child(1) { top: 50%; transform: rotate(45deg); }
+.kx-burger.kx-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.kx-burger.kx-open span:nth-child(3) { bottom: 50%; margin-bottom: -.75px; transform: rotate(-45deg); }
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
+.kx-btn {
+  --btn-bg: var(--ink); --btn-fg: var(--bg);
+  position: relative; overflow: hidden;
+  display: inline-flex; align-items: center; gap: .6rem;
+  padding: .95rem 1.7rem;
+  border-radius: 100px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  font-size: .87rem; font-weight: 500; letter-spacing: -.01em;
+  white-space: nowrap;
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+  will-change: transform;
+}
+.kx-btn > * { position: relative; z-index: 1; }
+.kx-btn::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background: var(--accent);
+  transform: translateY(101%);
+  transition: transform .55s var(--ease);
+}
+.kx-btn:hover { box-shadow: 0 14px 40px -12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.kx-btn:hover::before { transform: translateY(0); }
+.kx-btn:hover { color: #fff; }
+.kx-btn .kx-arrow { transition: transform .45s var(--ease); }
+.kx-btn:hover .kx-arrow { transform: translate(3px, -3px); }
+.kx-btn--accent { --btn-bg: var(--accent); --btn-fg: #fff; }
+.kx-btn--accent::before { background: var(--ink); }
+.kx-btn--accent:hover { color: var(--bg); }
+.kx-btn--ghost {
+  --btn-bg: transparent; --btn-fg: var(--ink);
+  border: 1px solid var(--line-2);
+}
+.kx-btn--sm { padding: .6rem 1.15rem; font-size: .78rem; }
+.kx-btn--lg { padding: 1.15rem 2.2rem; font-size: .95rem; }
+
+/* Enlace con subrayado que se recorre */
+.kx-link {
+  position: relative; display: inline-flex; align-items: center; gap: .45rem;
+  font-size: .9rem; padding-bottom: .25rem;
+}
+.kx-link::after {
+  content: ''; position: absolute; left: 0; bottom: 0; width: 100%; height: 1px;
+  background: currentColor; transform-origin: right; transform: scaleX(0);
+  transition: transform .5s var(--ease);
+}
+.kx-link:hover::after { transform-origin: left; transform: scaleX(1); }
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.kx-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex; align-items: center;
+  padding-block: 9rem 4rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+.kx-hero-inner { position: relative; z-index: 2; width: 100%; }
+.kx-hero-art {
+  position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  display: grid; place-items: center;
+}
+.kx-scroll-cue {
+  position: absolute; left: 50%; bottom: 1.8rem; z-index: 3;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  font-family: var(--f-mono); font-size: .6rem; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.kx-scroll-cue::after {
+  content: ''; width: 1px; height: 42px;
+  background: linear-gradient(var(--ink-faint), transparent);
+  animation: kx-cue 2.4s var(--ease-io) infinite;
+}
+@keyframes kx-cue { 0%,100% { transform: scaleY(.35); opacity: .3; transform-origin: top; } 50% { transform: scaleY(1); opacity: 1; transform-origin: top; } }
+
+/* ── Ambiente: auroras, rejilla, grano, focos ───────────────────────────── */
+.kx-aurora { position: absolute; inset: -20%; z-index: 0; pointer-events: none; filter: blur(70px); opacity: .55; }
+.kx-aurora span {
+  position: absolute; display: block;
+  width: 48vw; height: 48vw; max-width: 720px; max-height: 720px;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation: kx-drift 22s var(--ease-io) infinite alternate;
+}
+.kx-aurora span:nth-child(1) { background: var(--accent);   top: -6%;  left: 4%;  }
+.kx-aurora span:nth-child(2) { background: var(--accent-2); top: 22%;  right: 2%; animation-duration: 28s; animation-delay: -7s; }
+.kx-aurora span:nth-child(3) { background: var(--accent);   bottom: -12%; left: 38%; animation-duration: 34s; animation-delay: -14s; opacity: .6; }
+@keyframes kx-drift {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  50%  { transform: translate3d(9vw,-6vh,0) scale(1.22); }
+  100% { transform: translate3d(-7vw,7vh,0) scale(.88); }
+}
+
+.kx-grid-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, #000 20%, transparent 78%);
+  animation: kx-grid-pan 30s linear infinite;
+}
+@keyframes kx-grid-pan { to { background-position: 72px 72px; } }
+
+/* Grano de película: se mueve en 8 pasos, da textura "cara" a los fondos planos */
+.kx-grain {
+  position: fixed; inset: -150%; z-index: 3; pointer-events: none;
+  opacity: .035; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: kx-grain 700ms steps(1) infinite;
+}
+@keyframes kx-grain {
+  0%   { transform: translate(0,0); }        12.5% { transform: translate(-3%,-4%); }
+  25%  { transform: translate(-8%,3%); }     37.5% { transform: translate(4%,-6%); }
+  50%  { transform: translate(-2%,7%); }     62.5% { transform: translate(6%,2%); }
+  75%  { transform: translate(-7%,-3%); }    87.5% { transform: translate(3%,5%); }
+}
+
+/* Halo que sigue al ratón (kinetic.js escribe --mx/--my; sin JS queda centrado) */
+.kx-spotlight {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 40%),
+              color-mix(in srgb, var(--accent) 13%, transparent), transparent 62%);
+  transition: opacity .6s;
+}
+
+.kx-vignette {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 45%, color-mix(in srgb, var(--bg) 88%, transparent) 100%);
+}
+
+/* Barrido de escáner */
+.kx-scan {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+}
+.kx-scan::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 38%;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--accent) 16%, transparent), transparent);
+  animation: kx-scan 6s var(--ease-io) infinite;
+}
+@keyframes kx-scan { 0% { top: -40%; } 100% { top: 105%; } }
+
+/* Campo de estrellas / partículas puramente CSS */
+.kx-stars {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 22%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 68% 14%, #fff, transparent),
+    radial-gradient(1.6px 1.6px at 34% 71%, #fff, transparent),
+    radial-gradient(1px 1px   at 84% 58%, #fff, transparent),
+    radial-gradient(1.3px 1.3px at 52% 38%, #fff, transparent),
+    radial-gradient(1px 1px   at 22% 88%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 92% 82%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 7% 54%, #fff, transparent);
+  background-size: 100% 100%;
+  opacity: .5;
+  animation: kx-twinkle 5s ease-in-out infinite alternate;
+}
+@keyframes kx-twinkle { from { opacity: .22; } to { opacity: .65; } }
+
+/* ── Órbitas y anillos (el "iris" de las referencias) ───────────────────── */
+.kx-orbit { position: relative; display: grid; place-items: center; }
+.kx-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid var(--line-2);
+  animation: kx-spin 24s linear infinite;
+}
+.kx-ring--dash { border-style: dashed; }
+.kx-ring:nth-of-type(2) { animation-duration: 38s; animation-direction: reverse; }
+.kx-ring:nth-of-type(3) { animation-duration: 54s; }
+/* Corona de rayos: se dibuja con conic-gradient, sin imágenes */
+.kx-corona {
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    transparent 0 1.2deg, color-mix(in srgb, var(--accent) 85%, #fff) 1.2deg 2deg, transparent 2deg 6deg);
+  mask-image: radial-gradient(circle, transparent 38%, #000 42%, #000 68%, transparent 74%);
+  -webkit-mask-image: radial-gradient(circle, transparent 38%, #000 42%, #000 68%, transparent 74%);
+  animation: kx-spin 40s linear infinite, kx-pulse-soft 5s var(--ease-io) infinite;
+}
+@keyframes kx-pulse-soft { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+.kx-core {
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, #fff 0%, var(--accent) 32%, color-mix(in srgb, var(--accent) 40%, #000) 68%, #000 100%);
+  box-shadow: 0 0 90px -10px var(--accent), inset 0 0 60px -20px #000;
+  animation: kx-breathe 6s var(--ease-io) infinite;
+}
+@keyframes kx-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+/* Blob orgánico que se deforma (border-radius animado) */
+.kx-blob {
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  animation: kx-morph 14s var(--ease-io) infinite, kx-spin 32s linear infinite;
+}
+@keyframes kx-morph {
+  0%,100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+  33%     { border-radius: 63% 37% 41% 59% / 56% 62% 38% 44%; }
+  66%     { border-radius: 38% 62% 55% 45% / 62% 38% 62% 38%; }
+}
+
+/* ── Muñequitos: primitivas de personaje ───────────────────────────────────
+   Los personajes se dibujan con SVG inline en cada plantilla; estas clases les
+   dan vida y funcionan sin JS (crucial para las miniaturas de la galería).    */
+.kx-float   { animation: kx-float 6s var(--ease-io) infinite; }
+@keyframes kx-float { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-16px) rotate(1.2deg); } }
+.kx-float--slow { animation-duration: 9s; }
+.kx-float--fast { animation-duration: 4s; }
+
+.kx-bob { animation: kx-bob 3.2s var(--ease-io) infinite; }
+@keyframes kx-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+.kx-breath { animation: kx-breathe 4.5s var(--ease-io) infinite; transform-origin: center bottom; }
+
+/* Parpadeo: el párpado baja de golpe y sube. Aleatorizado con retardos. */
+.kx-blink { animation: kx-blink 5.5s infinite; transform-origin: center; }
+@keyframes kx-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 96%      { transform: scaleY(.06); }
+}
+.kx-blink--b { animation-duration: 7.3s; animation-delay: -1.4s; }
+.kx-blink--c { animation-duration: 6.1s; animation-delay: -3.2s; }
+
+/* Saludo con la mano */
+.kx-wave { animation: kx-wave 2.6s var(--ease-io) infinite; transform-origin: bottom center; }
+@keyframes kx-wave {
+  0%, 60%, 100% { transform: rotate(0); }
+  70%  { transform: rotate(-22deg); }
+  80%  { transform: rotate(12deg); }
+  90%  { transform: rotate(-14deg); }
+}
+
+/* Pupila que "mira" al ratón — kinetic.js escribe --eye-x/--eye-y */
+.kx-pupil { transition: transform .35s var(--ease); transform: translate(var(--eye-x, 0px), var(--eye-y, 0px)); }
+
+/* Boca que habla */
+.kx-talk { animation: kx-talk 1.4s var(--ease-io) infinite; transform-origin: center; }
+@keyframes kx-talk { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.55); } }
+
+/* Pasos / caminar */
+.kx-step-a { animation: kx-step 1.1s var(--ease-io) infinite; transform-origin: top center; }
+.kx-step-b { animation: kx-step 1.1s var(--ease-io) infinite reverse; transform-origin: top center; }
+@keyframes kx-step { 0%,100% { transform: rotate(14deg); } 50% { transform: rotate(-14deg); } }
+
+/* Sombra que acompaña al flotar */
+.kx-shadow { animation: kx-shadow 6s var(--ease-io) infinite; transform-origin: center; }
+@keyframes kx-shadow { 0%,100% { transform: scaleX(1); opacity: .34; } 50% { transform: scaleX(.72); opacity: .16; } }
+
+/* Dentro de un SVG las transformaciones se refieren al lienzo entero, no a la
+   forma: transform-box lo corrige para que cada pieza gire sobre sí misma. */
+svg .kx-blink, svg .kx-breath, svg .kx-float, svg .kx-bob,
+svg .kx-talk, svg .kx-shadow, svg .kx-spin-slow { transform-box: fill-box; transform-origin: center; }
+svg .kx-wave { transform-box: fill-box; transform-origin: bottom center; }
+svg .kx-step-a, svg .kx-step-b { transform-box: fill-box; transform-origin: top center; }
+svg .kx-breath { transform-origin: center bottom; }
+.kx-spin-slow { animation: kx-spin 26s linear infinite; }
+
+/* Trazo SVG que se dibuja solo, en bucle */
+.kx-draw { stroke-dasharray: var(--len, 1200); stroke-dashoffset: var(--len, 1200); animation: kx-draw 5s var(--ease-io) infinite; }
+@keyframes kx-draw {
+  0%   { stroke-dashoffset: var(--len, 1200); }
+  55%  { stroke-dashoffset: 0; }
+  85%  { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+/* Partícula que asciende (chispas, burbujas, pétalos) */
+.kx-rise { animation: kx-rise var(--dur, 9s) linear infinite; animation-delay: var(--d, 0s); }
+@keyframes kx-rise {
+  0%   { transform: translate3d(0, 110%, 0) scale(.6); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translate3d(var(--dx, 30px), -20%, 0) scale(1.05); opacity: 0; }
+}
+/* Partícula que cae (pétalos, nieve, hojas) */
+.kx-fall { animation: kx-fall var(--dur, 11s) linear infinite; animation-delay: var(--d, 0s); }
+@keyframes kx-fall {
+  0%   { transform: translate3d(0, -15%, 0) rotate(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translate3d(var(--dx, 60px), 115%, 0) rotate(540deg); opacity: 0; }
+}
+
+/* ── Marquesina infinita (kinetic.js duplica el contenido) ──────────────── */
+.kx-marquee {
+  overflow: hidden; position: relative;
+  border-block: 1px solid var(--line);
+  padding-block: clamp(.9rem, 1.8vw, 1.5rem);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.kx-marquee-track {
+  display: flex; width: max-content; gap: clamp(1.5rem, 3vw, 3.5rem);
+  animation: kx-marquee var(--speed, 34s) linear infinite;
+}
+.kx-marquee:hover .kx-marquee-track { animation-play-state: paused; }
+.kx-marquee--rev .kx-marquee-track { animation-direction: reverse; }
+@keyframes kx-marquee { to { transform: translate3d(calc(-50% - (var(--gap, 3.5rem) / 2)), 0, 0); } }
+.kx-marquee-item {
+  display: inline-flex; align-items: center; gap: clamp(1.5rem, 3vw, 3.5rem);
+  font-family: var(--f-display);
+  font-size: clamp(1.4rem, 3.6vw, 3.2rem);
+  font-weight: 500; letter-spacing: -.03em;
+  white-space: nowrap; color: var(--ink);
+}
+.kx-marquee-item span { color: var(--accent); }
+.kx-marquee--sm .kx-marquee-item { font-size: clamp(.8rem, 1.1vw, .95rem); font-family: var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-dim); }
+
+/* ── Tarjetas ───────────────────────────────────────────────────────────── */
+.kx-grid { display: grid; gap: clamp(.9rem, 1.6vw, 1.4rem); }
+.kx-grid--2 { grid-template-columns: repeat(2, 1fr); }
+.kx-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.kx-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+.kx-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  padding: clamp(1.4rem, 2.4vw, 2.2rem);
+  border-radius: var(--r);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  transition: transform .6s var(--ease), border-color .5s, background .5s;
+  will-change: transform;
+}
+/* Halo que sigue al cursor dentro de la tarjeta (kinetic.js escribe --cx/--cy) */
+.kx-card::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; opacity: 0;
+  background: radial-gradient(340px circle at var(--cx, 50%) var(--cy, 50%),
+              color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+  transition: opacity .5s;
+}
+.kx-card:hover { border-color: var(--line-2); transform: translateY(-5px); }
+.kx-card:hover::before { opacity: 1; }
+.kx-card .kx-index { display: block; margin-bottom: 1.4rem; }
+.kx-card h3 { margin-bottom: .6rem; }
+.kx-card p { color: var(--ink-dim); font-size: .93rem; }
+.kx-card--glass {
+  background: color-mix(in srgb, #fff 5%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+.kx-card--flat { background: transparent; border-color: transparent; border-top: 1px solid var(--line); border-radius: 0; padding-inline: 0; }
+.kx-card--flat:hover { transform: none; border-top-color: var(--line-2); }
+
+/* Icono de tarjeta con aro que gira al pasar */
+.kx-ic {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-2);
+  color: var(--accent); font-size: 1.05rem;
+  margin-bottom: 1.2rem;
+  transition: transform .6s var(--ease), background .4s, color .4s;
+}
+.kx-card:hover .kx-ic { transform: rotate(90deg); background: var(--accent); color: #fff; }
+
+/* ── Cifras / contadores ────────────────────────────────────────────────── */
+.kx-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: clamp(1.2rem, 3vw, 2.5rem); }
+.kx-stat strong {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+  font-weight: 500; line-height: 1; letter-spacing: -.045em;
+  font-variant-numeric: tabular-nums;
+}
+.kx-stat span {
+  display: block; margin-top: .6rem;
+  font-family: var(--f-mono); font-size: .66rem;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--ink-dim);
+}
+
+/* ── Lista de trabajos / índice editorial ───────────────────────────────── */
+.kx-list { border-top: 1px solid var(--line); }
+.kx-row {
+  position: relative; display: grid; align-items: center; gap: 1rem 2rem;
+  grid-template-columns: auto 1fr auto auto;
+  padding: clamp(1.2rem, 2.4vw, 2rem) 0;
+  border-bottom: 1px solid var(--line);
+  transition: padding-inline .55s var(--ease), color .4s;
+}
+.kx-row::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: var(--bg-2);
+  transform: scaleY(0); transform-origin: bottom;
+  transition: transform .5s var(--ease);
+}
+.kx-row:hover { padding-inline: clamp(.8rem, 1.6vw, 1.6rem); }
+.kx-row:hover::before { transform: scaleY(1); transform-origin: top; }
+.kx-row h3 { font-size: clamp(1.15rem, 2.6vw, 2rem); font-weight: 500; letter-spacing: -.03em; font-family: var(--f-display); }
+.kx-row .kx-tag { font-family: var(--f-mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim); }
+.kx-row .kx-arrow { transition: transform .5s var(--ease); opacity: .4; }
+.kx-row:hover .kx-arrow { transform: translate(4px,-4px); opacity: 1; }
+
+/* ── Acordeón ───────────────────────────────────────────────────────────── */
+.kx-acc { border-top: 1px solid var(--line); }
+.kx-acc-item { border-bottom: 1px solid var(--line); }
+.kx-acc-q {
+  width: 100%; text-align: left;
+  display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  padding: clamp(1.1rem, 2vw, 1.6rem) 0;
+  font-family: var(--f-display); font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 500; letter-spacing: -.02em;
+  transition: color .35s;
+}
+.kx-acc-q:hover { color: var(--accent); }
+.kx-acc-q i { font-style: normal; flex: none; transition: transform .45s var(--ease); font-size: 1.3rem; line-height: 1; }
+.kx-acc-item.kx-open .kx-acc-q i { transform: rotate(135deg); }
+.kx-acc-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s var(--ease); }
+.kx-acc-item.kx-open .kx-acc-a { grid-template-rows: 1fr; }
+.kx-acc-a > div { overflow: hidden; }
+.kx-acc-a p { color: var(--ink-dim); padding-bottom: 1.5rem; max-width: 70ch; font-size: .95rem; }
+
+/* ── Formulario ─────────────────────────────────────────────────────────── */
+.kx-form { display: grid; gap: 1rem; max-width: 560px; }
+.kx-field { position: relative; }
+.kx-field input, .kx-field textarea, .kx-field select {
+  width: 100%; padding: 1rem 1.1rem;
+  background: var(--bg-2); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 12px;
+  font: inherit; font-size: .92rem;
+  transition: border-color .35s, background .35s;
+}
+.kx-field textarea { min-height: 130px; resize: vertical; }
+.kx-field input:focus, .kx-field textarea:focus, .kx-field select:focus {
+  outline: none; border-color: var(--accent); background: var(--bg-3);
+}
+.kx-field input::placeholder, .kx-field textarea::placeholder { color: var(--ink-faint); }
+.kx-form-ok {
+  display: none; padding: 1rem 1.2rem; border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid var(--accent); font-size: .9rem;
+}
+.kx-form-ok.kx-show { display: block; animation: kx-pop .5s var(--ease); }
+@keyframes kx-pop { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.kx-footer { padding-block: clamp(3.5rem, 7vw, 6rem) 2.5rem; border-top: 1px solid var(--line); position: relative; }
+.kx-footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 2.5rem; margin-bottom: 3.5rem; }
+.kx-footer h4 { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 1.1rem; }
+.kx-footer-grid a { display: block; font-size: .9rem; color: var(--ink-dim); padding-block: .3rem; transition: color .3s, transform .4s var(--ease); }
+.kx-footer-grid a:hover { color: var(--ink); transform: translateX(4px); }
+.kx-footer-bot {
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; align-items: center;
+  padding-top: 2rem; border-top: 1px solid var(--line);
+  font-family: var(--f-mono); font-size: .68rem; letter-spacing: .1em; color: var(--ink-faint);
+}
+/* Palabra gigante de cierre, típica de las referencias */
+.kx-footer-word {
+  font-family: var(--f-display); font-weight: 600;
+  font-size: clamp(3rem, 17vw, 15rem); line-height: .8; letter-spacing: -.05em;
+  text-align: center; margin-block: 1rem 2rem;
+  color: transparent; -webkit-text-stroke: 1px var(--line-2);
+  transition: -webkit-text-stroke-color .6s, color .6s;
+}
+.kx-footer-word:hover { color: var(--accent); -webkit-text-stroke-color: transparent; }
+
+/* ── Barra de progreso de lectura ───────────────────────────────────────── */
+.kx-progress {
+  position: fixed; top: 0; left: 0; z-index: 95;
+  height: 2px; width: 100%;
+  background: var(--accent);
+  transform: scaleX(var(--p, 0)); transform-origin: left;
+}
+
+/* ── Cursor personalizado (solo con puntero fino) ───────────────────────── */
+.kx-cursor {
+  position: fixed; top: 0; left: 0; z-index: 99; pointer-events: none;
+  width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border: 1px solid var(--accent); border-radius: 50%;
+  opacity: 0;
+  transition: width .35s var(--ease), height .35s var(--ease), margin .35s var(--ease),
+              background .35s, opacity .35s;
+  mix-blend-mode: difference;
+}
+.kx-cursor.kx-on { opacity: 1; }
+.kx-cursor.kx-grow { width: 62px; height: 62px; margin: -31px 0 0 -31px; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+@media (hover: none), (pointer: coarse) { .kx-cursor, .kx-spotlight { display: none; } }
+
+/* ═══ ANIMACIONES DE ENTRADA ═══════════════════════════════════════════════
+   Solo se ocultan si kinetic.js ha arrancado (body.kx-js). Sin JS —galería—
+   todo se ve de una pieza.                                                   */
+body.kx-js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition: opacity .95s var(--ease), transform .95s var(--ease);
+  transition-delay: var(--delay, 0s);
+}
+body.kx-js [data-reveal="left"]  { transform: translate3d(-42px, 0, 0); }
+body.kx-js [data-reveal="right"] { transform: translate3d(42px, 0, 0); }
+body.kx-js [data-reveal="scale"] { transform: scale(.93); }
+body.kx-js [data-reveal="blur"]  { filter: blur(14px); transform: none; }
+body.kx-js [data-reveal="clip"]  {
+  opacity: 1; transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.1s var(--ease);
+  transition-delay: var(--delay, 0s);
+}
+body.kx-js [data-reveal].kx-in {
+  opacity: 1; transform: none; filter: none; clip-path: inset(0 0 0 0);
+}
+
+/* Texto partido en palabras/letras por kinetic.js.
+   El recorte que hace subir cada palabra desde abajo cortaría las tildes (Ñ, Á,
+   É…) y las colas de g/j/y, porque los titulares van con interlineado muy
+   apretado. El colchón agranda la caja de recorte y el margen negativo lo
+   descuenta, así que el efecto se ve igual pero no se come los acentos. */
+body.kx-js [data-split] .kx-word {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding: .2em .06em .3em;
+  margin: -.2em -.06em -.3em;
+}
+body.kx-js [data-split] .kx-word > span {
+  display: inline-block;
+  transform: translate3d(0, 108%, 0) rotate(4deg);
+  transition: transform 1.05s var(--ease);
+  transition-delay: calc(var(--i, 0) * 55ms);
+}
+body.kx-js [data-split].kx-in .kx-word > span { transform: none; }
+
+/* Parallax por scroll (kinetic.js escribe --sy) */
+[data-parallax] { transform: translate3d(0, var(--sy, 0px), 0); will-change: transform; }
+
+/* Inclinación 3D con el ratón (kinetic.js escribe --rx/--ry) */
+[data-tilt] {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transition: transform .5s var(--ease);
+}
+
+/* ═══ CÁMARA CINEMATOGRÁFICA (grabación con dron) ═════════════════════════
+   Lo que separa una web cara de una barata no es la animación: es que la
+   imagen esté VIVA y tenga profundidad, como un plano de dron. Este bloque
+   monta una fotografía real y le añade:
+     · Deriva continua en reposo — la cámara nunca se para del todo (se ve
+       también en la miniatura de la galería, que va sin JS).
+     · Vuelo hacia dentro ligado al scroll (lo aplica kinetic.js).
+     · Bruma volumétrica y haz de luz que se mueven a otra velocidad, que es
+       lo que finge la profundidad con una sola foto.
+     · Etalonaje de color, viñeta y grano para que no parezca un stock pegado.
+   Uso:
+     <div class="kx-cam" data-cam="0.45">
+       <div class="kx-cam-img" style="--img:url('…')"></div>
+       <div class="kx-cam-haze"></div><div class="kx-cam-rays"></div>
+       <div class="kx-cam-grade"></div>
+     </div>                                                                  */
+.kx-cam {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden; isolation: isolate;
+  background: var(--bg-2);
+  perspective: 1400px;
+}
+.kx-cam-img {
+  position: absolute; inset: -6%;
+  background-image: var(--img);
+  background-size: cover;
+  background-position: var(--pos, center);
+  transform-origin: var(--origin, 50% 55%);
+  will-change: transform;
+  /* Deriva de dron en reposo. Muy lenta y en bucle par: nunca "salta". */
+  animation: kx-drone var(--cam-dur, 46s) var(--ease-io) infinite alternate;
+}
+/* El cabeceo del ratón va DENTRO de los keyframes a propósito: una animación
+   CSS se adueña de la propiedad transform, así que si el cabeceo se aplicara
+   por separado la deriva lo borraría en cada fotograma. Metido como variable,
+   se lee en cada frame y ambos movimientos conviven. */
+@keyframes kx-drone {
+  0% {
+    transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg))
+               scale(1.06) translate3d(var(--panX, 0%), 0, 0);
+  }
+  100% {
+    transform: rotateX(var(--tiltX, 0deg)) rotateY(var(--tiltY, 0deg))
+               scale(1.17) translate3d(calc(var(--panX, 0%) - 2.2%), -1.6%, 0);
+  }
+}
+/* Bruma que se desplaza en sentido contrario: separa los planos */
+.kx-cam-haze {
+  position: absolute; inset: -20%;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 62%, color-mix(in srgb, var(--haze, #cfe0ef) 42%, transparent), transparent 70%),
+    radial-gradient(ellipse 70% 34% at 72% 74%, color-mix(in srgb, var(--haze, #cfe0ef) 30%, transparent), transparent 72%);
+  filter: blur(26px);
+  opacity: .55;
+  animation: kx-haze 34s var(--ease-io) infinite alternate;
+}
+@keyframes kx-haze {
+  0%   { transform: translate3d(-3%, 2%, 0) scale(1); }
+  100% { transform: translate3d(4%, -3%, 0) scale(1.12); }
+}
+/* Haz de luz volumétrico, en diagonal desde el sol */
+.kx-cam-rays {
+  position: absolute; inset: -30%;
+  background: repeating-linear-gradient(
+    var(--ray-angle, 104deg),
+    transparent 0 42px,
+    color-mix(in srgb, var(--ray, #ffe6bd) 12%, transparent) 42px 66px,
+    transparent 66px 128px);
+  mask-image: radial-gradient(ellipse 54% 66% at var(--sun, 72% 22%), #000, transparent 68%);
+  -webkit-mask-image: radial-gradient(ellipse 54% 66% at var(--sun, 72% 22%), #000, transparent 68%);
+  mix-blend-mode: screen;
+  opacity: .5;
+  animation: kx-rays 20s var(--ease-io) infinite alternate;
+}
+@keyframes kx-rays { 0% { opacity: .28; transform: translateX(-2%); } 100% { opacity: .6; transform: translateX(2%); } }
+/* Etalonaje + viñeta + VELO DIRECCIONAL.
+   El velo es lo que de verdad hace legible un titular sobre fotografía: un
+   degradado oscuro que entra por el lado donde vive el texto y se disuelve
+   antes de llegar al motivo. Sin él la foto se come el mensaje.
+   El velo es oscuro SIEMPRE, también en plantillas claras: un hero
+   cinematográfico se lee en blanco aunque el resto de la página sea luminosa. */
+.kx-cam-grade {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(var(--scrim-dir, 90deg),
+      color-mix(in srgb, var(--scrim, #070a10) 86%, transparent) 0%,
+      color-mix(in srgb, var(--scrim, #070a10) 52%, transparent) 40%,
+      transparent 74%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--scrim, #070a10) 46%, transparent) 0%,
+      transparent 28%, transparent 54%,
+      color-mix(in srgb, var(--scrim, #070a10) 82%, transparent) 100%),
+    radial-gradient(ellipse 88% 78% at 50% 46%, transparent 38%, color-mix(in srgb, var(--scrim, #070a10) 62%, transparent) 100%),
+    linear-gradient(200deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 58%);
+}
+/* Hero centrado: el velo deja de venir de un lado y se cierra en anillo */
+.kx-cam--center .kx-cam-grade {
+  background:
+    radial-gradient(ellipse 62% 52% at 50% 50%, color-mix(in srgb, var(--scrim, #070a10) 76%, transparent), transparent 76%),
+    linear-gradient(180deg, color-mix(in srgb, var(--scrim, #070a10) 50%, transparent) 0%, transparent 30%, color-mix(in srgb, var(--scrim, #070a10) 84%, transparent) 100%),
+    linear-gradient(200deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 58%);
+}
+
+/* Sobre fotografía el titular va en blanco, incluso si la plantilla es clara */
+.kx-hero:has(.kx-cam) { color: #fff; }
+.kx-hero:has(.kx-cam) .kx-display,
+.kx-hero:has(.kx-cam) h1 { color: #fff; }
+/* Texto sobre fotografía: el gris medio que funciona sobre un fondo plano
+   desaparece contra una roca o una nube. Cuando el hero lleva cámara, el texto
+   secundario sube de contraste y gana sombra. */
+.kx-hero:has(.kx-cam) .kx-eyebrow { color: rgba(255,255,255,.84); text-shadow: 0 2px 14px rgba(0,0,0,.55); }
+.kx-hero:has(.kx-cam) .kx-lede    { color: rgba(255,255,255,.88); text-shadow: 0 2px 16px rgba(0,0,0,.6); }
+.kx-hero:has(.kx-cam) .kx-scroll-cue { color: rgba(255,255,255,.72); }
+.kx-hero:has(.kx-cam) .kx-scroll-cue::after { background: linear-gradient(rgba(255,255,255,.72), transparent); }
+.kx-hero:has(.kx-cam) .kx-stat strong { text-shadow: 0 6px 30px rgba(0,0,0,.5); }
+.kx-hero:has(.kx-cam) .kx-stat span   { color: rgba(255,255,255,.7); }
+
+/* Barras de cine, opcionales */
+.kx-cam--scope::before, .kx-cam--scope::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 7vh; z-index: 4;
+  background: var(--bg);
+}
+.kx-cam--scope::before { top: 0; } .kx-cam--scope::after { bottom: 0; }
+
+/* Escena por capas: profundidad real, cada plano a su velocidad. Se usa
+   cuando hay recortes separados (cielo / montaña lejana / cresta cercana). */
+.kx-cam-layer {
+  position: absolute; inset: -8%;
+  background-size: cover; background-position: center bottom;
+  will-change: transform;
+  transform: translate3d(0, var(--ly, 0px), 0) scale(var(--lz, 1));
+}
+
+/* ── Galería horizontal pinchada ────────────────────────────────────────── */
+.kx-hscroll { position: relative; }                 /* alto = nº de pantallas */
+.kx-hscroll-sticky {
+  position: sticky; top: 0; height: 100svh;
+  display: flex; align-items: center; overflow: hidden;
+}
+.kx-hscroll-track {
+  display: flex; gap: clamp(1rem, 2vw, 2rem);
+  padding-inline: var(--pad);
+  will-change: transform;
+}
+.kx-hscroll-item { flex: none; width: min(78vw, 460px); }
+.kx-hscroll-item figure { border-radius: var(--r); overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); aspect-ratio: 4/5; }
+.kx-hscroll-item figcaption { padding-top: 1rem; display: flex; justify-content: space-between; gap: 1rem; font-size: .85rem; color: var(--ink-dim); }
+/* Sin JS la pista no se desplaza: se deja con scroll nativo para que la
+   miniatura de la galería siga siendo legible. */
+body:not(.kx-js) .kx-hscroll-sticky { position: relative; height: auto; overflow-x: auto; }
+body:not(.kx-js) .kx-hscroll { height: auto !important; }
+
+/* ── Barra de progreso animada por scroll ───────────────────────────────── */
+.kx-bar { height: 3px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.kx-bar::after { content: ''; display: block; height: 100%; width: var(--fill, 0%); background: var(--accent); transition: width .1s linear; }
+
+/* ── Tienda ─────────────────────────────────────────────────────────────── */
+.kx-product { position: relative; }
+.kx-product figure { aspect-ratio: 1; border-radius: var(--r); overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); display: grid; place-items: center; margin-bottom: 1rem; transition: transform .6s var(--ease); }
+.kx-product:hover figure { transform: translateY(-6px) scale(1.02); }
+.kx-product h3 { font-size: 1rem; }
+.kx-product .kx-price { color: var(--accent); font-family: var(--f-mono); font-size: .9rem; }
+#cart-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 100;
+  width: min(400px, 90vw); padding: 1.6rem;
+  background: var(--bg-2); border-left: 1px solid var(--line);
+  transform: translateX(100%); transition: transform .55s var(--ease);
+  display: flex; flex-direction: column; gap: 1rem;
+}
+#cart-drawer.kx-open { transform: none; }
+.kx-cart-row { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding-block: .7rem; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.kx-cart-row button { color: var(--ink-faint); font-size: 1.2rem; line-height: 1; }
+.kx-cart-row button:hover { color: var(--accent); }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .kx-grid--4 { grid-template-columns: repeat(2, 1fr); }
+  .kx-footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 780px) {
+  .kx-nav-links {
+    position: fixed; inset: 0; z-index: -1;
+    flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 1.4rem;
+    padding: 6rem var(--pad) 3rem;
+    background: color-mix(in srgb, var(--bg) 96%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    clip-path: circle(0% at 100% 0);
+    transition: clip-path .7s var(--ease);
+  }
+  .kx-nav-links.kx-open { clip-path: circle(150% at 100% 0); z-index: 1; }
+  .kx-nav-links a { font-family: var(--f-display); font-size: 1.9rem; letter-spacing: -.03em; color: var(--ink); }
+  .kx-nav-links .kx-btn { margin-top: 1rem; }
+  .kx-burger { display: block; z-index: 2; }
+  .kx-grid--2, .kx-grid--3, .kx-grid--4 { grid-template-columns: 1fr; }
+  .kx-row { grid-template-columns: auto 1fr auto; }
+  .kx-row .kx-tag { display: none; }
+  .kx-footer-grid { grid-template-columns: 1fr; gap: 1.8rem; }
+  .kx-hero { min-height: auto; padding-block: 7.5rem 4rem; }
+}
+
+/* ── Accesibilidad: respeta "reducir movimiento" ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  body.kx-js [data-reveal],
+  body.kx-js [data-split] .kx-word > span { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
+}
+
+/* ── Scroll con inercia ──────────────────────────────────────────────────
+   kinetic.js envuelve la página en .kx-smooth y la desplaza con transform,
+   mientras <body> conserva la altura real para que la barra de scroll, el
+   teclado y los anclajes sigan funcionando igual. Los elementos fijos se
+   quedan fuera de este contenedor (un transform rompería su position:fixed). */
+html.kx-has-smooth { scroll-behavior: auto; }
+html.kx-has-smooth body { overflow-x: hidden; }
+.kx-smooth {
+  position: fixed; inset: 0 0 auto 0;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Cortinilla de entrada ───────────────────────────────────────────────
+   Un telón que se retira hacia arriba revelando el hero ya en movimiento. */
+.kx-curtain {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg);
+  display: grid; place-items: center;
+  transform: translateY(0);
+  transition: transform 1.05s cubic-bezier(.76,0,.24,1);
+}
+.kx-curtain-mark {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--line-2);
+  border-top-color: var(--accent);
+  animation: kx-spin .9s linear infinite;
+  transition: opacity .4s;
+}
+html.kx-lifted .kx-curtain { transform: translateY(-100%); }
+html.kx-lifted .kx-curtain-mark { opacity: 0; }
+/* Mientras el telón está bajado no se puede hacer scroll por debajo */
+html.kx-loading, html.kx-loading body { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .kx-curtain { display: none; } }
+
+/* ═══ HERO DE VÍDEO ═══════════════════════════════════════════════════════
+   Reproduce el patrón exacto de las referencias del sector (motionsites y
+   similares). Su "nivel" no viene del código —que es simple— sino de poner un
+   VÍDEO en bucle a pantalla completa detrás de una tipografía contenida.
+
+   Lo que copia literalmente de esas páginas:
+     · <video autoplay muted loop playsinline> a pantalla completa, object-fit
+       cover y object-position desplazada (70%) para encuadrar el motivo.
+     · Una sola curva para todo: cubic-bezier(.16,1,.3,1).
+     · Entradas escalonadas fadeSlideUp con retardos 0.2 / 0.4 / 0.7 / 0.9 s.
+   El vídeo se reproduce sin JavaScript, así que la miniatura de la galería
+   también se ve en movimiento.                                              */
+.kx-vhero {
+  position: relative;
+  min-height: 100svh; width: 100%;
+  overflow: hidden;
+  background: #000;
+  display: flex; flex-direction: column;
+}
+.kx-vhero-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--vpos, 70% center);
+  /* Sin fuente cargada, un <video> vacío lo pinta el propio navegador en
+     negro sólido —eso NO lo arregla poner background:transparent, es el
+     motor de vídeo, no la caja CSS— y tapaba el degradado de respaldo de
+     .kx-vhero de arriba. Se queda invisible hasta que kinetic.js confirma
+     que ha empezado a cargar de verdad (marca [data-loaded]); sin JS —la
+     miniatura de la galería— nunca llega a ese estado y se ve el degradado. */
+  opacity: 0;
+}
+.kx-vhero-video[data-loaded] {
+  /* Arranca ligeramente ampliado y se asienta: el plano "aterriza". */
+  animation: kx-vsettle 1.8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes kx-vsettle {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+/* Velo para que el texto blanco se lea sobre cualquier fotograma */
+.kx-vhero-veil {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 26%, rgba(0,0,0,.25) 55%, rgba(0,0,0,.78) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,.12) 46%, transparent 72%);
+}
+.kx-vhero-veil--light {
+  background: linear-gradient(to top, #fff 0%, rgba(255,255,255,.8) 50%, transparent 100%);
+  inset: auto 0 0 0; height: 62%;
+}
+
+.kx-vhero-nav {
+  position: relative; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  animation: kx-vnav 0.8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes kx-vnav { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+
+.kx-vhero-body {
+  position: relative; z-index: 10;
+  flex: 1;
+  display: flex; flex-direction: column; justify-content: space-between;
+  gap: 3rem;
+  padding: 3rem 1.5rem 2.5rem;
+}
+
+/* Entrada escalonada: es la firma del movimiento de estas páginas */
+.kx-up { animation: kx-fadeSlideUp .8s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--d, 0s); }
+@keyframes kx-fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+.kx-vhero-badge {
+  display: inline-flex; align-items: center; gap: .55rem;
+  font-size: .8rem; color: rgba(255,255,255,.9);
+}
+.kx-vhero-badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.kx-vhero-h1 {
+  font-family: var(--f-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
+  line-height: 1; letter-spacing: -.03em;
+  color: #fff; margin: 0;
+}
+.kx-vhero-p {
+  font-size: clamp(.9rem, 1.2vw, 1.125rem);
+  line-height: 1.6; color: rgba(255,255,255,.62);
+  max-width: 34rem;
+}
+.kx-vhero-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.kx-pill {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border-radius: 100px; padding: .6rem 1.15rem;
+  font-size: .82rem; font-weight: 500;
+  background: #fff; color: #000;
+  transition: transform .3s cubic-bezier(.16,1,.3,1);
+}
+.kx-pill:hover { transform: scale(1.05); }
+.kx-pill--ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.4); }
+.kx-pill--dark  { background: #000; color: #fff; }
+.kx-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+.kx-tag-pill {
+  border-radius: 100px; padding: .35rem .85rem;
+  font-size: .7rem; color: rgba(255,255,255,.9);
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(8px);
+}
+@media (min-width: 768px) {
+  .kx-vhero-nav  { padding: 1.5rem 2rem; }
+  .kx-vhero-body { padding: 4rem 2rem 3rem; flex-direction: row; align-items: flex-end; justify-content: space-between; }
+}
+
+/* ── Escenas 3D fabricadas (kx3d.js) ─────────────────────────────────────
+   El canvas WebGL no pinta nada sin JavaScript, y la miniatura de la galería
+   se renderiza sin él. Por eso todo canvas [data-k3d] va sobre un degradado
+   de respaldo que imita la escena; al arrancar el shader se marca .k3d-live
+   y el respaldo se desvanece. */
+.k3d-wrap { position: relative; display: grid; place-items: center; }
+.k3d-wrap canvas { position: relative; z-index: 2; width: 100%; height: 100%; display: block; }
+.k3d-fallback {
+  position: absolute; inset: 0; z-index: 1;
+  background:
+    radial-gradient(circle at 42% 36%, color-mix(in srgb, var(--accent) 85%, #fff) 0%,
+                    var(--accent) 26%, color-mix(in srgb, var(--accent) 45%, #000) 58%, transparent 72%),
+    radial-gradient(ellipse 70% 50% at 50% 88%, color-mix(in srgb, var(--accent-2) 40%, transparent), transparent 70%);
+  filter: blur(6px);
+  animation: kx-breathe 7s var(--ease-io) infinite;
+  transition: opacity .6s ease;
+}
+canvas.k3d-live + .k3d-fallback, .k3d-wrap:has(canvas.k3d-live) .k3d-fallback { opacity: 0; }
+
+/* ── Barra del hero de vídeo ─────────────────────────────────────────────
+   Las plantillas generadas usan estas clases; sin ellas los enlaces salen
+   pegados unos a otros y el logo se apila sobre el menú. */
+.kx-vnav-l, .kx-vnav-r { display: flex; align-items: center; gap: clamp(1rem, 2vw, 2rem); }
+.kx-vlogo {
+  font-family: var(--f-display); font-size: 1.05rem; font-weight: 600;
+  letter-spacing: -.02em; color: #fff; white-space: nowrap;
+}
+.kx-vlinks { display: none; align-items: center; gap: clamp(1rem, 1.8vw, 1.9rem); }
+.kx-vlinks a { font-size: .84rem; color: rgba(255,255,255,.78); transition: color .3s; white-space: nowrap; }
+.kx-vlinks a:hover { color: #fff; }
+.kx-vnote {
+  display: none; font-family: var(--f-mono); font-size: .66rem;
+  letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.6);
+}
+.kx-vblock { display: flex; flex-direction: column; gap: 1.05rem; max-width: 46rem; }
+.kx-vtags { align-self: flex-start; }
+.kx-vhero-3d { position: absolute; inset: 0; }
+.kx-vhero-3d canvas { width: 100%; height: 100%; }
+@media (min-width: 768px) {
+  .kx-vlinks { display: flex; }
+  .kx-vnote  { display: inline; }
+  .kx-vtags  { align-self: flex-end; }
+}
+
+/* ═══ RENDIMIENTO ═════════════════════════════════════════════════════════
+   Estas reglas no cambian nada visualmente; cambian cuánto trabajo hace el
+   navegador. En páginas largas con vídeo y canvas la diferencia se nota. */
+
+/* El navegador se salta maquetado y pintado de las secciones que aún no se
+   ven. contain-intrinsic-size le da una altura estimada para que la barra de
+   scroll no pegue saltos al ir descubriéndolas. */
+.kx-section { content-visibility: auto; contain-intrinsic-size: auto 720px; }
+/* El hero nunca: es lo primero que se ve y saltárselo retrasaría la pintada. */
+.kx-hero, .kx-vhero { content-visibility: visible; }
+
+/* will-change reserva memoria de vídeo mientras esté puesto. Solo se activa
+   en los elementos que de verdad se están moviendo. */
+.kx-cam-img, .kx-smooth { will-change: transform; }
+.kx-card, .kx-row { will-change: auto; }
+
+/* El grano es una capa a pantalla completa repintándose 1,4 veces por segundo.
+   En pantallas pequeñas se apaga: cuesta batería y casi no se aprecia. */
+@media (max-width: 700px) { .kx-grain { display: none; } }
+
+/* Reserva de espacio: sin esto la llegada de cada imagen empuja el contenido
+   y provoca saltos de maquetación. */
+.kx-card img, .kx-product img, .kx-hscroll-item img { aspect-ratio: attr(width) / attr(height); }
+img { content-visibility: auto; }
+
+/* Fondo del hero de vídeo mientras el archivo aún no ha pintado. Sustituye al
+   póster: se ve de marca en lugar de un JPEG ampliado y borroso, y no cuesta
+   ninguna petición.
+   El punto de color va en la franja 20-45% vertical a propósito, NO en el
+   0-15% ni en el 70-100%: el velo oscuro (.kx-vhero-veil, más abajo) es más
+   negro justo en esos extremos (.55 y .78 de opacidad) y se comía cualquier
+   color puesto ahí. La franja intermedia es donde el velo es más claro (.15),
+   así que es la única zona donde un color de fondo se nota de verdad. */
+.kx-vhero {
+  background:
+    radial-gradient(ellipse 130% 65% at 55% 30%, color-mix(in srgb, var(--accent) 70%, transparent), transparent 72%),
+    radial-gradient(ellipse 90% 55% at 12% 22%, color-mix(in srgb, var(--accent-2) 45%, transparent), transparent 62%),
+    linear-gradient(168deg, var(--bg-3) 0%, var(--bg-2) 46%, var(--bg) 100%);
+}
+.kx-vhero-video { background: transparent; }
+
+/* Respaldo del canvas 3D: se dibuja una esfera con luz alta y sombra propia en
+   vez de una mancha difusa, para que sin WebGL siga leyéndose como un objeto. */
+.k3d-fallback {
+  filter: blur(2px);
+  background:
+    radial-gradient(circle at 39% 31%, #fff 0%, color-mix(in srgb, var(--accent) 70%, #fff) 8%,
+      var(--accent) 30%, color-mix(in srgb, var(--accent) 55%, #000) 54%,
+      color-mix(in srgb, var(--accent) 18%, #000) 66%, transparent 68%),
+    radial-gradient(ellipse 42% 8% at 50% 78%, rgba(0,0,0,.5), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 58% 58%, 58% 58%;
+  background-position: center 42%, center 78%;
+}
+
+/* ── Respaldo por forma ──────────────────────────────────────────────────
+   El respaldo genérico dibujaba la misma esfera para las 36 plantillas de
+   shader: si WebGL no arranca —o en la miniatura de la galería, que no
+   ejecuta JS— se veían todas idénticas. Cada forma tiene ahora su silueta,
+   así que la plantilla se distingue aunque el canvas nunca llegue a pintar. */
+[data-k3d="torus"] + .k3d-fallback {
+  background:
+    radial-gradient(closest-side circle at 50% 50%, transparent 0 34%,
+      color-mix(in srgb, var(--accent) 92%, #fff) 37%, var(--accent) 46%,
+      color-mix(in srgb, var(--accent) 45%, #000) 56%, transparent 58%),
+    radial-gradient(ellipse 40% 7% at 50% 76%, rgba(0,0,0,.45), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 62% 40%, 62% 62%;
+  background-position: center 46%, center 76%;
+}
+[data-k3d="crystal"] + .k3d-fallback {
+  background:
+    conic-gradient(from 20deg at 50% 46%,
+      color-mix(in srgb, var(--accent) 92%, #fff) 0deg, var(--accent) 70deg,
+      color-mix(in srgb, var(--accent) 38%, #000) 150deg,
+      color-mix(in srgb, var(--accent) 80%, #fff) 230deg,
+      var(--accent) 300deg, color-mix(in srgb, var(--accent) 92%, #fff) 360deg),
+    radial-gradient(ellipse 38% 7% at 50% 78%, rgba(0,0,0,.45), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 46% 46%, 60% 60%;
+  background-position: center 44%, center 78%;
+  clip-path: none;
+  filter: blur(1px);
+}
+[data-k3d="ribbon"] + .k3d-fallback {
+  background:
+    radial-gradient(ellipse 46% 12% at 50% 44%,
+      color-mix(in srgb, var(--accent) 95%, #fff), var(--accent) 45%,
+      color-mix(in srgb, var(--accent) 35%, #000) 78%, transparent 82%),
+    radial-gradient(ellipse 30% 8% at 50% 58%,
+      color-mix(in srgb, var(--accent-2) 70%, #fff), transparent 72%),
+    radial-gradient(ellipse 40% 6% at 50% 78%, rgba(0,0,0,.4), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 74% 74%, 74% 74%, 62% 62%;
+  background-position: center 42%, center 42%, center 78%;
+}
+[data-k3d="orb"] + .k3d-fallback {
+  background:
+    radial-gradient(circle at 42% 34%, #fff 0%,
+      color-mix(in srgb, var(--accent) 60%, #fff) 10%, var(--accent) 34%,
+      color-mix(in srgb, var(--accent) 30%, #000) 62%, transparent 66%),
+    radial-gradient(ellipse 40% 7% at 50% 80%, rgba(0,0,0,.5), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 52% 52%, 58% 58%;
+  background-position: center 42%, center 80%;
+}
+
+/* Ajuste de dos respaldos que quedaban pobres: el prisma salía como un
+   cuadrado plano y la cinta como una elipse difusa. clip-path les da silueta. */
+[data-k3d="crystal"] + .k3d-fallback {
+  clip-path: polygon(50% 4%, 88% 30%, 76% 78%, 50% 96%, 24% 78%, 12% 30%);
+  background:
+    conic-gradient(from 18deg at 50% 50%,
+      color-mix(in srgb, var(--accent) 96%, #fff) 0deg,
+      var(--accent) 62deg,
+      color-mix(in srgb, var(--accent) 30%, #000) 140deg,
+      color-mix(in srgb, var(--accent) 88%, #fff) 212deg,
+      var(--accent) 286deg,
+      color-mix(in srgb, var(--accent) 96%, #fff) 360deg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
+  width: 44%; height: 52%;
+  inset: auto; margin: auto;
+  position: absolute; top: 0; bottom: 8%; left: 0; right: 0;
+  filter: blur(.5px) drop-shadow(0 26px 30px rgba(0,0,0,.5));
+}
+[data-k3d="ribbon"] + .k3d-fallback {
+  clip-path: ellipse(50% 26% at 50% 50%);
+  background:
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--accent) 96%, #fff) 0%,
+      var(--accent) 26%,
+      color-mix(in srgb, var(--accent) 28%, #000) 52%,
+      color-mix(in srgb, var(--accent-2) 82%, #fff) 74%,
+      var(--accent) 100%);
+  background-size: 100% 100%;
+  background-position: center;
+  width: 56%; height: 40%;
+  inset: auto; margin: auto;
+  position: absolute; top: 0; bottom: 10%; left: 0; right: 0;
+  filter: blur(.5px) drop-shadow(0 24px 28px rgba(0,0,0,.5));
+}
+
+/* ═══ GESTOS ══════════════════════════════════════════════════════════════
+   Estados visuales de los motores de movimiento (ver el bloque GESTOS de
+   kinetic.js). Sin JavaScript queda visible la primera escena de cada gesto,
+   así que la miniatura de la galería nunca sale en blanco. */
+
+/* 1 · Carrusel de escenas ─────────────────────────────────────────────── */
+.kg-scenes { position: absolute; inset: 0; overflow: hidden; }
+.kg-scene {
+  position: absolute; inset: 0;
+  opacity: 0; transform: scale(1.07);
+  transition: opacity 1.1s var(--ease), transform 5.5s linear;
+  pointer-events: none;
+}
+.kg-scene.kg-on { opacity: 1; transform: scale(1); }
+body:not(.kx-js) .kg-scene:first-child { opacity: 1; transform: scale(1); }
+/* Igual que .kx-vhero-video: un <video> sin fuente cargada lo pinta el
+   navegador en negro sólido pese a cualquier CSS de la caja, y tapaba el
+   degradado de .kx-vhero por debajo. Invisible hasta que kinetic.js marca
+   que ha empezado a cargar de verdad. */
+.kg-scene-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+.kg-scene-media[data-loaded] { opacity: 1; }
+/* Cada escena trae su propio titular, que entra y sale con ella */
+.kg-scene-title {
+  position: absolute; left: 0; right: 0; bottom: 20%;
+  padding-inline: var(--pad);
+  font-family: var(--f-display); font-weight: 300;
+  font-size: clamp(1.7rem, 4.4vw, 3.4rem); line-height: 1.05;
+  letter-spacing: -.025em; color: #fff;
+  text-shadow: 0 10px 40px rgba(0,0,0,.6);
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .9s var(--ease) .3s, transform .9s var(--ease) .3s;
+}
+.kg-scene.kg-on .kg-scene-title { opacity: 1; transform: none; }
+body:not(.kx-js) .kg-scene:first-child .kg-scene-title { opacity: 1; transform: none; }
+
+/* 2 · Sujeto y color de marca ─────────────────────────────────────────── */
+.kg-swap {
+  position: absolute; inset: 0; overflow: hidden;
+  background: var(--tone, var(--accent));
+  transition: background 1.1s var(--ease);
+}
+.kg-swap-item {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  opacity: 0; transform: translateY(24px) scale(.95);
+  transition: opacity .9s var(--ease), transform .9s var(--ease);
+}
+.kg-swap-item.kg-on { opacity: 1; transform: none; }
+body:not(.kx-js) .kg-swap-item:first-child { opacity: 1; transform: none; }
+.kg-swap-item > * {
+  width: min(44vw, 400px); height: auto;
+  filter: drop-shadow(0 34px 54px rgba(0,0,0,.42));
+}
+
+/* 3 · Travelling lateral ──────────────────────────────────────────────── */
+.kg-dolly { position: absolute; inset: 0; overflow: hidden; }
+.kg-dolly-layer {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 172%;                    /* más ancha que la ventana: hay recorrido */
+  background-size: cover; background-position: center;
+  will-change: transform;
+}
+@keyframes kg-dolly { from { transform: translateX(0); } to { transform: translateX(-41%); } }
+
+/* 4 · Tarjetas escalonadas ────────────────────────────────────────────── */
+.kg-card {
+  opacity: 0; transform: translateX(28px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.kg-card.kg-on { opacity: 1; transform: none; }
+body:not(.kx-js) .kg-card { opacity: 1; transform: none; }
+.kg-cards-col {
+  position: absolute; right: var(--pad); top: 50%;
+  transform: translateY(-50%);
+  display: grid; gap: .7rem; z-index: 12;
+  width: min(320px, 32vw);
+}
+.kg-card-pill {
+  background: rgba(255,255,255,.95); color: #14141a;
+  border-radius: 100px; padding: .82rem 1.25rem;
+  font-size: .84rem; font-weight: 500; line-height: 1.3;
+  box-shadow: 0 12px 34px rgba(0,0,0,.26);
+}
+@media (max-width: 820px) {
+  .kg-cards-col { position: static; transform: none; width: auto; margin-top: 1.6rem; }
+}
+
+/* ═══ VIDRIO LÍQUIDO ═══════════════════════════════════════════════════════
+   Glassmorphism con borde en degradado (no un simple border sólido). Para
+   tarjetas de testimonio, badges o CTAs sobre foto/vídeo — no para bloques
+   grandes de texto, el blur pesa en móviles con muchas instancias a la vez. */
+.kx-glass {
+  position: relative; overflow: hidden;
+  background: linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,.02) 40%, rgba(255,255,255,.01));
+  backdrop-filter: blur(18px) saturate(1.4) brightness(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(1.05);
+  box-shadow: inset 0 0 12px rgba(255,255,255,.12);
+}
+.kx-glass::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.05) 20%, rgba(255,255,255,.02) 55%, rgba(255,255,255,.16));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Vídeo dentro de una tarjeta/sección cuyo fondo no es negro: sin esto se ve
+   la caja del vídeo como una costura. Funde el negro del vídeo con --bg. */
+.kx-video-blend { mix-blend-mode: exclusion; }
+
+

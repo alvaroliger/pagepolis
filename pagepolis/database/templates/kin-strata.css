@@ -1,0 +1,30 @@
+/* ── Estratos — exposición de museo ───────────────────────────────────────
+   Negro tinta y rojo óxido. El canvas 'flow' deja estela, así que las líneas
+   se acumulan y dibujan un mapa de curvas de nivel que nunca es igual.      */
+
+:root {
+  --bg: #0b0908; --bg-2: #120e0d; --bg-3: #1a1513;
+  --ink: #f5efe9; --ink-dim: #94867d; --ink-faint: #625852;
+  --accent: #c2452f; --accent-2: #d99b56;
+  --line: rgba(240,220,205,.12); --line-2: rgba(240,220,205,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.st-hero { text-align: center; }
+/* El trazo del canvas es fino y va sobre negro: sin subir el color y quitarle
+   transparencia las curvas de nivel no llegaban a leerse. */
+.st-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.4rem,7.5vw,6.2rem); line-height: 1.02; letter-spacing: -.02em; }
+.st-title em { color: var(--accent-2); }
+.st-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; text-align: left; margin-top: clamp(10rem,26vw,18rem); }
+.st-dates { margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-family: var(--f-mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); text-align: left; }
+
+.st-visit { background: var(--bg-2); }
+.st-price { font-family: var(--f-display); font-size: clamp(2rem,4vw,3rem); margin: .9rem 0 .7rem; }
+.st-featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(194,69,47,.14), transparent 55%), var(--bg-3); }
+.kx-card .kx-btn { margin-top: 1.2rem; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight: 400; }
+
+@media (max-width: 780px) { .st-foot { margin-top: clamp(8rem, 52vw, 14rem); } }
+
+/* Hero de paisaje real con cámara de dron */
+.kx-hero .kx-cam { --haze: #c3b6a2; }

@@ -12,11 +12,11 @@ function NavLink({ href, active, children, className = '' }: PropsWithChildren<{
     return (
         <Link
             href={href}
-            className={`relative text-sm transition-colors py-1 ${active ? 'text-white font-semibold' : 'text-gray-400 hover:text-white'} ${className}`}
+            className={`relative text-sm transition-colors py-1 ${active ? 'text-white font-medium' : 'text-gray-400 hover:text-white'} ${className}`}
         >
             {children}
             {active && (
-                <span className="absolute -bottom-[18px] left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full" aria-hidden="true" />
+                <span className="absolute -bottom-[18px] left-0 right-0 h-0.5 bg-violet-500 rounded-full" aria-hidden="true" />
             )}
         </Link>
     );
@@ -68,9 +68,9 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
                         <div className="flex items-center gap-8">
-                            <Link href="/dashboard" className="flex items-center gap-2">
-                                <PagepolisLogo size={28} />
-                                <span className="text-xl font-black tracking-tight bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+                            <Link href="/dashboard" className="flex items-center gap-2.5">
+                                <PagepolisLogo size={26} />
+                                <span className="text-lg font-semibold tracking-tight text-white">
                                     pagepolis
                                 </span>
                             </Link>
@@ -113,7 +113,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                             {!user && (
                                 <span className="flex items-center gap-3">
                                     <Link href="/login" className="text-sm text-gray-300 hover:text-white transition-colors">Iniciar sesión</Link>
-                                    <Link href="/register" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-bold px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity">Registrarse</Link>
+                                    <Link href="/register" className="bg-violet-600 text-white text-sm font-semibold px-4 py-1.5 rounded-lg hover:bg-violet-500 transition-colors">Registrarse</Link>
                                 </span>
                             )}
                             {user && (
@@ -122,7 +122,7 @@ export default function AuthenticatedLayout({ header, children }: AuthLayoutProp
                                     onClick={() => setMenuOpen(!menuOpen)}
                                     aria-haspopup="menu"
                                     aria-expanded={menuOpen}
-                                    className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white text-sm font-bold flex items-center justify-center ring-2 ring-transparent hover:ring-violet-500/40 transition-shadow"
+                                    className="w-8 h-8 rounded-full bg-violet-600 text-white text-sm font-semibold flex items-center justify-center ring-2 ring-transparent hover:ring-violet-500/30 transition-shadow"
                                 >
                                     {user.name[0].toUpperCase()}
                                 </button>

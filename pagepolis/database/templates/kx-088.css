@@ -1,0 +1,23 @@
+/* ── Escena — Cultura ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #12070b; --bg-2: #1c0c12; --bg-3: #2a121b;
+  --ink: #f8eef2; --ink-dim: #ad8d99; --ink-faint: #775f69;
+  --accent: #c2385c; --accent-2: #f0879f;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:400; }
+.088-alt { background: var(--bg-2); }
+.088-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight:400; }
+@media (max-width: 880px) { .088-faq { grid-template-columns: 1fr; } }
+
+/* Hero centrado */
+.088-hero .kx-vhero-body { text-align: center; align-items: center; }
+.088-hero .kx-vblock { align-items: center; }
+.088-hero .kx-vhero-p { margin-inline: auto; }
+.088-hero .kx-vhero-actions { justify-content: center; }

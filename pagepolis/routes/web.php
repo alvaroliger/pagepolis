@@ -47,6 +47,12 @@ Route::get('/t/{projectId}', [TrackingController::class, 'track'])
 
 // Plantillas públicas
 Route::get('/plantillas', [TemplateController::class, 'index'])->name('templates.index');
+// La plantilla como página suelta: la carga el iframe de la vista previa y el
+// generador de miniaturas. Va fuera de la galería a propósito, para que el
+// listado no tenga que llevarse el código de las 218 plantillas.
+Route::get('/plantillas/{template}/render', [TemplateController::class, 'render'])
+    ->where('template', '[0-9]+')
+    ->name('templates.render');
 
 // Páginas legales
 Route::get('/terminos',   fn() => Inertia::render('Legal/Terms'))->name('legal.terms');
@@ -141,3 +147,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+/*
+ * Motores compartidos de las plantillas (kinetic, classic). Se sirven como un
+ * único archivo cacheable en lugar de ir incrustados en cada web publicada:
+ * el navegador se lo descarga una vez y lo reutiliza. La URL lleva la huella
+ * del código (?v=), así que al cambiar el motor se invalida sola.
+ */
+Route::get('/engine/{engine}.{type}', function (string $engine, string $type) {
+    abort_unless(in_array($type, ['css', 'js'], true), 404);
+    abort_unless(\App\Services\TemplateEngine::exists($engine), 404);
+
+    return response(\App\Services\TemplateEngine::code($engine, $type), 200, [
+        'Content-Type'  => $type === 'css' ? 'text/css; charset=UTF-8' : 'application/javascript; charset=UTF-8',
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->where('type', 'css|js')->name('engine.asset');

@@ -1,0 +1,25 @@
+/* ── Marta Ibáñez — fotografía ────────────────────────────────────────────
+   Gris plata sobre negro. El hero es un diafragma de objetivo montado con seis
+   hojas CSS que se abren y cierran en bucle: cero imágenes, cero JS.        */
+
+:root {
+  --bg: #08080a; --bg-2: #0f0f12; --bg-3: #17171c;
+  --ink: #f2f2f4; --ink-dim: #8b8b93; --ink-faint: #55555e;
+  --accent: #d9c7a3; --accent-2: #a8b7c4;
+  --line: rgba(255,255,255,.10); --line-2: rgba(255,255,255,.20);
+  --f-display: 'Space Grotesk', sans-serif;
+}
+
+.le-hero { text-align: center; }
+/* Seis hojas girando 60° cada una; la apertura late */
+/* Al "abrir", las hojas se retiran y aparece el destello del centro */
+
+.le-top { display: flex; justify-content: space-between; margin-bottom: clamp(1rem,3vw,2rem); }
+.le-title { font-size: clamp(2.6rem,8.5vw,7rem); mix-blend-mode: exclusion; }
+.le-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; text-align: left; margin-top: clamp(11rem,28vw,20rem); }
+.le-about { background: var(--bg-2); }
+
+@media (max-width: 780px) { .le-foot { margin-top: clamp(9rem, 56vw, 15rem); } }
+
+/* Hero de paisaje real con cámara de dron */
+.kx-hero .kx-cam { --haze: #c8d4d8; }

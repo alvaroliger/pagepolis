@@ -1,0 +1,28 @@
+/* ── Papel — Agencia ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #f6f2ea; --bg-2: #fffdf8; --bg-3: #ece5d8;
+  --ink: #241f18; --ink-dim: #6f6557; --ink-faint: #a2988a;
+  --accent: #b5734a; --accent-2: #d9a866;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:400; }
+.026-alt { background: var(--bg-2); }
+.026-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight:400; }
+@media (max-width: 880px) { .026-faq { grid-template-columns: 1fr; } }
+
+/* Plantilla clara: el hero sigue siendo oscuro (patrón de las
+   referencias) pero el cuerpo va en luz. */
+.kx-pill { background: var(--ink); color: var(--bg); }
+.kx-footer { background: var(--ink); }
+.kx-footer .kx-footer-grid a, .kx-footer p { color: rgba(255,255,255,.66); }
+.kx-footer h4, .kx-footer-bot { color: rgba(255,255,255,.42); }
+.kx-footer-bot { border-top-color: rgba(255,255,255,.16); }
+.kx-footer-word { -webkit-text-stroke-color: rgba(255,255,255,.3); }
+.kx-grain { mix-blend-mode: multiply; opacity: .04; }
+:root { --line: rgba(20,20,24,.12); --line-2: rgba(20,20,24,.24); }

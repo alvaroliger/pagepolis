@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\TemplateEngine;
 use App\Models\PageView;
 use App\Models\Project;
 use Illuminate\Http\Response;
@@ -63,6 +64,11 @@ BADGE;
 <script>(function(){var EP="{$leadEndpoint}";document.addEventListener("submit",function(e){var f=e.target;if(!f||f.tagName!=="FORM")return;var d={},has=false;for(var i=0;i<f.elements.length;i++){var el=f.elements[i];if(el.name&&el.type!=="submit"&&el.type!=="button"){d[el.name]=el.value;if(el.value&&String(el.value).trim())has=true;}}if(!has)return;e.preventDefault();e.stopImmediatePropagation();var b=f.querySelector("[type=submit],button");if(b){b.disabled=true;}fetch(EP,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({fields:d})}).then(function(r){return r.json().catch(function(){return{};});}).then(function(){f.innerHTML='<div style="padding:18px;border-radius:12px;background:#ecfdf5;color:#065f46;font:600 15px/1.45 system-ui,-apple-system,sans-serif;text-align:center">✅ ¡Gracias! Hemos recibido tu mensaje y te responderemos pronto.</div>';}).catch(function(){if(b){b.disabled=false;}alert("No se pudo enviar el mensaje. Inténtalo de nuevo.");});},true);})();</script>
 JS;
 
+        // El motor compartido va enlazado, no incrustado: el navegador lo
+        // cachea una vez y lo reutiliza en todas las páginas publicadas, y
+        // la base de datos deja de guardar 110 KB repetidos por proyecto.
+        $engineTags = TemplateEngine::tags($project->engine ?? null);
+
         $html = <<<HTML
 <!DOCTYPE html>
 <html lang="es">
@@ -77,11 +83,13 @@ JS;
     {$schema}
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    {$engineTags['css']}
     <style>{$css}</style>
 </head>
 <body>
 {$body}
 {$badge}
+{$engineTags['js']}
 <script>{$js}</script>
 {$leadCapture}
 </body>

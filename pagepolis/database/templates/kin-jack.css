@@ -1,0 +1,94 @@
+/* ── Jack — portfolio con avatar 3D ───────────────────────────────────────
+   Dirección de arte: hormigón claro, tipografía negra enorme y el personaje
+   como única mancha de color. Demuestra que el motor kinetic también funciona
+   en claro, no solo en las plantillas oscuras.                               */
+
+:root {
+  --bg:        #e9e8e4;
+  --bg-2:      #f4f3f0;
+  --bg-3:      #dedcd6;
+  --ink:       #121214;
+  --ink-dim:   #56565c;
+  --ink-faint: #8d8d94;
+  --accent:    #ff5c2b;
+  --accent-2:  #ffb01f;
+  --line:      rgba(18,18,20,.12);
+  --line-2:    rgba(18,18,20,.24);
+  --f-display: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+}
+
+.kx-grain { mix-blend-mode: multiply; opacity: .05; }
+::selection { background: var(--accent); color: #fff; }
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.jk-hero { padding-block: 8rem 3rem; text-align: center; }
+.jk-hero-bg { position: absolute; inset: 0; z-index: 0; display: grid; place-items: center; will-change: transform; }
+.jk-halo {
+  width: min(78vw, 720px); aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 26%, transparent), transparent 66%);
+  filter: blur(40px);
+  animation: kx-breathe 7s var(--ease-io) infinite;
+}
+.jk-rings { position: absolute; inset: 0; display: grid; place-items: center; }
+.jk-rings span {
+  position: absolute; border-radius: 50%;
+  border: 1px solid var(--line);
+  animation: kx-spin 30s linear infinite;
+}
+.jk-rings span:nth-child(1) { width: min(64vw, 600px); aspect-ratio: 1; border-style: dashed; }
+.jk-rings span:nth-child(2) { width: min(80vw, 760px); aspect-ratio: 1; animation-duration: 46s; animation-direction: reverse; }
+.jk-rings span:nth-child(3) { width: min(96vw, 920px); aspect-ratio: 1; animation-duration: 62s; opacity: .55; }
+
+.jk-title {
+  font-weight: 700;
+  font-size: clamp(3.2rem, 13vw, 11rem);
+  margin-block: .4rem .5rem;
+  position: relative; z-index: 2;
+}
+/* El avatar se solapa con el titular: el nombre queda detrás de la cabeza,
+   como en las referencias de portfolio 3D. */
+.jk-avatar {
+  position: relative; z-index: 3;
+  width: min(50vw, 340px);
+  margin: -5vw auto 0;
+  filter: drop-shadow(0 32px 48px rgba(0,0,0,.22));
+}
+/* Pie del hero: texto a la izquierda y llamada a la acción a la derecha, como
+   en las referencias editoriales. */
+.jk-hero-foot {
+  position: relative; z-index: 3;
+  margin-top: clamp(1.2rem, 3vw, 2.4rem);
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem 3rem;
+  text-align: left;
+}
+
+.kx-scroll-cue { color: var(--ink-faint); }
+.kx-scroll-cue::after { background: linear-gradient(var(--ink-faint), transparent); }
+
+/* ── Bloques ──────────────────────────────────────────────────────────── */
+.jk-about { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+.jk-about .kx-stats { grid-template-columns: repeat(2, 1fr); gap: 2rem 1.5rem; }
+.jk-services { background: var(--bg-2); }
+.jk-faq { display: grid; grid-template-columns: .8fr 1.4fr; gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+.jk-contact { background: var(--bg-2); }
+
+.kx-card { background: var(--bg); }
+.jk-services .kx-card { background: var(--bg-3); }
+.kx-marquee { background: var(--ink); color: var(--bg); border-color: transparent; }
+.kx-marquee-item { color: var(--bg); }
+.kx-footer { background: var(--ink); color: var(--bg); border-top: 0; }
+.kx-footer .kx-footer-grid a,
+.kx-footer p { color: rgba(255,255,255,.62); }
+.kx-footer .kx-footer-grid a:hover { color: #fff; }
+.kx-footer h4, .kx-footer-bot { color: rgba(255,255,255,.4); }
+.kx-footer-bot { border-top-color: rgba(255,255,255,.14); }
+.kx-footer-word { -webkit-text-stroke-color: rgba(255,255,255,.28); }
+.kx-footer-word:hover { color: var(--accent); }
+
+@media (max-width: 880px) {
+  .jk-about, .jk-faq { grid-template-columns: 1fr; }
+  .jk-avatar { margin-top: -8vw; width: min(76vw, 330px); }
+  .jk-hero-foot { justify-content: flex-start; }
+}

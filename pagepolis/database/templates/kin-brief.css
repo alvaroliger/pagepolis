@@ -1,0 +1,36 @@
+/* ── Arana & Soto — abogados ──────────────────────────────────────────────
+   Azul noche, latón y serif. La balanza oscila y acaba nivelándose: sobria,
+   sin estridencias, que es lo que pide un despacho.                         */
+
+:root {
+  --bg: #0d1420; --bg-2: #131c2b; --bg-3: #1b2637;
+  --ink: #f0f4f9; --ink-dim: #93a1b5; --ink-faint: #5f6d80;
+  --accent: #c2a057; --accent-2: #7fa8d4;
+  --line: rgba(200,220,245,.12); --line-2: rgba(200,220,245,.24);
+  --f-display: 'Instrument Serif', Georgia, serif;
+}
+
+.br-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.br-title { font-family: var(--f-display); font-weight: 400; font-size: clamp(2.8rem,8.5vw,6.5rem); line-height: 1; letter-spacing: -.02em; margin: .6rem 0 1.3rem; }
+.br-title em { color: var(--accent); }
+.br-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+
+.br-scale { width: 100%; max-width: 400px; margin-inline: auto; filter: drop-shadow(0 24px 36px rgba(0,0,0,.5)); }
+/* El brazo bascula despacio y los platillos compensan al revés, como haría
+   una balanza de verdad buscando el equilibrio. */
+.br-beam { animation: br-beam 7s var(--ease-io) infinite; transform-box: fill-box; transform-origin: 50% 8%; }
+@keyframes br-beam { 0%,100% { transform: rotate(-3.2deg); } 50% { transform: rotate(3.2deg); } }
+.br-pan { animation: br-pan 7s var(--ease-io) infinite; transform-box: fill-box; transform-origin: top center; }
+.br-pan--b { animation-name: br-pan-b; }
+@keyframes br-pan   { 0%,100% { transform: rotate(3.2deg); } 50% { transform: rotate(-3.2deg); } }
+@keyframes br-pan-b { 0%,100% { transform: rotate(3.2deg); } 50% { transform: rotate(-3.2deg); } }
+
+.br-office { background: var(--bg-2); }
+.br-faq { display: grid; grid-template-columns: .9fr 1.2fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display); font-weight: 400; }
+.kx-btn--accent { --btn-fg: #0d1420; }
+
+@media (max-width: 900px) {
+  .br-grid, .br-faq { grid-template-columns: 1fr; }
+  .br-scale { max-width: 300px; order: -1; }
+}

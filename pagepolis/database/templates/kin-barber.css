@@ -1,0 +1,53 @@
+/* ── Navaja — barbería clásica ────────────────────────────────────────────
+   Verde botella, latón y crema. El poste de barbero gira de verdad (franjas
+   en repeating-linear-gradient desplazándose) y la navaja se abre y cierra.  */
+
+:root {
+  --bg: #10201b; --bg-2: #162b24; --bg-3: #1e3a31;
+  --ink: #f4efe2; --ink-dim: #9aa89f; --ink-faint: #66756c;
+  --accent: #c9a227; --accent-2: #d9534f;
+  --line: rgba(230,240,230,.12); --line-2: rgba(230,240,230,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.ba-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.ba-title { font-weight: 700; font-size: clamp(2.6rem,8vw,6.5rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.ba-title em { color: var(--accent); font-family: var(--f-serif); font-weight: 400; }
+.ba-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+/* Poste de barbero: las franjas suben en bucle, como el de la calle */
+.ba-pole {
+  position: absolute; right: 6%; top: 0; bottom: 0; z-index: 0;
+  width: clamp(26px, 4vw, 52px);
+  display: grid; place-items: center; opacity: .5;
+}
+.ba-pole span {
+  display: block; width: 100%; height: 62%;
+  border-radius: 100px;
+  background: repeating-linear-gradient(45deg,
+    var(--accent-2) 0 14px, #f4efe2 14px 28px, #2b6b8f 28px 42px, #f4efe2 42px 56px);
+  background-size: 100% 80px;
+  animation: ba-pole 2.4s linear infinite;
+  box-shadow: inset -8px 0 16px rgba(0,0,0,.35), 0 0 40px rgba(0,0,0,.4);
+}
+@keyframes ba-pole { to { background-position: 0 -80px; } }
+
+/* La navaja se abre y se cierra sobre su eje */ 
+
+.ba-price { font-family: var(--f-mono); font-size: .92rem; color: var(--accent); white-space: nowrap; }
+.ba-team { background: var(--bg-2); }
+.kx-marquee { background: var(--accent); color: #16201a; border-color: transparent; }
+.kx-marquee-item { color: #16201a; font-weight: 700; }
+.kx-marquee-item span { color: #16201a; opacity: .5; }
+.kx-btn--accent { --btn-fg: #16201a; }
+
+@media (max-width: 900px) {
+  .ba-grid { grid-template-columns: 1fr; }
+  .ba-guy { max-width: 280px; order: -1; }
+  .ba-pole { display: none; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #c9b48a; }
+.ba-grid { grid-template-columns: 1fr; max-width: 44rem; }

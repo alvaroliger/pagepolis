@@ -1,0 +1,294 @@
+<div class="kx-progress"></div>
+<div class="kx-grain" aria-hidden="true"></div>
+
+<header class="kx-nav">
+  <a href="#top" class="kx-logo"><i>✦</i> Jack Rivera</a>
+  <nav class="kx-nav-links">
+    <a href="#sobre">Sobre mí</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#trabajos">Trabajos</a>
+    <a href="#contacto" class="kx-btn kx-btn--sm" data-magnetic><span>Hablemos</span></a>
+  </nav>
+  <button class="kx-burger" aria-label="Menú"><span></span><span></span><span></span></button>
+</header>
+
+<main id="top">
+  <!-- ── HERO ────────────────────────────────────────────────────────────
+       El bloque entero se acerca al hacer scroll (data-scroll="zoom"), así que
+       al bajar da la sensación de entrar dentro de la escena. -->
+  <section class="kx-hero jk-hero">
+    <div class="jk-hero-bg" data-scroll="zoom" data-scroll-amount="0.7" aria-hidden="true">
+      <div class="jk-halo"></div>
+      <div class="jk-rings"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="kx-wrap kx-hero-inner">
+      <p class="kx-eyebrow" data-reveal>Director de arte 3D · Madrid</p>
+
+      <h1 class="kx-display kx-display--tight jk-title" data-split="chars">Hola,<br>soy Jack</h1>
+
+      <!-- El personaje: SVG puro. Respira, parpadea y las pupilas siguen al
+           ratón (data-eyes). Se anima solo con CSS, así que también se mueve en
+           la miniatura de la galería, donde no corre JavaScript. -->
+      <figure class="jk-avatar kx-float" data-eyes="7" aria-label="Ilustración de Jack">
+        <svg viewBox="0 0 400 480" role="img">
+          <defs>
+            <radialGradient id="jkSkin" cx="34%" cy="24%" r="82%">
+              <stop offset="0%"   stop-color="#ffe2ca"/>
+              <stop offset="42%"  stop-color="#f6c39c"/>
+              <stop offset="78%"  stop-color="#e2a173"/>
+              <stop offset="100%" stop-color="#bd7550"/>
+            </radialGradient>
+            <linearGradient id="jkHair" x1="18%" y1="0%" x2="82%" y2="100%">
+              <stop offset="0%"   stop-color="#4a4a68"/>
+              <stop offset="38%"  stop-color="#23233a"/>
+              <stop offset="100%" stop-color="#0a0a12"/>
+            </linearGradient>
+            <linearGradient id="jkShirt" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="var(--accent)"/>
+              <stop offset="100%" stop-color="var(--accent-2)"/>
+            </linearGradient>
+            <radialGradient id="jkIris" cx="34%" cy="28%" r="72%">
+              <stop offset="0%"   stop-color="#8fd4f2"/>
+              <stop offset="52%"  stop-color="#2f7ba8"/>
+              <stop offset="100%" stop-color="#0f3348"/>
+            </radialGradient>
+            <!-- Oclusión: oscurece la frente bajo el flequillo y el cuello bajo
+                 la barbilla. Es lo que separa un vector plano de un render. -->
+            <linearGradient id="jkAO" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#8a4f31" stop-opacity=".55"/>
+              <stop offset="100%" stop-color="#8a4f31" stop-opacity="0"/>
+            </linearGradient>
+            <clipPath id="jkFace">
+              <path d="M200 98c70 0 110 46 110 112 0 34-8 66-23 92-17 30-51 54-87 54s-70-24-87-54c-15-26-23-58-23-92 0-66 40-112 110-112z"/>
+            </clipPath>
+          </defs>
+
+          <!-- Sombra en el suelo, sincronizada con la flotación -->
+          <ellipse class="kx-shadow" cx="200" cy="466" rx="104" ry="12" fill="#000" opacity=".26"/>
+
+          <!-- Hombros y camiseta -->
+          <path d="M200 388c66 0 112 34 118 92H82c6-58 52-92 118-92z" fill="url(#jkShirt)"/>
+          <path d="M158 396c12 22 30 34 42 34s30-12 42-34c-12-6-26-9-42-9s-30 3-42 9z" fill="#000" opacity=".14"/>
+
+          <!-- Cuello con sombra proyectada de la barbilla -->
+          <path d="M172 328h56v52a28 28 0 0 1-56 0z" fill="#dc9a6e"/>
+          <path d="M172 328h56v22a28 28 0 0 1-56 0z" fill="#a8623f" opacity=".55"/>
+
+          <!-- Melena trasera: da volumen a los lados, la cabeza deja de ser plana -->
+          <path d="M200 22c92 0 142 60 142 152 0 40-8 76-20 104-4-58-10-98-20-124-4-40-30-58-102-58S102 114 98 154c-10 26-16 66-20 124C66 250 58 214 58 174 58 82 108 22 200 22z" fill="url(#jkHair)"/>
+
+          <!-- Orejas + aros -->
+          <ellipse cx="94"  cy="236" rx="20" ry="29" fill="#e6a97f"/>
+          <ellipse cx="306" cy="236" rx="20" ry="29" fill="#e6a97f"/>
+          <ellipse cx="96"  cy="236" rx="9"  ry="16" fill="#b5714b" opacity=".5"/>
+          <ellipse cx="304" cy="236" rx="9"  ry="16" fill="#b5714b" opacity=".5"/>
+          <circle cx="94"  cy="272" r="16" fill="none" stroke="#f0c14b" stroke-width="6"/>
+          <circle cx="306" cy="272" r="16" fill="none" stroke="#f0c14b" stroke-width="6"/>
+
+          <!-- Cara: pómulos anchos y barbilla estrecha -->
+          <path d="M200 98c70 0 110 46 110 112 0 34-8 66-23 92-17 30-51 54-87 54s-70-24-87-54c-15-26-23-58-23-92 0-66 40-112 110-112z" fill="url(#jkSkin)"/>
+          <g clip-path="url(#jkFace)">
+            <rect x="80" y="96" width="240" height="80" fill="url(#jkAO)"/>
+          </g>
+
+          <!-- Tupé: mechones superpuestos con brillo, el rasgo que más lo vende -->
+          <path d="M92 190c-10-78 44-126 110-126 76 0 122 50 124 108 1 20-16 26-25 9-19-36-51-52-82-50 46 16 70 46 71 76-24-42-70-62-116-54 32 16 48 40 46 64-26-44-80-58-122-28-4 3-6 3-6 1z" fill="url(#jkHair)"/>
+          <path d="M136 92c40-24 92-22 126 6-36-14-88-16-126-6z" fill="#7d7da8" opacity=".45"/>
+          <path d="M118 132c26-24 62-32 96-26-34 2-68 12-96 26z" fill="#6a6a94" opacity=".3"/>
+
+          <!-- Cejas -->
+          <path d="M124 194c18-15 45-17 62-8l-5 16c-16-7-37-5-53 5z" fill="#141420"/>
+          <path d="M276 194c-18-15-45-17-62-8l5 16c16-7 37-5 53 5z" fill="#141420"/>
+
+          <!-- Ojos: el <g> se aplasta para parpadear, la pupila sigue al ratón -->
+          <g class="kx-blink">
+            <ellipse cx="154" cy="242" rx="31" ry="33" fill="#fff"/>
+            <path d="M123 242a31 33 0 0 1 62 0z" fill="#c9855e" opacity=".22"/>
+            <g class="kx-pupil">
+              <circle cx="154" cy="244" r="18" fill="url(#jkIris)"/>
+              <circle cx="154" cy="244" r="8.5" fill="#08080f"/>
+              <circle cx="147" cy="236" r="5.5" fill="#fff" opacity=".95"/>
+              <circle cx="160" cy="252" r="2.6" fill="#fff" opacity=".55"/>
+            </g>
+          </g>
+          <g class="kx-blink kx-blink--b">
+            <ellipse cx="246" cy="242" rx="31" ry="33" fill="#fff"/>
+            <path d="M215 242a31 33 0 0 1 62 0z" fill="#c9855e" opacity=".22"/>
+            <g class="kx-pupil">
+              <circle cx="246" cy="244" r="18" fill="url(#jkIris)"/>
+              <circle cx="246" cy="244" r="8.5" fill="#08080f"/>
+              <circle cx="239" cy="236" r="5.5" fill="#fff" opacity=".95"/>
+              <circle cx="252" cy="252" r="2.6" fill="#fff" opacity=".55"/>
+            </g>
+          </g>
+
+          <!-- Nariz con volumen -->
+          <path d="M200 258c10 12 15 22 12 29-3 7-13 9-23 4" fill="none" stroke="#bf7549" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="200" cy="270" rx="16" ry="12" fill="#ffd9b8" opacity=".35"/>
+
+          <!-- Boca -->
+          <path class="kx-talk" d="M170 312c16 12 44 12 60 0-6 19-22 29-30 29s-24-10-30-29z" fill="#7e343f"/>
+          <path d="M176 316c14 7 34 7 48 0-8 4-40 4-48 0z" fill="#fff" opacity=".85"/>
+
+          <!-- Colorete y pecas -->
+          <ellipse cx="128" cy="290" rx="22" ry="13" fill="#e26b62" opacity=".28"/>
+          <ellipse cx="272" cy="290" rx="22" ry="13" fill="#e26b62" opacity=".28"/>
+          <g fill="#a9613e" opacity=".5">
+            <circle cx="148" cy="292" r="3"/><circle cx="164" cy="300" r="2.4"/>
+            <circle cx="236" cy="300" r="2.4"/><circle cx="252" cy="292" r="3"/>
+          </g>
+        </svg>
+      </figure>
+
+      <div class="jk-hero-foot">
+        <p class="kx-lede" data-reveal data-reveal-delay="0.15">
+          Diseño personajes, identidades y piezas 3D que la gente recuerda.
+          Diez años haciendo que las marcas dejen de parecerse entre ellas.
+        </p>
+        <a href="#trabajos" class="kx-btn kx-btn--lg" data-magnetic data-reveal data-reveal-delay="0.25">
+          <span>Ver el trabajo</span><span class="kx-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <span class="kx-scroll-cue">Baja</span>
+  </section>
+
+  <!-- ── MARQUESINA ─────────────────────────────────────────────────────── -->
+  <div class="kx-marquee">
+    <div class="kx-marquee-track">
+      <div class="kx-marquee-item">Modelado 3D <span>✦</span> Dirección de arte <span>✦</span> Personajes <span>✦</span> Motion <span>✦</span> Identidad <span>✦</span></div>
+    </div>
+  </div>
+
+  <!-- ── SOBRE MÍ ───────────────────────────────────────────────────────── -->
+  <section id="sobre" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head">
+        <div>
+          <span class="kx-eyebrow">01 — Sobre mí</span>
+          <h2 class="kx-h2" data-split>No hago logos bonitos. Construyo mundos que se pueden habitar.</h2>
+        </div>
+        <a href="#contacto" class="kx-link">Descargar CV <span class="kx-arrow">↗</span></a>
+      </div>
+
+      <div class="jk-about">
+        <p class="kx-lede" data-reveal>
+          Empecé animando cabezotas en un portátil que se calentaba demasiado. Hoy dirijo
+          proyectos para estudios de Madrid, Berlín y Ciudad de México. Sigo con la misma
+          idea: si un personaje no te cae bien en tres segundos, hay que rehacerlo.
+        </p>
+        <div class="kx-stats" data-reveal data-reveal-delay="0.1">
+          <div class="kx-stat"><strong data-count="127" data-count-suffix="+">0</strong><span>Proyectos</span></div>
+          <div class="kx-stat"><strong data-count="10">0</strong><span>Años de oficio</span></div>
+          <div class="kx-stat"><strong data-count="18">0</strong><span>Premios</span></div>
+          <div class="kx-stat"><strong data-count="4.9" data-count-suffix=" ★">0</strong><span>Valoración</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SERVICIOS ──────────────────────────────────────────────────────── -->
+  <section id="servicios" class="kx-section jk-services">
+    <div class="kx-wrap">
+      <div class="kx-sec-head">
+        <div>
+          <span class="kx-eyebrow">02 — Servicios</span>
+          <h2 class="kx-h2" data-split>Lo que puedo hacer<br>por tu marca</h2>
+        </div>
+      </div>
+      <div class="kx-grid kx-grid--3">
+        <article class="kx-card" data-tilt data-reveal>
+          <span class="kx-index">/ 001</span>
+          <div class="kx-ic">◉</div>
+          <h3 class="kx-h3">Diseño de personaje</h3>
+          <p>Del boceto al modelo final con rig listo para animar. Con hoja de expresiones y guía de uso.</p>
+        </article>
+        <article class="kx-card" data-tilt data-reveal data-reveal-delay="0.08">
+          <span class="kx-index">/ 002</span>
+          <div class="kx-ic">◈</div>
+          <h3 class="kx-h3">Dirección de arte</h3>
+          <p>Defino el tono visual de la campaña entera y me quedo hasta que la última pieza encaja.</p>
+        </article>
+        <article class="kx-card" data-tilt data-reveal data-reveal-delay="0.16">
+          <span class="kx-index">/ 003</span>
+          <div class="kx-ic">▲</div>
+          <h3 class="kx-h3">Motion y 3D</h3>
+          <p>Piezas cortas para redes, spots y secuencias de producto renderizadas a 4K.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRABAJOS ───────────────────────────────────────────────────────── -->
+  <section id="trabajos" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head">
+        <div>
+          <span class="kx-eyebrow">03 — Trabajos</span>
+          <h2 class="kx-h2" data-split>Selección reciente</h2>
+        </div>
+      </div>
+      <div class="kx-list">
+        <a href="#contacto" class="kx-row" data-reveal><span class="kx-index">01</span><h3>Lumen Toys</h3><span class="kx-tag">Personaje · 2026</span><span class="kx-arrow">↗</span></a>
+        <a href="#contacto" class="kx-row" data-reveal><span class="kx-index">02</span><h3>Café Nórdico</h3><span class="kx-tag">Identidad · 2025</span><span class="kx-arrow">↗</span></a>
+        <a href="#contacto" class="kx-row" data-reveal><span class="kx-index">03</span><h3>Órbita Festival</h3><span class="kx-tag">Motion · 2025</span><span class="kx-arrow">↗</span></a>
+        <a href="#contacto" class="kx-row" data-reveal><span class="kx-index">04</span><h3>Banco Ática</h3><span class="kx-tag">Dirección de arte · 2024</span><span class="kx-arrow">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PREGUNTAS ──────────────────────────────────────────────────────── -->
+  <section class="kx-section">
+    <div class="kx-wrap jk-faq">
+      <div>
+        <span class="kx-eyebrow">04 — Dudas</span>
+        <h2 class="kx-h2" data-split>Antes de escribirme</h2>
+      </div>
+      <div class="kx-acc">
+        <div class="kx-acc-item"><button class="kx-acc-q">¿Cuánto tarda un personaje completo? <i>+</i></button><div class="kx-acc-a"><div><p>Entre tres y cinco semanas según cuántas expresiones y vistas necesites. Te doy una fecha cerrada antes de empezar.</p></div></div></div>
+        <div class="kx-acc-item"><button class="kx-acc-q">¿Trabajas con marcas pequeñas? <i>+</i></button><div class="kx-acc-a"><div><p>Sí. Hay un paquete reducido pensado para negocios que arrancan, con menos entregables pero el mismo cuidado.</p></div></div></div>
+        <div class="kx-acc-item"><button class="kx-acc-q">¿Los archivos fuente son míos? <i>+</i></button><div class="kx-acc-a"><div><p>Sí, se entregan al cerrar el proyecto junto con la cesión de derechos por escrito.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACTO ───────────────────────────────────────────────────────── -->
+  <section id="contacto" class="kx-section jk-contact">
+    <div class="kx-wrap">
+      <div class="kx-sec-head">
+        <div>
+          <span class="kx-eyebrow">05 — Contacto</span>
+          <h2 class="kx-h2" data-split>Cuéntame qué<br>tienes en la cabeza</h2>
+        </div>
+      </div>
+      <form class="kx-form" data-reveal>
+        <div class="kx-field"><input type="text" name="nombre" placeholder="Tu nombre" required></div>
+        <div class="kx-field"><input type="email" name="email" placeholder="Tu email" required></div>
+        <div class="kx-field"><textarea name="mensaje" placeholder="El proyecto, el plazo y el presupuesto que manejas" required></textarea></div>
+        <button type="submit" class="kx-btn kx-btn--accent kx-btn--lg" data-magnetic><span>Enviar mensaje</span><span class="kx-arrow">↗</span></button>
+        <p class="kx-form-ok">Recibido. Te contesto en menos de 24 horas.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="kx-footer">
+  <div class="kx-wrap">
+    <div class="kx-footer-grid">
+      <div>
+        <div class="kx-logo"><i>✦</i> Jack Rivera</div>
+        <p style="color:var(--ink-dim);margin-top:.9rem;max-width:34ch">Dirección de arte y personajes 3D. Madrid, y donde haga falta.</p>
+      </div>
+      <div><h4>Web</h4><a href="#sobre">Sobre mí</a><a href="#servicios">Servicios</a><a href="#trabajos">Trabajos</a></div>
+      <div><h4>Redes</h4><a href="#">Instagram</a><a href="#">Behance</a><a href="#">LinkedIn</a></div>
+      <div><h4>Directo</h4><a href="#contacto">hola@jackrivera.es</a><a href="#contacto">+34 600 000 000</a></div>
+    </div>
+    <div class="kx-footer-word">JACK</div>
+    <div class="kx-footer-bot">
+      <span>© 2026 Jack Rivera</span>
+      <span>Hecho con cabezonería</span>
+    </div>
+  </div>
+</footer>

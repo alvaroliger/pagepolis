@@ -51,6 +51,8 @@ interface Project {
     html: string;
     css: string;
     js: string;
+    engine_css: string | null;
+    engine_js: string | null;
     ai_history: ChatMessage[];
     can_undo: boolean;
     seo_meta: { title?: string; description?: string; keywords?: string } | null;
@@ -205,15 +207,20 @@ export default function EditorIndex({ project, aiUsage }: Props) {
     }, [dirty]);
 
     const buildPreviewHtml = useCallback(() => {
+        // El proyecto solo trae su CSS/JS propios; el motor compartido
+        // (kinetic/classic) se enlaza aparte, igual que en el sitio publicado
+        // y en la galería — si no, la preview sale sin el motor aplicado.
+        const engineCssTag = project.engine_css ? `<link rel="stylesheet" href="${project.engine_css}">` : '';
+        const engineJsTag = project.engine_js ? `<script src="${project.engine_js}"><\/script>` : '';
         // En modo "Editar textos" se omite el JS del sitio (acordeones, sliders,
         // animaciones de aparición) para no estorbar al escribir; solo el guard de
         // navegación + el editor in-situ. Fuera de ese modo, el sitio corre normal.
-        const head = `<style>${css}</style>` + (textEdit ? EDIT_STYLE : '');
+        const head = `${engineCssTag}<style>${css}</style>` + (textEdit ? EDIT_STYLE : '');
         const tail = textEdit
             ? `<script data-ppinject>${PREVIEW_GUARD}<\/script><script data-ppinject>${INLINE_EDITOR}<\/script>`
-            : `<script data-ppinject>${PREVIEW_GUARD}<\/script><script data-ppinject>${js}<\/script>`;
+            : `<script data-ppinject>${PREVIEW_GUARD}<\/script>${engineJsTag}<script data-ppinject>${js}<\/script>`;
         return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${head}</head><body>${html}${tail}</body></html>`;
-    }, [html, css, js, textEdit]);
+    }, [html, css, js, textEdit, project.engine_css, project.engine_js]);
 
     useEffect(() => {
         // Si el cambio de HTML vino de editar un texto en la preview, no se
@@ -786,10 +793,10 @@ export default function EditorIndex({ project, aiUsage }: Props) {
                         <button
                             onClick={sendToAI}
                             disabled={aiLoading || (!prompt.trim() && images.length === 0) || (aiMode === 'generate' && usedToday >= aiUsage.limit)}
-                            className={`mt-2 w-full text-white text-sm font-bold py-2.5 rounded-xl transition-opacity disabled:opacity-40 ${
+                            className={`mt-2 w-full text-white text-sm font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-40 ${
                                 aiMode === 'update'
-                                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90'
-                                    : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90'
+                                    ? 'bg-emerald-600 hover:bg-emerald-500'
+                                    : 'bg-violet-600 hover:bg-violet-500'
                             }`}
                         >
                             {aiLoading ? 'Generando…' : aiMode === 'update' ? 'Aplicar cambio' : 'Generar web'}

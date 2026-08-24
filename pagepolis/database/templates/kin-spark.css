@@ -1,0 +1,39 @@
+/* ── Semilla — fundación ──────────────────────────────────────────────────
+   Verde tierra y ocre. Un brote que crece entre dos manos, con motas de luz
+   subiendo. Cálida sin caer en lo ñoño.                                     */
+
+:root {
+  --bg: #101a12; --bg-2: #16241a; --bg-3: #1f3123;
+  --ink: #f2f6ee; --ink-dim: #92a494; --ink-faint: #647263;
+  --accent: #7dc45a; --accent-2: #e0a94b;
+  --line: rgba(210,235,205,.12); --line-2: rgba(210,235,205,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.sp-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.sp-title { font-weight: 700; font-size: clamp(2.8rem,8.5vw,7rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.sp-title em { color: var(--accent); font-family: var(--f-serif); font-weight: 400; }
+.sp-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+.sp-hands { width: 100%; max-width: 400px; margin-inline: auto; filter: drop-shadow(0 26px 38px rgba(0,0,0,.45)); }
+
+/* El brote crece y se relaja en bucle, con el halo latiendo a su ritmo */
+.sp-sprout { animation: sp-grow 7s var(--ease-io) infinite; transform-box: fill-box; transform-origin: bottom center; }
+@keyframes sp-grow { 0%,100% { transform: scaleY(.9) scaleX(.97); } 50% { transform: scaleY(1.04) scaleX(1.02); } }
+.sp-halo { animation: sp-halo 7s var(--ease-io) infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes sp-halo { 0%,100% { transform: scale(.86); opacity: .1; } 50% { transform: scale(1.1); opacity: .24; } }
+
+/* Motas de luz que ascienden */
+.sp-motes { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.sp-motes i {
+  position: absolute; bottom: 0; display: block;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--accent); opacity: .32; filter: blur(1px);
+}
+
+.sp-projects { background: var(--bg-2); }
+.kx-btn--accent { --btn-fg: #0e1a10; }
+
+@media (max-width: 900px) {
+  .sp-grid { grid-template-columns: 1fr; }
+  .sp-hands { max-width: 300px; order: -1; }
+}

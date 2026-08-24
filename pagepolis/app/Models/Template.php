@@ -16,6 +16,7 @@ class Template extends Model
         'html',
         'css',
         'js',
+        'engine',
         'tags',
         'is_premium',
         'is_active',

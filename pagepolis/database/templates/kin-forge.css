@@ -1,0 +1,32 @@
+/* ── Fragua — gimnasio de fuerza ──────────────────────────────────────────
+   Negro carbón y naranja incandescente. El atleta hace la repetición en bucle:
+   la barra sube, los brazos acompañan y el cuerpo se comprime un poco.       */
+
+:root {
+  --bg: #0c0a09; --bg-2: #16120f; --bg-3: #201a15;
+  --ink: #fdf4ec; --ink-dim: #9a8c80; --ink-faint: #64584e;
+  --accent: #ff6a00; --accent-2: #ffb020;
+  --line: rgba(255,220,190,.12); --line-2: rgba(255,220,190,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.fg-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.fg-title { font-weight: 800; font-size: clamp(2.8rem, 8.5vw, 7rem); letter-spacing: -.05em; margin: .7rem 0 1.4rem; }
+.fg-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+/* La repetición: barra y brazos suben, el conjunto se hunde un pelo al bajar */ 
+
+.fg-plans { background: var(--bg-2); }
+.fg-price { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.9rem,3.6vw,2.8rem); letter-spacing: -.04em; margin: .9rem 0 .7rem; }
+.fg-price small { font-size: .82rem; color: var(--ink-dim); font-weight: 400; letter-spacing: 0; }
+.fg-featured { border-color: var(--accent); background: linear-gradient(180deg, rgba(255,106,0,.14), transparent 55%), var(--bg-3); }
+.kx-card .kx-btn { margin-top: 1.2rem; }
+.kx-marquee { background: var(--accent); color: #14100d; border-color: transparent; }
+.kx-marquee-item { color: #14100d; font-weight: 700; }
+.kx-marquee-item span { color: #14100d; opacity: .5; }
+.fg-faq { display: grid; grid-template-columns: .8fr 1.4fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+
+@media (max-width: 900px) {
+  .fg-grid { grid-template-columns: 1fr; }
+  .fg-figure { max-width: 300px; order: -1; }
+  .fg-faq { grid-template-columns: 1fr; }
+}

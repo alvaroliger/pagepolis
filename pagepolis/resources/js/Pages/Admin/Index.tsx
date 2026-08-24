@@ -65,7 +65,7 @@ export default function AdminIndex({ users, stats, ai }: Props) {
                     ].map(s => (
                         <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
                             <p className="text-gray-400 text-sm mb-1">{s.label}</p>
-                            <p className="text-3xl font-black text-white">{s.value}</p>
+                            <p className="text-3xl font-semibold text-white">{s.value}</p>
                         </div>
                     ))}
                 </div>
@@ -80,19 +80,19 @@ export default function AdminIndex({ users, stats, ai }: Props) {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
                         <div>
-                            <p className="text-2xl font-black text-white">${ai.month_to_date.toFixed(2)}</p>
+                            <p className="text-2xl font-semibold text-white">${ai.month_to_date.toFixed(2)}</p>
                             <p className="text-xs text-gray-500">Gastado este mes</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-white">${ai.today.toFixed(2)}</p>
+                            <p className="text-2xl font-semibold text-white">${ai.today.toFixed(2)}</p>
                             <p className="text-xs text-gray-500">Gastado hoy</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-gray-300">${ai.monthly_budget.toFixed(2)}</p>
+                            <p className="text-2xl font-semibold text-gray-300">${ai.monthly_budget.toFixed(2)}</p>
                             <p className="text-xs text-gray-500">Tope mensual</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-gray-300">${ai.daily_budget.toFixed(2)}</p>
+                            <p className="text-2xl font-semibold text-gray-300">${ai.daily_budget.toFixed(2)}</p>
                             <p className="text-xs text-gray-500">Tope diario</p>
                         </div>
                     </div>

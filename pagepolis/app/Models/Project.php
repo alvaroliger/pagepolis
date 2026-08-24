@@ -18,6 +18,7 @@ class Project extends Model
         'html',
         'css',
         'js',
+        'engine',
         'previous_html',
         'previous_css',
         'previous_js',

@@ -1,0 +1,26 @@
+/* ── Cumbre Viva — turismo de aventura ────────────────────────────────────
+   Azul de amanecer y naranja. Tres crestas superpuestas que se mueven a
+   velocidades distintas al hacer scroll (data-parallax): la profundidad la
+   crea el desplazamiento, no una foto.                                      */
+
+:root {
+  --bg: #0f1a22; --bg-2: #16242e; --bg-3: #1e303c;
+  --ink: #eef6fa; --ink-dim: #8ea3b0; --ink-faint: #5c7080;
+  --accent: #e0562f; --accent-2: #f0a94b;
+  --line: rgba(200,230,245,.12); --line-2: rgba(200,230,245,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.te-hero { overflow: hidden; }
+/* Etalonaje de la escena: azul frío en las sombras, ámbar en la luz */
+.te-hero .kx-cam { --haze: #b9cfe2; --ray: #ffd9a8; --sun: 64% 26%; --cam-dur: 52s; }
+
+.te-title {
+  font-weight: 700; font-size: clamp(2.8rem,9vw,7.5rem); letter-spacing: -.045em;
+  /* Sobre foto, el texto necesita su propia sombra o se pierde en las nubes */
+  text-shadow: 0 14px 50px rgba(6,12,20,.6), 0 2px 10px rgba(6,12,20,.4);
+}
+.te-title em { color: var(--accent-2); font-family: var(--f-serif); font-weight: 400; }
+.te-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; margin-top: clamp(2rem,6vw,4rem); }
+.te-price { font-family: var(--f-mono); font-size: .9rem; color: var(--accent-2); white-space: nowrap; }
+.te-guides { background: var(--bg-2); }

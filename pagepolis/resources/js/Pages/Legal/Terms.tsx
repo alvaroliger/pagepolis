@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import LegalLayout, { LegalSection } from '@/Components/LegalLayout';
 
 export default function Terms() {
-    const email = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+    const email = (usePage().props as any).support?.email ?? 'hola@pagepolis.com';
     return (
         <LegalLayout title="Términos de servicio" updated="9 de junio de 2026">
             <p className="text-[15px]">

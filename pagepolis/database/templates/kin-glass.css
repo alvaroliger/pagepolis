@@ -1,0 +1,43 @@
+/* ── Vidrio — estudio de producto ─────────────────────────────────────────
+   Cristal esmerilado sobre orbes de color que se deforman. Los paneles del
+   hero llevan backdrop-filter, así que el fondo se ve difuminado a través.  */
+
+:root {
+  --bg: #0a0a12; --bg-2: #10101c; --bg-3: #171728;
+  --ink: #f2f2fa; --ink-dim: #8b8ba6; --ink-faint: #5a5a76;
+  --accent: #4f7dff; --accent-2: #ff6fd8;
+  --line: rgba(210,210,255,.13); --line-2: rgba(210,210,255,.26);
+  --f-display: 'Space Grotesk', sans-serif;
+}
+
+.gl-hero { text-align: center; }
+.gl-blob { position: absolute; inset: 0; width: 100%; height: 100%; --fx-color: #6f8cff; opacity: .4; }
+/* Tres orbes que se deforman y giran; el desenfoque los funde entre sí.
+   Van deliberadamente apagados: a plena saturación se comían el titular. */
+.gl-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: .38;
+  animation: kx-morph 16s var(--ease-io) infinite, kx-drift 26s var(--ease-io) infinite alternate;
+}
+.gl-orb--a { width: 42vw; max-width: 560px; aspect-ratio: 1; background: var(--accent);   top: 6%;  left: 8%; }
+.gl-orb--b { width: 38vw; max-width: 500px; aspect-ratio: 1; background: var(--accent-2); top: 30%; right: 6%; animation-delay: -6s, -9s; }
+.gl-orb--c { width: 34vw; max-width: 440px; aspect-ratio: 1; background: #4fe0d0;         bottom: 2%; left: 42%; animation-delay: -11s, -17s; }
+/* Velo que devuelve el contraste al texto sin apagar del todo el color */
+.gl-hero .kx-hero-art::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(10,10,18,.62), rgba(10,10,18,.86));
+}
+
+.gl-title { font-size: clamp(2.6rem,8vw,6.5rem); margin-bottom: clamp(2rem,5vw,3.5rem); }
+.gl-title em { color: var(--accent-2); }
+.gl-panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(.9rem,1.6vw,1.4rem); text-align: left; }
+/* Cristal oscuro: deja pasar el color del fondo pero mantiene el texto legible */
+.gl-panel {
+  border-radius: var(--r-lg);
+  background: rgba(12,12,24,.55);
+  border-color: rgba(210,210,255,.18);
+}
+.gl-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; text-align: left; margin-top: clamp(2rem,5vw,3.5rem); }
+.gl-serv { background: var(--bg-2); }
+
+@media (max-width: 860px) { .gl-panels { grid-template-columns: 1fr; } }

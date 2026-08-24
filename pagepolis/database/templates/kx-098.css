@@ -1,0 +1,17 @@
+/* ── Adarve — Servicios ─────────────────────────────────────────────
+   Generada por gen.py. Solo contiene la dirección de arte: paleta, tipografía
+   y encuadre. Todo el comportamiento vive en kinetic.css/js y kx3d.js. */
+
+:root {
+  --bg: #0a0a0b; --bg-2: #121214; --bg-3: #1a1a1e;
+  --ink: #f4f4f5; --ink-dim: #8e8e96; --ink-faint: #5b5b64;
+  --accent: #ff5c2b; --accent-2: #ffb01f;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.24);
+  --f-display: 'Space Grotesk', system-ui, sans-serif;
+}
+
+.kx-vhero-h1 { font-family: var(--f-display); font-weight:300; }
+.098-alt { background: var(--bg-2); }
+.098-faq { display: grid; grid-template-columns: .85fr 1.35fr; gap: clamp(2rem,5vw,5rem); align-items: start; }
+.kx-h2, .kx-footer-word { font-family: var(--f-display);  }
+@media (max-width: 880px) { .098-faq { grid-template-columns: 1fr; } }

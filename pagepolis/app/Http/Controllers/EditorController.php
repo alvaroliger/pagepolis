@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Middleware\AiRateLimit;
 use App\Models\Project;
+use App\Services\TemplateEngine;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -18,6 +19,12 @@ class EditorController extends Controller
         $user = auth()->user();
         $project->loadMissing('domain');
 
+        // El proyecto solo guarda su CSS/JS propios; el motor compartido
+        // (kinetic/classic) vive aparte y se enlaza aquí igual que en el
+        // sitio publicado y en la vista previa — si no, la preview del
+        // editor sale sin ningún estilo del motor.
+        $engineExists = TemplateEngine::exists($project->engine);
+
         return Inertia::render('Editor/Index', [
             'project' => [
                 'id'         => $project->id,
@@ -25,6 +32,8 @@ class EditorController extends Controller
                 'html'       => $project->html ?? '',
                 'css'        => $project->css ?? '',
                 'js'         => $project->js ?? '',
+                'engine_css' => $engineExists ? TemplateEngine::url($project->engine, 'css') : null,
+                'engine_js'  => $engineExists ? TemplateEngine::url($project->engine, 'js') : null,
                 'ai_history' => $project->ai_history ?? [],
                 'can_undo'   => $project->canUndoAiChange(),
                 'seo_meta'   => $project->seo_meta ?? null,

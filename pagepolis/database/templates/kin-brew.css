@@ -1,0 +1,47 @@
+/* ── Tueste Lento — cafetería y tostadero ─────────────────────────────────
+   Crema, cobre y marrón tostado. La taza humea y la crema gira despacio.    */
+
+:root {
+  --bg: #f5efe4; --bg-2: #fffbf3; --bg-3: #e8dfcf;
+  --ink: #2a1d13; --ink-dim: #7a6752; --ink-faint: #a4907a;
+  --accent: #c8622f; --accent-2: #8a5a2b;
+  --line: rgba(42,29,19,.13); --line-2: rgba(42,29,19,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.kx-grain { mix-blend-mode: multiply; opacity: .045; }
+.bw-grid { display: grid; grid-template-columns: 1fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.bw-title { font-weight: 700; font-size: clamp(2.8rem,8.5vw,7rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.bw-title em { color: var(--accent); font-family: var(--f-serif); font-weight: 400; }
+.bw-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+
+.bw-price { font-family: var(--f-mono); font-size: .9rem; color: var(--accent); white-space: nowrap; }
+.bw-shop { background: var(--bg-2); }
+.kx-card { background: var(--bg-2); }
+.kx-product figure { background: var(--bg-3); padding: 1.4rem; }
+.kx-product .kx-btn { margin-top: 1rem; }
+.kx-marquee { background: var(--ink); color: var(--bg); border-color: transparent; }
+.kx-marquee-item { color: var(--bg); }
+.kx-btn { --btn-bg: var(--ink); --btn-fg: var(--bg); }
+.kx-footer { background: var(--ink); }
+.kx-footer .kx-footer-grid a, .kx-footer p { color: rgba(255,248,238,.66); }
+.kx-footer .kx-footer-grid a:hover { color: #fff; }
+.kx-footer h4, .kx-footer-bot { color: rgba(255,248,238,.42); }
+.kx-footer-bot { border-top-color: rgba(255,248,238,.16); }
+.kx-footer-word { -webkit-text-stroke-color: rgba(255,248,238,.3); }
+#cart-drawer { background: var(--bg-2); }
+
+@media (max-width: 900px) {
+  .bw-grid { grid-template-columns: 1fr; }
+  .bw-cup { max-width: 300px; order: -1; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #dcc4a4; }
+.bw-grid { grid-template-columns: 1fr; max-width: 44rem; }
+
+/* Sobre la fotografía del hero el titular va en blanco; el color de
+   marca se reserva para la palabra destacada. */
+.bw-title { color: #fff; text-shadow: 0 14px 46px rgba(6,10,16,.55); }

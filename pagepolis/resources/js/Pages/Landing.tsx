@@ -58,7 +58,7 @@ export default function Landing() {
     const { t, i18n } = useTranslation();
     const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
     const pricingRef = useRef<HTMLElement>(null);
-    const supportEmail = (usePage().props as any).support?.email ?? 'soporte@pagepolis.com';
+    const supportEmail = (usePage().props as any).support?.email ?? 'hola@pagepolis.com';
     // Prueba social real: nº de webs publicadas (lo inyecta LandingController; 0 = aún sin dato).
     const sitesPublished: number = (usePage().props as any).stats?.sites_published ?? 0;
 

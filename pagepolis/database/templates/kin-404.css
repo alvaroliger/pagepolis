@@ -1,0 +1,32 @@
+/* ── 404 — página no encontrada ───────────────────────────────────────────
+   Azul espacial. El "404" enorme al fondo y el astronauta flotando delante,
+   saludando. Una página de error que no da vergüenza enseñar.               */
+
+:root {
+  --bg: #070b18; --bg-2: #0c1226; --bg-3: #131b36;
+  --ink: #eef1ff; --ink-dim: #8b93b8; --ink-faint: #59618a;
+  --accent: #6f8cff; --accent-2: #6fd8ff;
+  --line: rgba(190,200,255,.12); --line-2: rgba(190,200,255,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.er-hero { text-align: center; min-height: 100svh; }
+.er-hero .kx-hero-inner { position: relative; }
+
+/* El código de error, gigante y hueco, detrás de todo */
+.er-code {
+  position: absolute; left: 50%; top: 46%;
+  transform: translate(-50%,-50%);
+  z-index: 0; pointer-events: none;
+  font-family: var(--f-display); font-weight: 800;
+  font-size: clamp(9rem, 34vw, 30rem); line-height: 1; letter-spacing: -.06em;
+  color: transparent; -webkit-text-stroke: 2px var(--line-2);
+  animation: er-pulse 8s var(--ease-io) infinite;
+}
+@keyframes er-pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+
+.er-astro { position: relative; z-index: 2; width: min(58vw, 300px); margin: 0 auto clamp(1.5rem,4vw,2.5rem); filter: drop-shadow(0 30px 44px rgba(0,0,0,.6)); }
+.er-title { position: relative; z-index: 2; margin-bottom: 1rem; }
+.er-lede { position: relative; z-index: 2; margin-inline: auto; }
+.er-cta { position: relative; z-index: 2; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.2rem 2rem; margin-top: 2rem; }
+.kx-footer { border-top: 0; padding-block: 2rem; }

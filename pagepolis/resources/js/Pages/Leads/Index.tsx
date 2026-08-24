@@ -136,7 +136,7 @@ export default function LeadsIndex({ leads = [] as Lead[], unreadCount = 0 }: { 
                                     <div className="mt-3">
                                         <a
                                             href={`mailto:${lead.email}`}
-                                            className="inline-block bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                                            className="inline-block bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
                                         >
                                             Responder
                                         </a>

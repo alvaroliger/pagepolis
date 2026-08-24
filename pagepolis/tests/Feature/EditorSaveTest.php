@@ -258,6 +258,35 @@ class EditorSaveTest extends TestCase
             );
     }
 
+    public function test_editor_page_exposes_shared_engine_assets_for_engine_project(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['engine' => 'kinetic']);
+
+        // El proyecto solo guarda su CSS/JS propios; sin esto la preview del
+        // editor sale sin el motor compartido aplicado (bug real: una plantilla
+        // kinetic se veía completamente sin estilo al abrir el editor).
+        $this->actingAs($user)
+            ->get("/editor/{$project->id}")
+            ->assertInertia(fn ($page) => $page
+                ->where('project.engine_css', \App\Services\TemplateEngine::url('kinetic', 'css'))
+                ->where('project.engine_js', \App\Services\TemplateEngine::url('kinetic', 'js'))
+            );
+    }
+
+    public function test_editor_page_has_no_engine_assets_for_standalone_project(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user);
+
+        $this->actingAs($user)
+            ->get("/editor/{$project->id}")
+            ->assertInertia(fn ($page) => $page
+                ->where('project.engine_css', null)
+                ->where('project.engine_js', null)
+            );
+    }
+
     public function test_editor_page_forbidden_for_other_user(): void
     {
         $owner   = $this->user();

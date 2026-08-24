@@ -245,10 +245,10 @@ export default function CreateWizard({ aiUsage }: { aiUsage: AiUsage }) {
                     <button
                         onClick={submit}
                         disabled={!canSubmit || loading}
-                        className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold py-4 rounded-xl text-base hover:opacity-90 transition-all shadow-lg shadow-violet-900/30 enabled:hover:-translate-y-0.5 disabled:opacity-40 inline-flex items-center justify-center gap-2"
+                        className="w-full bg-violet-600 hover:bg-violet-500 text-white font-semibold py-4 rounded-xl text-base transition-colors disabled:opacity-40 inline-flex items-center justify-center gap-2"
                     >
                         {loading && <Loader2 className={`w-5 h-5 ${reduceMotion ? '' : 'animate-spin'}`} strokeWidth={2.5} />}
-                        {loading ? 'Creando tu web…' : '✨ Crear mi web con IA'}
+                        {loading ? 'Creando tu web…' : 'Crear mi web con IA'}
                     </button>
 
                     {validationHint && !error && !quotaExceeded && (

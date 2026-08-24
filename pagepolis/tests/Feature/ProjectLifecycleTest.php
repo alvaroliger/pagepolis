@@ -137,6 +137,21 @@ class ProjectLifecycleTest extends TestCase
         $this->assertNotSame($project->slug, $copy->slug);
     }
 
+    public function test_duplicate_copies_shared_engine(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, ['engine' => 'kinetic']);
+
+        // Sin copiar el engine, la copia pierde el motor compartido y sale
+        // sin estilo en el editor (misma clase de bug que en EditorController).
+        $this->actingAs($user)
+            ->post("/proyectos/{$project->id}/duplicar")
+            ->assertRedirect();
+
+        $copy = $user->projects()->where('id', '!=', $project->id)->firstOrFail();
+        $this->assertSame('kinetic', $copy->engine);
+    }
+
     public function test_other_user_cannot_duplicate_project(): void
     {
         $owner = $this->user();
@@ -159,6 +174,34 @@ class ProjectLifecycleTest extends TestCase
             ->assertRedirect('/login');
 
         $this->assertSame(1, $owner->projects()->count());
+    }
+
+    // ── export ZIP ───────────────────────────────────────────────────────
+
+    public function test_export_zip_bundles_shared_engine_with_own_css(): void
+    {
+        $user    = $this->user();
+        $project = $this->project($user, [
+            'engine' => 'kinetic',
+            'css'    => '.mine{color:red}',
+        ]);
+
+        // El ZIP es un sitio estático sin servidor detrás que le enlace el
+        // motor: si no se incrusta aquí, la web descargada sale sin estilo
+        // (mismo bug que en EditorController, pero para el sitio exportado).
+        $response = $this->actingAs($user)->get("/proyectos/{$project->id}/zip");
+        $response->assertOk();
+
+        $tmp = tempnam(sys_get_temp_dir(), 'ppziptest');
+        file_put_contents($tmp, $response->getContent());
+        $zip = new \ZipArchive();
+        $zip->open($tmp);
+        $styles = $zip->getFromName('styles.css');
+        $zip->close();
+        @unlink($tmp);
+
+        $this->assertStringContainsString('.mine{color:red}', $styles);
+        $this->assertStringContainsString('kx-curtain', $styles, 'debe incluir el motor kinetic, no solo el CSS propio');
     }
 
     // ── free publish ────────────────────────────────────────────────────

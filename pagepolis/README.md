@@ -38,7 +38,41 @@ php artisan db:seed          # crea admin/demo + plantillas
 composer dev                 # servidor + cola + logs + vite (http://localhost:8000)
 ```
 
+**En Windows, `composer dev` no sirve:** el visor de logs (`php artisan pail`) necesita la
+extensión `pcntl`, que no existe en PHP para Windows, y como el script usa
+`concurrently --kill-others`, ese fallo mata también al servidor/cola/vite aunque
+arrancaran bien. Además `php artisan serve` es de un solo hilo en Windows —
+con la galería de plantillas (218 miniaturas) cualquier otra pestaña se queda con
+"conexión rechazada". Usa `scripts\dev-local.ps1` (en la raíz del repo, un nivel
+por encima de esta carpeta): levanta servidor (FrankenPHP, concurrente de verdad),
+cola y vite en 3 ventanas separadas, sin pail.
+
 Tests: `php artisan test`. Build de producción: `npm run build`.
+
+## Miniaturas de la galería de plantillas
+
+La galería (`/plantillas`) NO renderiza las plantillas: enseña una imagen WebP
+pre-generada por cada una. Antes montaba un iframe por tarjeta y con 218
+plantillas activas eso eran 299 documentos, 38 MB de red y 12,5 s de CPU en el
+hilo principal del navegador (los iframes del mismo origen comparten hilo, así
+que no hay forma de repartir ese coste en el cliente).
+
+```bash
+php artisan serve                                   # la app tiene que responder
+php artisan templates:thumbnails --tabs=6           # solo las nuevas o cambiadas
+php artisan templates:thumbnails --tabs=6 --force   # todas
+```
+
+Abre las plantillas en Chrome headless (varias pestañas en paralelo, una por
+núcleo) contra `/plantillas/{id}/render` y guarda el recorte del hero en
+`public/thumbs/`. Necesita Chrome instalado; si no está en una ruta habitual,
+defínelo con `CHROME_PATH`.
+
+El nombre del archivo lleva una huella del html+css+js **y de la versión del
+motor**, así que basta con volver a lanzarlo (sin `--force`) tras cambiar
+plantillas o `database/templates/*.css`: regenera solo lo que haga falta. Las
+imágenes se versionan en git, de modo que el servidor de producción no necesita
+Chrome.
 
 ## Despliegue (manual, desde git)
 

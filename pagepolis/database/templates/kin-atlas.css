@@ -1,0 +1,22 @@
+/* ── Atlas — inteligencia territorial ─────────────────────────────────────
+   Violeta profundo y una malla 3D que ondula detrás del titular.            */
+
+:root {
+  --bg: #0a0616; --bg-2: #120b24; --bg-3: #1a1030;
+  --ink: #f4f0ff; --ink-dim: #9188ad; --ink-faint: #605876;
+  --accent: #a855f7; --accent-2: #f0abfc;
+  --line: rgba(200,180,255,.12); --line-2: rgba(200,180,255,.24);
+}
+
+.at-hero { text-align: left; }
+.at-mesh { width: min(120vw, 1500px); height: min(80vh, 720px); --fx-color: #b06bff; opacity: .9; }
+/* Sin JS el canvas está vacío: este degradado sostiene la miniatura */
+.kx-hero-art::before {
+  content: ''; position: absolute; width: min(90vw, 900px); aspect-ratio: 1.6;
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 65%);
+  filter: blur(50px); animation: kx-breathe 8s var(--ease-io) infinite;
+}
+.at-title { font-size: clamp(2.6rem, 8.5vw, 7rem); }
+.at-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 3rem; margin-top: clamp(1.5rem,4vw,3rem); }
+.at-stats { margin-top: clamp(2.5rem,5vw,4rem); grid-template-columns: repeat(3,1fr); max-width: 620px; }
+.at-cases { background: var(--bg-2); }

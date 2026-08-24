@@ -1,0 +1,40 @@
+/* ── Cuadrilla — equipo de agentes ────────────────────────────────────────
+   Azul noche cálido. El peso está en la fila de personajes: cada uno flota con
+   un retardo distinto (--d) para que el grupo respire desacompasado, que es lo
+   que da sensación de vida.                                                  */
+
+:root {
+  --bg: #0b0d1a; --bg-2: #12142400; --bg-2: #121424; --bg-3: #1a1c30;
+  --ink: #f2f3ff; --ink-dim: #8b8fae; --ink-faint: #565a78;
+  --accent: #7c5cff; --accent-2: #22c8a8;
+  --line: rgba(180,190,255,.11); --line-2: rgba(180,190,255,.22);
+  --f-display: 'Bricolage Grotesque', 'Space Grotesk', sans-serif;
+}
+
+.cr-hero { text-align: center; padding-block: 8.5rem 4rem; }
+.cr-title { font-weight: 700; font-size: clamp(2.6rem, 8vw, 6.5rem); margin: .6rem 0 clamp(2rem, 5vw, 3.5rem); }
+
+/* El de en medio va un poco más alto: rompe la fila y evita el aire de orla */
+.cr-foot {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem 3rem; text-align: left;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+.cr-how { background: var(--bg-2); }
+.cr-price { font-family: var(--f-display); font-size: clamp(1.9rem,3.6vw,2.8rem); font-weight: 600; letter-spacing: -.04em; margin: .9rem 0 .8rem; }
+.cr-price small { font-size: .85rem; color: var(--ink-dim); font-weight: 400; letter-spacing: 0; }
+.cr-featured { border-color: var(--accent); background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%), var(--bg-2); }
+.cr-featured .kx-btn { margin-top: 1.2rem; }
+.kx-card p + .kx-btn, .kx-card .kx-btn { margin-top: 1.2rem; }
+
+@media (max-width: 700px) {
+  .cr-team { gap: .8rem; }
+  .cr-agent { width: clamp(76px, 26vw, 120px); }
+  .cr-agent:nth-child(3) { transform: none; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #cdd4ea; }

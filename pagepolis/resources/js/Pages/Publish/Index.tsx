@@ -110,7 +110,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
                         <Globe className="w-8 h-8 text-violet-400 animate-pulse" strokeWidth={1.75} />
                     </div>
-                    <h2 className="text-3xl font-black text-white mb-4">{t('publish.provisioning_title')}</h2>
+                    <h2 className="text-3xl font-semibold text-white mb-4">{t('publish.provisioning_title')}</h2>
                     <p className="text-gray-400 mb-2">
                         {t('publish.provisioning_desc', { domain: provisioning ?? '' })}
                     </p>
@@ -133,7 +133,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                     <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                         <Rocket className="w-8 h-8 text-emerald-400" strokeWidth={1.75} />
                     </div>
-                    <h2 className="text-3xl font-black text-white mb-4">{t('publish.published_title')}</h2>
+                    <h2 className="text-3xl font-semibold text-white mb-4">{t('publish.published_title')}</h2>
                     <p className="text-gray-400 mb-8">{t('publish.published_access')}</p>
                     <a
                         href={published}
@@ -270,7 +270,7 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                         <button
                             onClick={publishFree}
                             disabled={loading || !project}
-                            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-opacity inline-flex items-center justify-center gap-2"
+                            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white py-3.5 rounded-xl font-semibold transition-colors inline-flex items-center justify-center gap-2"
                         >
                             <Rocket className="w-4 h-4" strokeWidth={2} />
                             {loading ? t('publish.free_cta_loading') : t('publish.free_cta')}
@@ -335,14 +335,14 @@ export default function PublishIndex({ project, baseDomain }: Props) {
                                     >
                                         <div className="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">{t('publish.plan_yearly_badge')}</div>
                                         <div className="font-bold text-white mb-1">{t('publish.plan_yearly_name')}</div>
-                                        <div className="text-2xl font-black text-white">{sym}{cur.pro_yearly ?? '9,99'}<span className="text-sm font-normal text-gray-400">{t('publish.per_month')} · {sym}{cur.pro_yearly_total ?? '119,88'}{t('publish.per_year')}</span></div>
+                                        <div className="text-2xl font-semibold text-white">{sym}{cur.pro_yearly ?? '9,99'}<span className="text-sm font-normal text-gray-400">{t('publish.per_month')} · {sym}{cur.pro_yearly_total ?? '119,88'}{t('publish.per_year')}</span></div>
                                     </button>
                                     <button
                                         onClick={() => setPlan('monthly')}
                                         className={`w-full p-5 rounded-xl border text-left transition-colors ${plan === 'monthly' ? 'border-violet-600 bg-violet-600/10' : 'border-gray-700 hover:border-gray-600'}`}
                                     >
                                         <div className="font-bold text-white mb-1">{t('publish.plan_monthly_name')}</div>
-                                        <div className="text-2xl font-black text-white">{sym}{cur.pro_monthly ?? '14,99'}<span className="text-sm font-normal text-gray-400">{t('publish.per_month')}</span></div>
+                                        <div className="text-2xl font-semibold text-white">{sym}{cur.pro_monthly ?? '14,99'}<span className="text-sm font-normal text-gray-400">{t('publish.per_month')}</span></div>
                                     </button>
                                 </div>
 

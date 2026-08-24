@@ -1,0 +1,40 @@
+/* ── Clínica Vera — centro médico ─────────────────────────────────────────
+   Blanco clínico, azul cian y verde menta. El electrocardiograma se dibuja de
+   izquierda a derecha en bucle detrás del contenido.                        */
+
+:root {
+  --bg: #f4f8fa; --bg-2: #ffffff; --bg-3: #e6eff3;
+  --ink: #16232b; --ink-dim: #5d7280; --ink-faint: #92a5b0;
+  --accent: #1e94ab; --accent-2: #3fbf9a;
+  --line: rgba(22,35,43,.11); --line-2: rgba(22,35,43,.2);
+  --f-display: 'Space Grotesk', sans-serif;
+}
+
+.kx-grain { mix-blend-mode: multiply; opacity: .03; }
+.pu-hero { overflow: hidden; }
+.pu-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.pu-title { font-size: clamp(2.8rem,8.5vw,7rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.pu-title em { color: var(--accent); font-family: var(--f-serif); }
+.pu-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+.pu-team { background: var(--bg-2); }
+.kx-card { background: var(--bg-2); }
+.kx-marquee { background: var(--ink); color: var(--bg); border-color: transparent; }
+.kx-marquee-item { color: var(--bg); }
+.kx-btn { --btn-bg: var(--ink); --btn-fg: var(--bg); }
+.kx-footer { background: var(--ink); }
+.kx-footer .kx-footer-grid a, .kx-footer p { color: rgba(240,250,253,.66); }
+.kx-footer .kx-footer-grid a:hover { color: #fff; }
+.kx-footer h4, .kx-footer-bot { color: rgba(240,250,253,.42); }
+.kx-footer-bot { border-top-color: rgba(240,250,253,.16); }
+.kx-footer-word { -webkit-text-stroke-color: rgba(240,250,253,.3); }
+
+@media (max-width: 900px) {
+  .pu-grid { grid-template-columns: 1fr; }
+  .pu-doc { max-width: 260px; order: -1; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #cfe4ea; }
+.pu-grid { grid-template-columns: 1fr; max-width: 44rem; }

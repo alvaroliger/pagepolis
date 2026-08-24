@@ -1,0 +1,37 @@
+/* ── Patas Arriba — clínica veterinaria ───────────────────────────────────
+   Turquesa y arena cálida. El perro mueve la cola, le tiemblan las orejas y
+   te sigue con la mirada: es el gancho de toda la página.                   */
+
+:root {
+  --bg: #0d201f; --bg-2: #132a29; --bg-3: #1b3735;
+  --ink: #f1faf8; --ink-dim: #8fa8a5; --ink-faint: #5e7674;
+  --accent: #2fc0ad; --accent-2: #f0a94b;
+  --line: rgba(190,240,235,.12); --line-2: rgba(190,240,235,.24);
+  --f-display: 'Bricolage Grotesque', sans-serif;
+}
+
+.pw-grid { display: grid; grid-template-columns: 1fr .95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; }
+.pw-title { font-weight: 700; font-size: clamp(2.8rem,8.5vw,7rem); letter-spacing: -.045em; margin: .6rem 0 1.3rem; }
+.pw-title em { color: var(--accent-2); font-family: var(--f-serif); font-weight: 400; }
+.pw-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem 2rem; margin-top: 1.8rem; }
+/* Cola: rápida y alegre, con el pivote en la grupa */ 
+/* Orejas: se mueven mucho más despacio, desfasadas entre sí */ 
+/* Lengua jadeando */ 
+
+.pw-clinic { background: var(--bg-2); }
+.kx-card p b { color: var(--accent-2); font-weight: 600; }
+.kx-marquee { background: var(--accent); color: #0b1c1b; border-color: transparent; }
+.kx-marquee-item { color: #0b1c1b; font-weight: 700; }
+.kx-marquee-item span { color: #0b1c1b; opacity: .55; }
+.kx-btn--accent { --btn-fg: #0b1c1b; }
+
+@media (max-width: 900px) {
+  .pw-grid { grid-template-columns: 1fr; }
+  .pw-dog { max-width: 300px; order: -1; }
+}
+
+/* ── Hero fotográfico ──────────────────────────────────────────────────
+   La ilustración vectorial se sustituyó por un plano real con cámara de
+   dron: el texto pasa a ir sobre la imagen, a una sola columna. */
+.kx-hero .kx-cam { --haze: #d8e6e4; }
+.pw-grid { grid-template-columns: 1fr; max-width: 44rem; }

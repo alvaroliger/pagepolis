@@ -1,0 +1,110 @@
+<div class="kx-progress"></div>
+<div class="kx-grain" aria-hidden="true"></div>
+
+<header class="kx-nav">
+  <a href="#top" class="kx-logo"><i>◇</i> HILO</a>
+  <nav class="kx-nav-links">
+    <a href="#coleccion">Colección</a><a href="#taller">Taller</a><a href="#tienda">Tienda</a>
+    <button id="cart-toggle" class="kx-btn kx-btn--sm" data-magnetic><span>Bolsa (<span id="cart-count">0</span>)</span></button>
+  </nav>
+  <button class="kx-burger" aria-label="Menú"><span></span><span></span><span></span></button>
+</header>
+
+<main id="top">
+  <!-- Tela que ondea: capas de tejido con una onda continua -->
+  <section class="kx-hero bo-hero">
+    <div class="bo-cloth" aria-hidden="true">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="boC1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3b2d3f"/><stop offset="100%" stop-color="#161018"/></linearGradient>
+          <linearGradient id="boC2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6a4a56"/><stop offset="100%" stop-color="#2a1e26"/></linearGradient>
+        </defs>
+        <path class="bo-wave" d="M0 320c180-90 300 60 480 10s280-150 420-90 300 130 300 130v330H0z" fill="url(#boC1)"/>
+        <path class="bo-wave bo-wave--b" d="M0 420c200-80 320 70 500 20s300-140 440-70 260 120 260 120v210H0z" fill="url(#boC2)" opacity=".8"/>
+      </svg>
+    </div>
+
+    <div class="kx-wrap kx-hero-inner">
+      <span class="kx-eyebrow" data-reveal>Taller de moda lenta · Barcelona</span>
+      <h1 class="kx-display bo-title" data-split>Poca ropa,<br><em>bien hecha</em></h1>
+      <div class="bo-foot">
+        <p class="kx-lede" data-reveal data-reveal-delay="0.15">Dos colecciones al año, tejidos naturales certificados y patronaje propio. Cosemos en un taller a veinte minutos de aquí y te decimos cuánto cobra quien lo cose.</p>
+        <a href="#tienda" class="kx-btn kx-btn--accent kx-btn--lg" data-magnetic data-reveal data-reveal-delay="0.25"><span>Ver la colección</span><span class="kx-arrow">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="kx-marquee kx-marquee--sm"><div class="kx-marquee-track"><div class="kx-marquee-item">Lino · Algodón orgánico · Lana merina · Tencel · Hecho en Cataluña ·</div></div></div>
+
+  <section id="tienda" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">01 — Colección</span><h2 class="kx-h2" data-split>Otoño / Invierno</h2></div></div>
+      <div class="kx-grid kx-grid--4">
+        <article class="kx-product kx-card" data-name="Abrigo de lana" data-price="245" data-reveal>
+          <figure><svg viewBox="0 0 160 200"><path d="M50 34h60l24 22-14 22-8-8v112H48V70l-8 8-14-22z" fill="#6a5a4a"/><path d="M80 34v144" stroke="#4c3f34" stroke-width="3"/></svg></figure>
+          <h3 class="kx-h3">Abrigo de lana</h3><span class="kx-price">245,00 €</span>
+          <button class="kx-btn kx-btn--ghost kx-btn--sm" data-add data-magnetic><span>Añadir</span></button>
+        </article>
+        <article class="kx-product kx-card" data-name="Camisa de lino" data-price="89" data-reveal data-reveal-delay="0.07">
+          <figure><svg viewBox="0 0 160 200"><path d="M56 36h48l22 18-12 20-6-6v106H52V68l-6 6-12-20z" fill="#c9c0ae"/><path d="M80 36v138" stroke="#a89e8b" stroke-width="3"/></svg></figure>
+          <h3 class="kx-h3">Camisa de lino</h3><span class="kx-price">89,00 €</span>
+          <button class="kx-btn kx-btn--ghost kx-btn--sm" data-add data-magnetic><span>Añadir</span></button>
+        </article>
+        <article class="kx-product kx-card" data-name="Pantalón recto" data-price="115" data-reveal data-reveal-delay="0.14">
+          <figure><svg viewBox="0 0 160 200"><path d="M52 32h56l6 150h-26l-8-88-8 88H46z" fill="#3f4652"/><path d="M52 32h56v14H52z" fill="#2c323b"/></svg></figure>
+          <h3 class="kx-h3">Pantalón recto</h3><span class="kx-price">115,00 €</span>
+          <button class="kx-btn kx-btn--ghost kx-btn--sm" data-add data-magnetic><span>Añadir</span></button>
+        </article>
+        <article class="kx-product kx-card" data-name="Jersey merino" data-price="132" data-reveal data-reveal-delay="0.21">
+          <figure><svg viewBox="0 0 160 200"><path d="M54 44h52l26 24-16 24-8-8v96H52V84l-8 8-16-24z" fill="#8a4c52"/><path d="M60 120h40M60 136h40" stroke="#6d3a40" stroke-width="3"/></svg></figure>
+          <h3 class="kx-h3">Jersey merino</h3><span class="kx-price">132,00 €</span>
+          <button class="kx-btn kx-btn--ghost kx-btn--sm" data-add data-magnetic><span>Añadir</span></button>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="taller" class="kx-section bo-shop">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">02 — Taller</span><h2 class="kx-h2" data-split>Dónde y quién lo cose</h2></div>
+        <p class="kx-lede" data-reveal>Un taller de nueve personas en Sabadell, con convenio y horario de verdad. Puedes visitarlo pidiendo cita.</p></div>
+      <div class="kx-stats" data-reveal>
+        <div class="kx-stat"><strong data-count="2">0</strong><span>Colecciones al año</span></div>
+        <div class="kx-stat"><strong data-count="9">0</strong><span>Personas en el taller</span></div>
+        <div class="kx-stat"><strong data-count="100" data-count-suffix="%">0</strong><span>Tejidos certificados</span></div>
+        <div class="kx-stat"><strong data-count="20" data-count-suffix=" km">0</strong><span>Del taller a la tienda</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="coleccion" class="kx-section">
+    <div class="kx-wrap">
+      <div class="kx-sec-head"><div><span class="kx-eyebrow">03 — Avisos</span><h2 class="kx-h2" data-split>Entérate de la próxima</h2></div></div>
+      <form class="kx-form" data-reveal>
+        <div class="kx-field"><input type="email" name="email" placeholder="Tu email" required></div>
+        <button type="submit" class="kx-btn kx-btn--accent kx-btn--lg" data-magnetic><span>Avísame</span><span class="kx-arrow">↗</span></button>
+        <p class="kx-form-ok">Apuntado. Escribimos dos veces al año, ni una más.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<aside id="cart-drawer">
+  <div style="display:flex;justify-content:space-between;align-items:center"><strong>Tu bolsa</strong><button id="cart-close" aria-label="Cerrar">×</button></div>
+  <div id="cart-items" style="flex:1;overflow:auto"></div>
+  <div style="display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--line)"><span>Total</span><strong id="cart-total">0,00 €</strong></div>
+  <a href="#tienda" class="kx-btn kx-btn--accent" data-magnetic><span>Tramitar pedido</span></a>
+</aside>
+
+<footer class="kx-footer">
+  <div class="kx-wrap">
+    <div class="kx-footer-grid">
+      <div><div class="kx-logo"><i>◇</i> HILO</div><p style="color:var(--ink-dim);margin-top:.9rem;max-width:34ch">Moda lenta hecha en Cataluña.</p></div>
+      <div><h4>Tienda</h4><a href="#tienda">Colección</a><a href="#taller">El taller</a><a href="#coleccion">Avisos</a></div>
+      <div><h4>Ayuda</h4><a href="#">Tallas</a><a href="#">Envíos</a><a href="#">Cambios</a></div>
+      <div><h4>Legal</h4><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Condiciones</a></div>
+    </div>
+    <div class="kx-footer-word">HILO</div>
+    <div class="kx-footer-bot"><span>© 2026 Hilo</span><span>Barcelona</span></div>
+  </div>
+</footer>
