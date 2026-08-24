@@ -34,7 +34,9 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
 |---|-----|----------|--------|
 | B3-1 | 🟡 | Plantillas casi duplicadas (mismo layout, solo cambia un asset). Auditar y consolidar. | PENDIENTE |
 | B3-2 | 🔴 | **Preview en negro / "rechazó la conexión"**: (a) `X-Frame-Options: DENY` global bloqueaba el iframe same-origin de la preview; (b) el sandbox de la galería era `allow-scripts` (origen opaco) → el motor no pintaba. | RESUELTO |
-| B3-3 | 🟠 | **84 plantillas hotlinkean vídeos de `videos.pexels.com`** (CDN de terceros). Frágil en prod: Pexels puede bloquear hotlink, va lento, y son las webs de tus clientes las que dependen de ello. Hay que auto-hospedar o dar poster+lazy fiable. | PENDIENTE |
+| B3-3 | 🔴 | **Miniaturas de la galería salían como manchas de degradado** (84 plantillas con vídeo): el generador capturaba antes de que cargara el vídeo remoto. ARREGLADO el generador (fuerza carga del vídeo; regenerar con `--tabs=1`). Regenerando las 84. | RESUELTO (generador) + regen en curso |
+| B3-4 | 🟠 | **84 plantillas hotlinkean vídeos de `videos.pexels.com`** (CDN de terceros). Aunque la miniatura ya se arregla, en PROD las webs de tus clientes dependen de que Pexels cargue rápido y no bloquee el hotlink. Decisión: auto-hospedar los vídeos o dar `poster` + lazy fiable. | PENDIENTE |
+| B3-5 | 🟠 | **CURACIÓN del catálogo (encargo de Álvaro):** analizar cada plantilla por atractivo comercial (público, por qué gustaría, por qué un cliente pasaría de ella), consolidar casi-duplicadas (mismo layout kinetic, distinto vídeo/color), y dejar un catálogo que VENDA. Construir/modificar/eliminar con criterio. NO borrar las que merezcan la pena. | PENDIENTE (bloque grande) |
 
 ## Bloque 4 — Marketplace (que el cliente venda sus productos)
 
