@@ -42,8 +42,12 @@ class TemplateController extends Controller
             ->where('is_active', true)
             ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count')
             // Se calcula en SQL para no tener que traerse el html (1,47 MB en
-            // total) solo para saber si la plantilla lleva hero 3D.
-            ->selectRaw("(CASE WHEN html LIKE '%data-hero3d%' OR html LIKE '%data-k3d%' THEN 1 ELSE 0 END) AS is_3d")
+            // total) solo para saber si la plantilla lleva hero 3D. Se detecta por
+            // los marcadores del motor (data-hero3d/data-k3d) Y por la presencia de
+            // un <canvas> (WebGL): 6 plantillas con hero 3D real por canvas —Nova,
+            // Atlas, Sentinel, Vidrio, Órbita, Hiperspacio— no llevaban esos
+            // marcadores y salían mal, en el grupo de "clásicas".
+            ->selectRaw("(CASE WHEN html LIKE '%data-hero3d%' OR html LIKE '%data-k3d%' OR html LIKE '%<canvas%' THEN 1 ELSE 0 END) AS is_3d")
             ->orderByDesc('uses_count')
             ->get()
             ->map(fn (Template $t) => [
