@@ -240,7 +240,6 @@ const Card = React.memo(function Card({ template, big, creating, onPreview, onUs
 }) {
     return (
         <div
-            data-tpl-card
             className={`group relative rounded-2xl overflow-hidden border transition-colors ${
                 big
                     ? 'bg-gray-900 border-violet-800/40 hover:border-violet-600/60'
@@ -360,48 +359,6 @@ export default function TemplatesIndex({ templates, categories }: Props) {
             onFinish: () => setCreating(null),
         });
     }, [templates]);
-
-    // ── Scroll POR FILAS ────────────────────────────────────────────────────
-    // Cada gesto de rueda baja/sube exactamente a la siguiente/anterior fila de
-    // plantillas, con animación suave (más profesional que el scroll libre del
-    // navegador). Se bloquea durante la animación para que el rebote del trackpad
-    // no salte varias filas: 1 gesto = 1 fila. NO se toca el teclado (flechas,
-    // AvPág, inicio/fin siguen normales) ni el táctil (móvil = scroll normal), ni
-    // se activa con el modal abierto ni al hacer zoom (Ctrl+rueda). Respeta
-    // "prefers-reduced-motion" saltando sin animación.
-    React.useEffect(() => {
-        if (previewId !== null) return;                 // modal abierto → scroll normal
-        const OFFSET = 64 + 16;                         // nav sticky (64) + aire
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        let locked = false;
-
-        const snapPoints = () => {
-            const tops = new Set<number>([0]);          // 0 = principio de la página
-            document.querySelectorAll('[data-tpl-card]').forEach(el => {
-                const top = Math.round(el.getBoundingClientRect().top + window.scrollY - OFFSET);
-                tops.add(Math.max(0, top));
-            });
-            return Array.from(tops).sort((a, b) => a - b);
-        };
-
-        const onWheel = (e: WheelEvent) => {
-            if (e.ctrlKey || Math.abs(e.deltaY) < 6) return;   // zoom o ruido → ignora
-            e.preventDefault();
-            if (locked) return;
-            const pts = snapPoints();
-            const y = window.scrollY;
-            const target = e.deltaY > 0
-                ? pts.find(p => p > y + 4)                      // siguiente fila
-                : [...pts].reverse().find(p => p < y - 4);      // fila anterior
-            if (target === undefined) return;                  // ya en el extremo
-            locked = true;
-            window.scrollTo({ top: target, behavior: reduced ? 'auto' : 'smooth' });
-            window.setTimeout(() => { locked = false; }, reduced ? 120 : 600);
-        };
-
-        window.addEventListener('wheel', onWheel, { passive: false });
-        return () => window.removeEventListener('wheel', onWheel);
-    }, [previewId]);
 
     return (
         <AuthenticatedLayout header={
