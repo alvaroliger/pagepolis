@@ -24,7 +24,8 @@ Estado: `PENDIENTE` · `EN CURSO` · `RESUELTO` · `INFO` (no requiere código, 
 
 | # | Sev | Problema | Estado |
 |---|-----|----------|--------|
-| B2-1 | 🟡 | **Enlaces muertos en plantillas.** Estructura OK: 264/272 con ≥3 secciones, 272/272 con `<nav>`, 271/272 con `<footer>` → son páginas completas, no "solo el hero" (eso era el bug de preview, ya resuelto). PERO **68/272 plantillas tienen `href="#"` muertos (317 en total)**, casi todos placeholders de footer (Instagram, LinkedIn, Privacidad, Contacto, teléfono…). Quedan "sin acabar" a la vista. | PENDIENTE (batch) |
+| B2-1 | 🟡 | **Enlaces en plantillas.** Estructura OK: 264/272 con ≥3 secciones, 272/272 `<nav>`, 271/272 `<footer>` → páginas completas. Anclas rotas (botón que scrollea a la nada): eran 2 (Casa Bella, Agencia) → **ARREGLADAS, 0 en las 271**. Quedan **314 `href="#"` placeholders en 67 plantillas** (footer/redes) — no rompen navegación, pero se ven "sin acabar". | ANCLAS ROTAS: RESUELTO · placeholders: PENDIENTE |
+| B2-4 | 🟢 | **Preview de la galería SIEMPRE en vivo con movimiento** (IntersectionObserver + tope 9): cada tarjeta visible muestra la plantilla real moviéndose. Verificado con diff de fotogramas. | RESUELTO |
 | B2-2 | 🟢 | Botones de la APP (dashboard/editor/crear/publicar): auditados, **sin handlers muertos** (todos con onClick/submit). Flujos con ruta+controlador reales (auth completa, billing, admin, reset pwd). Falta probar cada uno end-to-end. | PARCIAL |
 | B2-3 | 🟡 | Enlaces legales de footer de plantillas (`Privacidad`, `Términos`, `Aviso legal`) van a `#`: deberían apuntar a páginas reales o quitarse. | PENDIENTE |
 
