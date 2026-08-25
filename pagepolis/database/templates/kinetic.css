@@ -1024,6 +1024,20 @@ html.kx-loading, html.kx-loading body { overflow: hidden; }
   from { opacity: 0; transform: scale(1.05); }
   to   { opacity: 1; transform: scale(1); }
 }
+/* CON POSTER: un <video> vacío pinta su PÓSTER (no negro), así que se muestra
+   desde el primer instante. La miniatura de la galería y el visitante ven una
+   imagen real (no el degradado de respaldo) aunque el vídeo aún no haya cargado;
+   el vídeo se reproduce encima cuando llega. Mata el caso "vídeo pesado que no
+   carga" y hace fiable la captura de miniaturas. Más específico que las reglas
+   de arriba, así que gana sin tocar el comportamiento de los vídeos sin poster. */
+.kx-vhero-video[poster] { opacity: 1; }
+.kx-vhero-video[poster][data-loaded] {
+  animation: kx-vsettle-poster 1.8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes kx-vsettle-poster {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1); }
+}
 /* Velo para que el texto blanco se lea sobre cualquier fotograma */
 .kx-vhero-veil {
   position: absolute; inset: 0;
