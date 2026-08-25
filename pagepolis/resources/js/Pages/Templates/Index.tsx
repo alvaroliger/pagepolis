@@ -71,6 +71,11 @@ function TemplateThumb({ template }: { template: Template }) {
     // (vuelve a la imagen) al salir. Así todo lo que ves se mueve, pero el navegador
     // solo trabaja con las visibles (con tope duro de MAX_LIVE_PREVIEWS).
     const [live, setLive] = React.useState(false);
+    // El iframe tarda un instante en cargar el render; hasta que su onLoad no
+    // dispara, se mantiene invisible y se ve el POSTER (la miniatura) debajo, así
+    // no hay parpadeo en negro al entrar en pantalla: se ve bien desde el primer
+    // frame y, cuando el render está listo, aparece ya con movimiento.
+    const [loaded, setLoaded] = React.useState(false);
     const [dims, setDims] = React.useState({ w: 1280, h: 800 });
     const boxRef = React.useRef<HTMLDivElement>(null);
     const visibleRef = React.useRef(false);
@@ -88,6 +93,7 @@ function TemplateThumb({ template }: { template: Template }) {
             if (hasSlotRef.current) return;
             if (acquireLiveSlot(retry)) {
                 hasSlotRef.current = true;
+                setLoaded(false); // el iframe nuevo arranca invisible hasta que cargue
                 measure();
                 setLive(true);
             }
@@ -143,7 +149,14 @@ function TemplateThumb({ template }: { template: Template }) {
                     aria-hidden="true"
                     title=""
                     scrolling="no"
-                    style={{ width: dims.w, height: dims.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+                    onLoad={() => setLoaded(true)}
+                    style={{
+                        width: dims.w, height: dims.h,
+                        transform: `scale(${scale})`, transformOrigin: 'top left',
+                        // invisible hasta que el render carga -> se ve el poster debajo, sin negro
+                        opacity: loaded ? 1 : 0,
+                        transition: 'opacity .45s ease',
+                    }}
                     className="absolute inset-0 border-0 pointer-events-none"
                 />
             )}
