@@ -35,31 +35,119 @@ interface Props {
  * El navegador la descarga en paralelo, la descodifica fuera del hilo
  * principal y con loading="lazy" ni pide las que no se ven.
  */
+// ── Gestor global de "cupos" de preview en vivo ────────────────────────────
+// Aunque haya muchas tarjetas en pantalla, nunca hay más de MAX_LIVE iframes
+// vivos a la vez. Como el IntersectionObserver ya desmonta lo que sale del
+// viewport, en la práctica solo compiten las visibles (~9), pero este tope es
+// el seguro que garantiza el rendimiento pase lo que pase (móviles, ventanas
+// altas, scroll rápido).
+const MAX_LIVE_PREVIEWS = 9;
+let livePreviewCount = 0;
+const livePreviewWaiters = new Set<() => void>();
+
+function acquireLiveSlot(retry: () => void): boolean {
+    if (livePreviewCount < MAX_LIVE_PREVIEWS) {
+        livePreviewCount++;
+        return true;
+    }
+    livePreviewWaiters.add(retry); // sin cupo: se reintenta cuando se libere uno
+    return false;
+}
+function releaseLiveSlot() {
+    livePreviewCount = Math.max(0, livePreviewCount - 1);
+    const next = livePreviewWaiters.values().next();
+    if (!next.done) {
+        livePreviewWaiters.delete(next.value);
+        next.value();
+    }
+}
+
 function TemplateThumb({ template }: { template: Template }) {
     const [failed, setFailed] = React.useState(false);
+    // Preview SIEMPRE EN VIVO para lo que está en pantalla: la tarjeta muestra la
+    // plantilla REAL en movimiento (Ken Burns / vídeo / WebGL). Para que la rejilla
+    // no monte 271 iframes a la vez —eso tumbaba el navegador—, cada tarjeta se pone
+    // en vivo SOLO cuando entra en el viewport (IntersectionObserver) y se congela
+    // (vuelve a la imagen) al salir. Así todo lo que ves se mueve, pero el navegador
+    // solo trabaja con las visibles (con tope duro de MAX_LIVE_PREVIEWS).
+    const [live, setLive] = React.useState(false);
+    const [dims, setDims] = React.useState({ w: 1280, h: 800 });
+    const boxRef = React.useRef<HTMLDivElement>(null);
+    const visibleRef = React.useRef(false);
+    const hasSlotRef = React.useRef(false);
 
-    if (!template.thumbnail || failed) {
-        // Reserva: si a una plantilla aún no se le ha generado la miniatura,
-        // se enseña su inicial en vez de un hueco roto. NUNCA se vuelve al
-        // iframe: eso reintroduciría el problema que motivó todo esto.
-        return (
-            <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                <span className="text-4xl font-bold text-gray-600">{template.name.charAt(0)}</span>
-            </div>
-        );
-    }
+    React.useEffect(() => {
+        const el = boxRef.current;
+        if (!el) return;
+
+        const measure = () => {
+            const scale = el.clientWidth / 1280 || 0.3;
+            setDims({ w: 1280, h: el.clientHeight / scale });
+        };
+        const goLive = () => {
+            if (hasSlotRef.current) return;
+            if (acquireLiveSlot(retry)) {
+                hasSlotRef.current = true;
+                measure();
+                setLive(true);
+            }
+        };
+        const retry = () => { if (visibleRef.current) goLive(); };
+        const stopLive = () => {
+            if (hasSlotRef.current) {
+                hasSlotRef.current = false;
+                setLive(false);
+                releaseLiveSlot();
+            } else {
+                livePreviewWaiters.delete(retry);
+            }
+        };
+
+        const io = new IntersectionObserver((entries) => {
+            const vis = entries[0].isIntersecting;
+            visibleRef.current = vis;
+            if (vis) goLive(); else stopLive();
+        }, { rootMargin: '120px' }); // arranca un pelín antes de entrar en pantalla
+        io.observe(el);
+
+        return () => { io.disconnect(); if (hasSlotRef.current) releaseLiveSlot(); livePreviewWaiters.delete(retry); };
+    }, []);
+
+    const scale = boxRef.current ? boxRef.current.clientWidth / 1280 : 0.3;
 
     return (
-        <img
-            src={template.thumbnail}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            width={640}
-            height={400}
-            onError={() => setFailed(true)}
-            className="w-full h-full object-cover object-top"
-        />
+        <div ref={boxRef} className="w-full h-full relative overflow-hidden bg-gray-800">
+            {(!template.thumbnail || failed) ? (
+                <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-4xl font-bold text-gray-600">{template.name.charAt(0)}</span>
+                </div>
+            ) : (
+                // La imagen se queda debajo como cartel: se ve al instante y mientras
+                // el iframe carga, evitando parpadeos al entrar/salir del viewport.
+                <img
+                    src={template.thumbnail}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width={640}
+                    height={400}
+                    onError={() => setFailed(true)}
+                    className="w-full h-full object-cover object-top"
+                />
+            )}
+            {live && (
+                <iframe
+                    src={`/plantillas/${template.id}/render`}
+                    sandbox="allow-scripts allow-same-origin"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    title=""
+                    scrolling="no"
+                    style={{ width: dims.w, height: dims.h, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+                    className="absolute inset-0 border-0 pointer-events-none"
+                />
+            )}
+        </div>
     );
 }
 
