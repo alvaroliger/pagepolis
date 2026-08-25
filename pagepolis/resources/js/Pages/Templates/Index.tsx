@@ -80,6 +80,7 @@ function TemplateThumb({ template }: { template: Template }) {
     const boxRef = React.useRef<HTMLDivElement>(null);
     const visibleRef = React.useRef(false);
     const hasSlotRef = React.useRef(false);
+    const revealTimerRef = React.useRef<number | null>(null);
 
     React.useEffect(() => {
         const el = boxRef.current;
@@ -100,6 +101,7 @@ function TemplateThumb({ template }: { template: Template }) {
         };
         const retry = () => { if (visibleRef.current) goLive(); };
         const stopLive = () => {
+            if (revealTimerRef.current) { clearTimeout(revealTimerRef.current); revealTimerRef.current = null; }
             if (hasSlotRef.current) {
                 hasSlotRef.current = false;
                 setLive(false);
@@ -116,7 +118,7 @@ function TemplateThumb({ template }: { template: Template }) {
         }, { rootMargin: '120px' }); // arranca un pelín antes de entrar en pantalla
         io.observe(el);
 
-        return () => { io.disconnect(); if (hasSlotRef.current) releaseLiveSlot(); livePreviewWaiters.delete(retry); };
+        return () => { io.disconnect(); if (revealTimerRef.current) clearTimeout(revealTimerRef.current); if (hasSlotRef.current) releaseLiveSlot(); livePreviewWaiters.delete(retry); };
     }, []);
 
     const scale = boxRef.current ? boxRef.current.clientWidth / 1280 : 0.3;
@@ -149,13 +151,21 @@ function TemplateThumb({ template }: { template: Template }) {
                     aria-hidden="true"
                     title=""
                     scrolling="no"
-                    onLoad={() => setLoaded(true)}
+                    onLoad={() => {
+                        // El iframe dispara load al cargar su documento, pero el motor
+                        // (Ken Burns / vídeo / WebGL) aún tarda un instante en pintar el
+                        // primer frame: si lo mostramos ya, ese frame en negro se cuela.
+                        // Esperamos a que pinte y lo revelamos de golpe (sin fundido) sobre
+                        // el poster idéntico que hay debajo -> corte limpio, nada de negro.
+                        if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+                        revealTimerRef.current = window.setTimeout(() => setLoaded(true), 450);
+                    }}
                     style={{
                         width: dims.w, height: dims.h,
                         transform: `scale(${scale})`, transformOrigin: 'top left',
-                        // invisible hasta que el render carga -> se ve el poster debajo, sin negro
+                        // invisible hasta que el render ha pintado -> se ve el poster debajo;
+                        // sin transición, para que no haya ningún fundido en negro.
                         opacity: loaded ? 1 : 0,
-                        transition: 'opacity .45s ease',
                     }}
                     className="absolute inset-0 border-0 pointer-events-none"
                 />
