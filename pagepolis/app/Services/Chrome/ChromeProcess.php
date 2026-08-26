@@ -98,6 +98,13 @@ class ChromeProcess
             // ni las animaciones de las plantillas antes de la captura.
             '--autoplay-policy=no-user-gesture-required',
             '--disable-features=CalculateNativeWinOcclusion',
+            // Sin esto Chrome ralentiza rAF/timers de las pestañas que no están
+            // en primer plano (todas, en headless con varias pestañas): la
+            // animación se capturaría a trompicones. Con esto, cada pestaña pinta
+            // a ritmo real y el screencast sale suave.
+            '--disable-background-timer-throttling',
+            '--disable-renderer-backgrounding',
+            '--disable-backgrounding-occluded-windows',
             'about:blank',
         ];
 

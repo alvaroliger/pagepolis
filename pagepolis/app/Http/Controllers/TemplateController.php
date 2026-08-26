@@ -40,7 +40,7 @@ class TemplateController extends Controller
     {
         $templates = Template::query()
             ->where('is_active', true)
-            ->select('id', 'name', 'category', 'thumbnail', 'tags', 'is_premium', 'uses_count')
+            ->select('id', 'name', 'category', 'thumbnail', 'preview_video', 'tags', 'is_premium', 'uses_count')
             // Se calcula en SQL para no tener que traerse el html (1,47 MB en
             // total) solo para saber si la plantilla lleva hero 3D. Se detecta por
             // los marcadores del motor (data-hero3d/data-k3d) Y por la presencia de
@@ -51,11 +51,12 @@ class TemplateController extends Controller
             ->orderByDesc('uses_count')
             ->get()
             ->map(fn (Template $t) => [
-                'id'         => $t->id,
-                'name'       => $t->name,
-                'category'   => $t->category,
-                'thumbnail'  => $t->thumbnail,
-                'tags'       => $t->tags,
+                'id'            => $t->id,
+                'name'          => $t->name,
+                'category'      => $t->category,
+                'thumbnail'     => $t->thumbnail,
+                'preview_video' => $t->preview_video,
+                'tags'          => $t->tags,
                 'is_premium' => (bool) $t->is_premium,
                 'uses_count' => $t->uses_count,
                 'has_3d'     => (bool) $t->is_3d,

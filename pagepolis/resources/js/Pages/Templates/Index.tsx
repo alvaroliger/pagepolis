@@ -9,6 +9,7 @@ interface Template {
     name: string;
     category: string;
     thumbnail: string | null;
+    preview_video: string | null;
     tags: string[] | null;
     is_premium: boolean;
     uses_count: number;
@@ -21,114 +22,72 @@ interface Props {
 }
 
 /**
- * Miniatura de la rejilla: IMAGEN estática + UNA preview viva a la vez.
+ * Miniatura de la rejilla: un VÍDEO en bucle (el movimiento real de la plantilla)
+ * con la imagen estática de `poster`.
  *
- * La base es una imagen (la genera `php artisan templates:thumbnails` en Chrome,
- * así que es el render REAL, ~13 KB, pinta en ~5 ms). Se probó montar el render
- * en vivo en un iframe por tarjeta: medido con 218 plantillas fueron 38 MB de red
- * y 12,5 s de CPU en el hilo principal, porque los iframes del mismo origen NO
- * tienen proceso propio y hacían cola en el único hilo -> scroll a tirones.
+ * POR QUÉ VÍDEO Y NO IFRAME. Se probó montar el render en vivo en un iframe por
+ * tarjeta: medido con 218 plantillas fueron 38 MB de red y 12,5 s de CPU en el
+ * hilo principal, porque los iframes del mismo origen NO tienen proceso propio y
+ * competían por el único hilo -> scroll a tirones y segundos en gris. Un <video>
+ * se descodifica FUERA del hilo principal, así que el navegador puede reproducir
+ * muchos a la vez SIN tocar la fluidez del scroll. El vídeo lo pre-genera
+ * `php artisan templates:previews` (Chrome captura el hero en movimiento -> MP4).
  *
- * Solución para tener movimiento SIN romper la fluidez (ver coordinador abajo):
- * mientras haces scroll todo son imágenes (el scroll nunca compite con un
- * iframe); cuando el scroll se PARA, la tarjeta más centrada en el viewport se
- * pone en vivo (un único iframe) y muestra la plantilla moviéndose. Al volver a
- * mover, se apaga al instante. Ves el movimiento de aquello en lo que te
- * detienes y el scroll —clave en trackpad— va siempre suave.
+ * - `poster` = la miniatura estática (templates:thumbnails): se ve la imagen real
+ *   al instante y NUNCA se ve negro mientras el vídeo carga.
+ * - `preload="none"` + play/pause por IntersectionObserver: solo se descargan y
+ *   descodifican los vídeos VISIBLES; los de fuera de pantalla ni se piden.
+ * - Sin `preview_video` (aún no generado) cae a la imagen estática.
  */
-// ── Coordinador: una sola preview viva, la tarjeta centrada al parar el scroll ──
-type LiveCard = { el: HTMLElement; setActive: (v: boolean) => void };
-const liveCards = new Set<LiveCard>();
-let activeCard: LiveCard | null = null;
-let idleTimer: number | null = null;
-let scrollBound = false;
-
-function deactivateLive() {
-    if (activeCard) { activeCard.setActive(false); activeCard = null; }
-}
-function pickCenteredLive() {
-    const vh = window.innerHeight;
-    const cy = vh / 2;
-    let best: LiveCard | null = null;
-    let bestDist = Infinity;
-    for (const c of liveCards) {
-        const r = c.el.getBoundingClientRect();
-        if (r.bottom <= 0 || r.top >= vh) continue; // fuera de pantalla
-        const d = Math.abs((r.top + r.bottom) / 2 - cy);
-        if (d < bestDist) { bestDist = d; best = c; }
-    }
-    if (best && best !== activeCard) {
-        deactivateLive();
-        activeCard = best;
-        best.setActive(true);
-    }
-}
-function scheduleIdleLive() {
-    if (idleTimer) clearTimeout(idleTimer);
-    idleTimer = window.setTimeout(pickCenteredLive, 240);
-}
-function onScrollLive() {
-    deactivateLive();   // en cuanto te mueves, fuera iframes -> scroll fluido
-    scheduleIdleLive(); // cuando pares 240 ms, la centrada cobra vida
-}
-function ensureScrollBound() {
-    if (scrollBound) return;
-    scrollBound = true;
-    // capture:true para enterarnos también si el scroll ocurre en un contenedor
-    // interno (el evento scroll no burbujea, pero sí baja en fase de captura).
-    window.addEventListener('scroll', onScrollLive, { passive: true, capture: true });
-    window.addEventListener('resize', onScrollLive, { passive: true });
-}
-function registerLiveCard(c: LiveCard) {
-    liveCards.add(c);
-    ensureScrollBound();
-    scheduleIdleLive(); // recalcula por si esta nueva es la centrada al cargar
-}
-function unregisterLiveCard(c: LiveCard) {
-    liveCards.delete(c);
-    if (activeCard === c) activeCard = null;
-}
-
 function TemplateThumb({ template }: { template: Template }) {
     const [failed, setFailed] = React.useState(false);
-    const [active, setActive] = React.useState(false); // en vivo: tarjeta centrada, scroll parado
-    const [loaded, setLoaded] = React.useState(false); // el iframe ya ha pintado
-    const [dims, setDims] = React.useState({ w: 1280, h: 800 });
-    const boxRef = React.useRef<HTMLDivElement>(null);
-    const revealTimerRef = React.useRef<number | null>(null);
+    const vidRef = React.useRef<HTMLVideoElement>(null);
+    const hasVideo = !!template.preview_video && !failed;
 
+    // Solo se reproducen los vídeos que están en pantalla (o a punto): así, aunque
+    // haya 271 tarjetas, el navegador solo descodifica ~una decena a la vez.
     React.useEffect(() => {
-        const el = boxRef.current;
-        if (!el) return;
-        const card: LiveCard = {
-            el,
-            setActive: (v: boolean) => {
-                if (v) {
-                    const scale = el.clientWidth / 1280 || 0.3;
-                    setDims({ w: 1280, h: el.clientHeight / scale });
-                    setLoaded(false); // arranca invisible: se ve la miniatura hasta pintar
-                }
-                setActive(v);
-            },
-        };
-        registerLiveCard(card);
-        return () => {
-            unregisterLiveCard(card);
-            if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-        };
-    }, []);
+        const v = vidRef.current;
+        if (!v || !hasVideo) return;
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) {
+                const p = v.play();
+                if (p && p.catch) p.catch(() => {});
+            } else {
+                v.pause();
+            }
+        }, { rootMargin: '200px' }); // arranca un pelín antes de entrar en pantalla
+        io.observe(v);
+        return () => io.disconnect();
+    }, [hasVideo]);
 
-    const scale = boxRef.current ? boxRef.current.clientWidth / 1280 : 0.3;
+    if ((!template.thumbnail && !template.preview_video) || failed && !template.thumbnail) {
+        return (
+            <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                <span className="text-4xl font-bold text-gray-600">{template.name.charAt(0)}</span>
+            </div>
+        );
+    }
 
     return (
-        <div ref={boxRef} className="w-full h-full relative overflow-hidden bg-gray-800">
-            {(!template.thumbnail || failed) ? (
-                <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-4xl font-bold text-gray-600">{template.name.charAt(0)}</span>
-                </div>
+        <div className="w-full h-full relative overflow-hidden bg-gray-800">
+            {hasVideo ? (
+                <video
+                    ref={vidRef}
+                    src={template.preview_video!}
+                    poster={template.thumbnail ?? undefined}
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    onError={() => setFailed(true)} // si el vídeo falla, cae al poster/imagen
+                    className="w-full h-full object-cover object-top"
+                />
             ) : (
                 <img
-                    src={template.thumbnail}
+                    src={template.thumbnail!}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -136,28 +95,6 @@ function TemplateThumb({ template }: { template: Template }) {
                     height={400}
                     onError={() => setFailed(true)}
                     className="w-full h-full object-cover object-top"
-                />
-            )}
-            {active && (
-                <iframe
-                    src={`/plantillas/${template.id}/render`}
-                    sandbox="allow-scripts allow-same-origin"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    title=""
-                    scrolling="no"
-                    onLoad={() => {
-                        // Revelar solo cuando el motor ya ha pintado, para que no se
-                        // cuele un frame en negro. Debajo se ve la miniatura mientras.
-                        if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-                        revealTimerRef.current = window.setTimeout(() => setLoaded(true), 400);
-                    }}
-                    style={{
-                        width: dims.w, height: dims.h,
-                        transform: `scale(${scale})`, transformOrigin: 'top left',
-                        opacity: loaded ? 1 : 0, // sin transición: corte limpio sobre la miniatura
-                    }}
-                    className="absolute inset-0 border-0 pointer-events-none"
                 />
             )}
         </div>

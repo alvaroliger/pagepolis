@@ -120,6 +120,46 @@ class CdpConnection
         return $this->receive($this->send($method, $params), $timeout);
     }
 
+    /**
+     * Espera al siguiente evento de un método y devuelve el mensaje COMPLETO
+     * (con sus params), o null si expira. Lo usa la captura por screencast, que
+     * necesita los datos de cada `Page.screencastFrame`.
+     */
+    public function nextEvent(string $method, float $timeout = 10.0): ?array
+    {
+        foreach ($this->pending as $i => $message) {
+            if (($message['method'] ?? null) === $method) {
+                unset($this->pending[$i]);
+
+                return $message;
+            }
+        }
+
+        $deadline = microtime(true) + $timeout;
+        while (microtime(true) < $deadline) {
+            $message = $this->readMessage($deadline - microtime(true));
+            if ($message === null) {
+                continue;
+            }
+            if (($message['method'] ?? null) === $method) {
+                return $message;
+            }
+            $this->pending[] = $message;
+        }
+
+        return null;
+    }
+
+    /**
+     * Descarta mensajes pendientes sin consumir (respuestas de acks del
+     * screencast, eventos sueltos). Se llama entre plantillas al reutilizar la
+     * pestaña para que $pending no crezca sin límite.
+     */
+    public function clearPending(): void
+    {
+        $this->pending = [];
+    }
+
     /** Espera a que llegue un evento concreto. Devuelve false si expira. */
     public function waitForEvent(string $method, float $timeout = 10.0): bool
     {

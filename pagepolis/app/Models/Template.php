@@ -13,6 +13,7 @@ class Template extends Model
         'name',
         'category',
         'thumbnail',
+        'preview_video',
         'html',
         'css',
         'js',
